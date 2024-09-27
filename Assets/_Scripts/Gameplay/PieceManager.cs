@@ -92,6 +92,7 @@ public class PieceManager : MonoBehaviour
                 MovePiece(selectedPiecePosition, position);
                 bool millFormed = CheckForMill(position, GameManager.Instance.IsPlayer1Turn());
                 GameManager.Instance.PiecePlacedByPlayer(millFormed);
+                BoardManager.Instance.HideHightlightsFromBoardPositions();
             }
             else
             {
@@ -102,6 +103,7 @@ public class PieceManager : MonoBehaviour
         {
             if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
             {
+                BoardManager.Instance.HideHightlightsFromBoardPositions();
                 SelectPiece(position);
             }
         }
@@ -131,7 +133,25 @@ public class PieceManager : MonoBehaviour
         DeselectAllPieces();
         selectedPiecePosition = position;
         position.occupyingPiece.HighlightPiece(true);
+
+        foreach (var adjacentPosition in position.adjacentPositions)
+        {
+            if (!adjacentPosition.isOccupied)
+            {
+                adjacentPosition.HighlightBoardPosition(true);
+            }
+            else
+            {
+                adjacentPosition.HighlightBoardPosition(false);
+            }
+        }
+
         Debug.Log("Selected piece at: " + position.name);
+    }
+
+    public void GetAdjacentBoardPositionsFromAPiece()
+    {
+
     }
 
     void DeselectAllPieces()

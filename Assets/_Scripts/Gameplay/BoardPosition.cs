@@ -39,4 +39,9 @@ public class BoardPosition : MonoBehaviour
     {
         return adjacentPositions.Contains(other);
     }
+
+    public void HighlightBoardPosition(bool on)
+    {
+        highlightSpriteRenderer.enabled = on;
+    }
 }
