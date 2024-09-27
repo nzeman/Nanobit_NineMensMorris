@@ -12,6 +12,12 @@ public class GameManager : MonoBehaviour
     private int piecesPlacedPlayer1 = 0;
     private int piecesPlacedPlayer2 = 0;
 
+    public void Start()
+    {
+        SetUi();
+        GameUIManager.Instance.gameView.SetTurnText("PLAYER 1");
+    }
+
     // Called when a piece is placed or moved
     public void PiecePlacedByPlayer(bool millFormed)
     {
@@ -27,7 +33,8 @@ public class GameManager : MonoBehaviour
             if (piecesPlacedPlayer1 >= maxPiecesPerPlayer && piecesPlacedPlayer2 >= maxPiecesPerPlayer)
             {
                 currentPhase = GamePhase.Moving;
-                Debug.Log("Transitioning to Moving Phase.");
+                GameUIManager.Instance.gameView.SetTopText("Transitioning to Moving Phase");
+                Debug.Log("Transitioning to Moving Phase");
             }
         }
 
@@ -37,12 +44,24 @@ public class GameManager : MonoBehaviour
             gamePhasePriorToMillRemoval = currentPhase;
             currentPhase = GamePhase.MillRemoval;
             Debug.Log("Mill formed! Player must remove an opponent's piece.");
+            GameUIManager.Instance.gameView.SetTopText("Mill formed! Player must remove an opponent's piece.");
         }
         else
         {
             // Switch the turn after each valid piece placement or move
             isPlayer1Turn = !isPlayer1Turn;
-            Debug.Log("Player turn switched. It is now " + (isPlayer1Turn ? "Player 1's" : "Player 2's") + " turn.");
+
+            if (isPlayer1Turn)
+            {
+                GameUIManager.Instance.gameView.SetTurnText("PLAYER 1");
+                Debug.Log("Player 1 turn");
+            }
+            else
+            {
+                GameUIManager.Instance.gameView.SetTurnText("PLAYER 2");
+                Debug.Log("Player 2 turn");
+            }
+            SetUi();
         }
     }
 
@@ -55,8 +74,32 @@ public class GameManager : MonoBehaviour
     // Switch back to the normal game phase after a piece is removed
     public void PieceRemoved()
     {
+        Debug.Log("Piece removed");
         currentPhase = gamePhasePriorToMillRemoval;
         isPlayer1Turn = !isPlayer1Turn; // Switch turns after removal
-        Debug.Log("Piece removed. It is now " + (isPlayer1Turn ? "Player 1's" : "Player 2's") + " turn.");
+        if (isPlayer1Turn)
+        {
+            GameUIManager.Instance.gameView.SetTurnText("PLAYER 1");
+            SetUi();
+            Debug.Log("Player 1 turn");
+        }
+        else
+        {
+            GameUIManager.Instance.gameView.SetTurnText("PLAYER 2");
+            SetUi();
+            Debug.Log("Player 2 turn");
+        }
+    }
+
+    public void SetUi()
+    {
+        if (currentPhase == GamePhase.Placing)
+        {
+            GameUIManager.Instance.gameView.SetTopText("PLACE YOUR PIECES");
+        }
+        else if (currentPhase == GamePhase.Moving)
+        {
+            GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECES");
+        }
     }
 }
