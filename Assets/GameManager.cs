@@ -1,9 +1,11 @@
+using DG.Tweening.Core.Easing;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     public enum GamePhase { Placing, Moving, MillRemoval }
     public GamePhase currentPhase = GamePhase.Placing;
+    public GamePhase gamePhasePriorToMillRemoval = GamePhase.Placing;
 
     private bool isPlayer1Turn = true; // Track which player's turn it is
     public int maxPiecesPerPlayer = 9;
@@ -32,6 +34,7 @@ public class GameManager : MonoBehaviour
         // If a mill was formed, switch to Mill Removal Phase
         if (millFormed)
         {
+            gamePhasePriorToMillRemoval = currentPhase;
             currentPhase = GamePhase.MillRemoval;
             Debug.Log("Mill formed! Player must remove an opponent's piece.");
         }
@@ -52,7 +55,7 @@ public class GameManager : MonoBehaviour
     // Switch back to the normal game phase after a piece is removed
     public void PieceRemoved()
     {
-        currentPhase = currentPhase == GamePhase.Placing ? GamePhase.Placing : GamePhase.Moving;
+        currentPhase = gamePhasePriorToMillRemoval;
         isPlayer1Turn = !isPlayer1Turn; // Switch turns after removal
         Debug.Log("Piece removed. It is now " + (isPlayer1Turn ? "Player 1's" : "Player 2's") + " turn.");
     }

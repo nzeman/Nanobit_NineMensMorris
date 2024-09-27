@@ -33,7 +33,7 @@ public class PieceManager : MonoBehaviour
 
         if (gameManager.currentPhase == GameManager.GamePhase.MillRemoval && hitPiece.collider != null)
         {
-            BoardPosition boardPosition = hitPiece.collider.GetComponentInParent<BoardPosition>();
+            BoardPosition boardPosition = hitBoard.collider.GetComponent<BoardPosition>();
             HandleMillRemoval(boardPosition);
         }
         else if (hitBoard.collider != null)
@@ -163,6 +163,7 @@ public class PieceManager : MonoBehaviour
         {
             if (!IsInMill(position) || AllOpponentPiecesInMill())
             {
+                
                 Destroy(position.occupyingPiece);
                 position.ClearPosition();
                 gameManager.PieceRemoved();
