@@ -9,8 +9,9 @@ public class PieceManager : MonoBehaviour
     public LayerMask pieceLayer;
 
     private GameManager gameManager;
-    private BoardPosition selectedPiecePosition;
+    [SerializeField] private BoardPosition selectedPiecePosition;
     public List<BoardPosition> allBoardPositions;
+    public List<Piece> allPieces;
 
     void Start()
     {
@@ -63,6 +64,7 @@ public class PieceManager : MonoBehaviour
 
     void HandleMovingPhase(BoardPosition position)
     {
+        // there is nothing selected currently
         if (selectedPiecePosition == null && position.isOccupied)
         {
             if (position.occupyingPiece.CompareTag(gameManager.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
@@ -83,6 +85,13 @@ public class PieceManager : MonoBehaviour
                 Debug.Log("Invalid move: Not adjacent");
             }
         }
+        else if (selectedPiecePosition != null && position.isOccupied)
+        {
+            if (position.occupyingPiece.CompareTag(gameManager.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
+            {
+                SelectPiece(position);
+            }
+        }
     }
 
     void PlacePiece(BoardPosition position, bool isPlayer1Turn)
@@ -90,11 +99,13 @@ public class PieceManager : MonoBehaviour
         GameObject piecePrefab = isPlayer1Turn ? piecePrefabPlayer1 : piecePrefabPlayer2;
         GameObject piece = Instantiate(piecePrefab, position.transform.position, Quaternion.identity);
         position.OccupyPosition(piece);
+        allPieces.Add(piece.GetComponent<Piece>());
     }
 
     void MovePiece(BoardPosition from, BoardPosition to)
     {
         GameObject piece = from.occupyingPiece;
+        piece.GetComponent<Piece>().selectedSprite.gameObject.SetActive(false);
         from.ClearPosition();
         to.OccupyPosition(piece);
         piece.transform.position = to.transform.position;
@@ -103,8 +114,18 @@ public class PieceManager : MonoBehaviour
 
     void SelectPiece(BoardPosition position)
     {
+        DeselectAllPieces();
         selectedPiecePosition = position;
+        position.occupyingPiece.GetComponent<Piece>().selectedSprite.gameObject.SetActive(true);
         Debug.Log("Selected piece at: " + position.name);
+    }
+
+    void DeselectAllPieces()
+    {
+        foreach (var piece in allPieces)
+        {
+            piece.selectedSprite.gameObject.SetActive(false);
+        }
     }
 
     bool CheckForMill(BoardPosition position, bool isPlayer1Turn)
@@ -163,7 +184,7 @@ public class PieceManager : MonoBehaviour
         {
             if (!IsInMill(position) || AllOpponentPiecesInMill())
             {
-                
+                allPieces.Remove(position.occupyingPiece.GetComponent<Piece>());
                 Destroy(position.occupyingPiece);
                 position.ClearPosition();
                 gameManager.PieceRemoved();
