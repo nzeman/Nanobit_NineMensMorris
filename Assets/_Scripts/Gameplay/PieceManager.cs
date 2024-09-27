@@ -207,16 +207,27 @@ public class PieceManager : MonoBehaviour
         }
         else
         {
+
+            // no flying
+            int countAdjacent = 0;
             foreach (var adjacentPosition in position.adjacentPositions)
             {
                 if (!adjacentPosition.isOccupied)
                 {
                     adjacentPosition.HighlightBoardPosition(true);
+                    countAdjacent++;
                 }
                 else
                 {
                     adjacentPosition.HighlightBoardPosition(false);
                 }
+            }
+
+            if (countAdjacent == 0)
+            {
+                Debug.Log("Selected piece has no adjacent position that is not occupied, and there is no flying. You cannot move this piece!");
+                // TODO add different outline or something here, so it's more clear that you cannot move it
+                selectedPiecePosition.occupyingPiece.HighlightPiece(false);
             }
         }
 
