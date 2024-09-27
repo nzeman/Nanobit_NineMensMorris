@@ -133,21 +133,29 @@ public class PieceManager : MonoBehaviour
         Vector3 spawnPos = new Vector3(0f, 10f, 0f);
         GameObject piece = Instantiate(piecePrefab, spawnPos, Quaternion.identity);
         Piece p = piece.GetComponent<Piece>();
+
+        p.boardPosition = position;
+
         piece.transform.DOJump(position.transform.position, 5f, 1, .3f);
         position.OccupyPosition(p);
         allPieces.Add(p);
     }
 
+
     void MovePiece(BoardPosition from, BoardPosition to)
     {
         Piece piece = from.occupyingPiece;
         piece.HighlightPiece(false);
+
         from.ClearPosition();
+        piece.boardPosition = to;
+
         to.OccupyPosition(piece);
-        //piece.transform.position = to.transform.position;
         piece.transform.DOMove(to.transform.position, .3f);
+
         selectedPiecePosition = null;
     }
+
 
     void SelectPiece(BoardPosition position)
     {
@@ -292,18 +300,12 @@ public class PieceManager : MonoBehaviour
             return;
         }
 
-        if (GameManager.Instance == null)
-        {
-            Debug.LogError("GameManager is not set! Cannot proceed with mill removal.");
-            return;
-        }
-
         if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player2Piece" : "Player1Piece"))
         {
-            if (!IsInMill(position) || AllOpponentPiecesInMill())
+            if (!IsInMill(position) || AllOpponentPiecesInMill() || IsEndgameScenario())
             {
+                // Remove the opponent's piece
                 allPieces.Remove(position.occupyingPiece);
-                //Destroy(position.occupyingPiece);
                 Destroy(position.occupyingPiece.gameObject);
                 position.ClearPosition();
                 GameManager.Instance.PieceRemoved();
@@ -318,6 +320,14 @@ public class PieceManager : MonoBehaviour
             Debug.Log("Piece does not belong to the opponent.");
         }
     }
+
+    bool IsEndgameScenario()
+    {
+        int player1PieceCount = GetPieceCountForPlayer(true);
+        int player2PieceCount = GetPieceCountForPlayer(false);
+        return player1PieceCount <= 3 || player2PieceCount <= 3;
+    }
+
 
     bool IsInMill(BoardPosition position)
     {

@@ -120,12 +120,19 @@ public class GameManager : MonoBehaviour
         return isPlayer1Turn;
     }
 
-    // Switch back to the normal game phase after a piece is removed
     public void PieceRemoved()
     {
         Debug.Log("Piece removed");
+
+        if (CheckLossByPieceCount() || (CheckLossByNoValidMoves() && currentPhase == GamePhase.Moving))
+        {
+            DeclareWinner(IsPlayer1Turn());
+            return;
+        }
+
         currentPhase = gamePhasePriorToMillRemoval;
-        isPlayer1Turn = !isPlayer1Turn; // Switch turns after removal
+        isPlayer1Turn = !isPlayer1Turn; 
+
         if (isPlayer1Turn)
         {
             GameUIManager.Instance.gameView.SetTurnText("PLAYER 1");
@@ -143,8 +150,10 @@ public class GameManager : MonoBehaviour
         {
             BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
         }
+
         PieceManager.Instance.UnhighlightAllPieces();
     }
+
 
     public void SetUi()
     {
@@ -156,5 +165,86 @@ public class GameManager : MonoBehaviour
         {
             GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECES");
         }
+    }
+
+    public bool CheckLossByPieceCount()
+    {
+        int player1Pieces = 0;
+        int player2Pieces = 0;
+
+        foreach (var piece in PieceManager.Instance.allPieces)
+        {
+            if (piece.CompareTag("Player1Piece"))
+            {
+                player1Pieces++;
+            }
+            else if (piece.CompareTag("Player2Piece"))
+            {
+                player2Pieces++;
+            }
+        }
+
+        if (player1Pieces < 3)
+        {
+            DeclareWinner(isPlayer1Turn: false);
+            return true;
+        }
+        if (player2Pieces < 3)
+        {
+            DeclareWinner(isPlayer1Turn: true);
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool CheckLossByNoValidMoves()
+    {
+        foreach (var piece in PieceManager.Instance.allPieces)
+        {
+            if (piece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
+            {
+                if (HasAnyValidMove(piece))
+                {
+                    return false;
+                }
+            }
+        }
+
+        DeclareWinner(isPlayer1Turn: !GameManager.Instance.IsPlayer1Turn());
+        return true;
+    }
+
+    bool HasAnyValidMove(Piece piece)
+    {
+        if (PieceManager.Instance.IsFlyingPhaseForCurrentTurnPlayer())
+        {
+            foreach (var position in BoardManager.Instance.allBoardPositions)
+            {
+                if (!position.isOccupied)
+                {
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            foreach (var adjacent in piece.boardPosition.adjacentPositions)
+            {
+                if (!adjacent.isOccupied)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public void DeclareWinner(bool isPlayer1Turn)
+    {
+        string winner = isPlayer1Turn ? "Player 1" : "Player 2";
+        Debug.Log(winner + " wins!");
+        GameUIManager.Instance.gameView.SetTopText(winner + " wins!!!!!!!!!!!!!!!!!!!!!!!");
     }
 }
