@@ -13,6 +13,7 @@ public class BoardPosition : MonoBehaviour
     public void SetIndex(int i)
     {
         index = i;
+        name = i.ToString();
     }
 
     public int GetIndex()

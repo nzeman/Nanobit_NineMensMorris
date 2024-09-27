@@ -9,6 +9,7 @@ public class BoardManager : MonoBehaviour
     public float spacing = 2f;
     public float lineWidth = 0.1f;
 
+    public List<BoardPosition> allBoardPositions = new List<BoardPosition>();
     private List<List<BoardPosition>> ringPoints = new List<List<BoardPosition>>();
     private List<GameObject> lines = new List<GameObject>();
 
@@ -50,8 +51,10 @@ public class BoardManager : MonoBehaviour
         {
             GameObject point = Instantiate(pointPrefab, positions[i], Quaternion.identity);
             BoardPosition boardPos = point.GetComponent<BoardPosition>();
+            boardPos.transform.SetParent(transform);
             boardPos.SetIndex(ringIndex * positions.Length + i); // Assign a unique index
             currentRingPoints.Add(boardPos);
+            allBoardPositions.Add(boardPos);
         }
 
         ringPoints.Add(currentRingPoints);

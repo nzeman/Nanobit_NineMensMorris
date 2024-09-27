@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Piece : MonoBehaviour
 {
+    public BoardPosition boardPosition;
     public SpriteRenderer selectedSprite;
 
     public void HighlightPiece(bool on)

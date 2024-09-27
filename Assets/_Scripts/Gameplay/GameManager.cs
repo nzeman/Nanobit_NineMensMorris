@@ -3,6 +3,20 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+
+    #region Singleton
+    private static GameManager _Instance;
+    public static GameManager Instance
+    {
+        get
+        {
+            if (_Instance == null)
+                _Instance = FindObjectOfType<GameManager>();
+            return _Instance;
+        }
+    }
+    #endregion
+
     public enum GamePhase { Placing, Moving, MillRemoval }
     public GamePhase currentPhase = GamePhase.Placing;
     public GamePhase gamePhasePriorToMillRemoval = GamePhase.Placing;
@@ -41,10 +55,7 @@ public class GameManager : MonoBehaviour
         // If a mill was formed, switch to Mill Removal Phase
         if (millFormed)
         {
-            gamePhasePriorToMillRemoval = currentPhase;
-            currentPhase = GamePhase.MillRemoval;
-            Debug.Log("Mill formed! Player must remove an opponent's piece.");
-            GameUIManager.Instance.gameView.SetTopText("Mill formed! Player must remove an opponent's piece.");
+            OnMillFormed();
         }
         else
         {
@@ -62,6 +73,37 @@ public class GameManager : MonoBehaviour
                 Debug.Log("Player 2 turn");
             }
             SetUi();
+        }
+    }
+
+    public void OnMillFormed()
+    {
+        gamePhasePriorToMillRemoval = currentPhase;
+        currentPhase = GamePhase.MillRemoval;
+        Debug.Log("Mill formed! Player must remove an opponent's piece.");
+        GameUIManager.Instance.gameView.SetTopText("Mill formed! Player must remove an opponent's piece.");
+
+        if (IsPlayer1Turn())
+        {
+            foreach (var piece in PieceManager.Instance.allPieces)
+            {
+                if (piece.CompareTag("Player2Piece"))
+                {
+                    piece.HighlightPiece(true);
+                }
+                
+            }
+        }
+        else
+        {
+            foreach (var piece in PieceManager.Instance.allPieces)
+            {
+                if (piece.CompareTag("Player1Piece"))
+                {
+                    piece.HighlightPiece(true);
+                }
+
+            }
         }
     }
 
@@ -89,6 +131,8 @@ public class GameManager : MonoBehaviour
             SetUi();
             Debug.Log("Player 2 turn");
         }
+
+        PieceManager.Instance.UnhighlightAllPieces();
     }
 
     public void SetUi()

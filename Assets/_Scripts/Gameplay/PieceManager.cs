@@ -3,19 +3,31 @@ using UnityEngine;
 
 public class PieceManager : MonoBehaviour
 {
+    #region Singleton
+    private static PieceManager _Instance;
+    public static PieceManager Instance
+    {
+        get
+        {
+            if (_Instance == null)
+                _Instance = FindObjectOfType<PieceManager>();
+            return _Instance;
+        }
+    }
+    #endregion
+
     public GameObject piecePrefabPlayer1;
     public GameObject piecePrefabPlayer2;
     public LayerMask boardLayer;
     public LayerMask pieceLayer;
 
-    private GameManager gameManager;
     [SerializeField] private BoardPosition selectedPiecePosition;
     public List<BoardPosition> allBoardPositions;
     public List<Piece> allPieces;
 
     void Start()
     {
-        gameManager = FindObjectOfType<GameManager>();
+
     }
 
     void Update()
@@ -32,20 +44,21 @@ public class PieceManager : MonoBehaviour
         RaycastHit2D hitPiece = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, pieceLayer);
         RaycastHit2D hitBoard = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, boardLayer);
 
-        if (gameManager.currentPhase == GameManager.GamePhase.MillRemoval && hitPiece.collider != null)
+        if (GameManager.Instance.currentPhase == GameManager.GamePhase.MillRemoval && hitPiece.collider != null)
         {
             BoardPosition boardPosition = hitBoard.collider.GetComponent<BoardPosition>();
             HandleMillRemoval(boardPosition);
         }
+        
         else if (hitBoard.collider != null)
         {
             BoardPosition boardPosition = hitBoard.collider.GetComponent<BoardPosition>();
 
-            if (gameManager.currentPhase == GameManager.GamePhase.Placing)
+            if (GameManager.Instance.currentPhase == GameManager.GamePhase.Placing)
             {
                 HandlePlacingPhase(boardPosition);
             }
-            else if (gameManager.currentPhase == GameManager.GamePhase.Moving)
+            else if (GameManager.Instance.currentPhase == GameManager.GamePhase.Moving)
             {
                 HandleMovingPhase(boardPosition);
             }
@@ -56,9 +69,9 @@ public class PieceManager : MonoBehaviour
     {
         if (!position.isOccupied)
         {
-            PlacePiece(position, gameManager.IsPlayer1Turn());
-            bool millFormed = CheckForMill(position, gameManager.IsPlayer1Turn());
-            gameManager.PiecePlacedByPlayer(millFormed);
+            PlacePiece(position, GameManager.Instance.IsPlayer1Turn());
+            bool millFormed = CheckForMill(position, GameManager.Instance.IsPlayer1Turn());
+            GameManager.Instance.PiecePlacedByPlayer(millFormed);
         }
     }
 
@@ -67,7 +80,7 @@ public class PieceManager : MonoBehaviour
         // there is nothing selected currently
         if (selectedPiecePosition == null && position.isOccupied)
         {
-            if (position.occupyingPiece.CompareTag(gameManager.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
+            if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
             {
                 SelectPiece(position);
             }
@@ -77,8 +90,8 @@ public class PieceManager : MonoBehaviour
             if (selectedPiecePosition.IsAdjacent(position))
             {
                 MovePiece(selectedPiecePosition, position);
-                bool millFormed = CheckForMill(position, gameManager.IsPlayer1Turn());
-                gameManager.PiecePlacedByPlayer(millFormed);
+                bool millFormed = CheckForMill(position, GameManager.Instance.IsPlayer1Turn());
+                GameManager.Instance.PiecePlacedByPlayer(millFormed);
             }
             else
             {
@@ -87,7 +100,7 @@ public class PieceManager : MonoBehaviour
         }
         else if (selectedPiecePosition != null && position.isOccupied)
         {
-            if (position.occupyingPiece.CompareTag(gameManager.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
+            if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
             {
                 SelectPiece(position);
             }
@@ -175,13 +188,13 @@ public class PieceManager : MonoBehaviour
             return;
         }
 
-        if (gameManager == null)
+        if (GameManager.Instance == null)
         {
             Debug.LogError("GameManager is not set! Cannot proceed with mill removal.");
             return;
         }
 
-        if (position.occupyingPiece.CompareTag(gameManager.IsPlayer1Turn() ? "Player2Piece" : "Player1Piece"))
+        if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player2Piece" : "Player1Piece"))
         {
             if (!IsInMill(position) || AllOpponentPiecesInMill())
             {
@@ -189,7 +202,7 @@ public class PieceManager : MonoBehaviour
                 //Destroy(position.occupyingPiece);
                 Destroy(position.occupyingPiece.gameObject);
                 position.ClearPosition();
-                gameManager.PieceRemoved();
+                GameManager.Instance.PieceRemoved();
             }
             else
             {
@@ -225,7 +238,7 @@ public class PieceManager : MonoBehaviour
 
     bool AllOpponentPiecesInMill()
     {
-        string opponentTag = gameManager.IsPlayer1Turn() ? "Player2Piece" : "Player1Piece";
+        string opponentTag = GameManager.Instance.IsPlayer1Turn() ? "Player2Piece" : "Player1Piece";
         foreach (var position in allBoardPositions)
         {
             if (position.isOccupied && position.occupyingPiece.CompareTag(opponentTag) && !IsInMill(position))
@@ -235,4 +248,14 @@ public class PieceManager : MonoBehaviour
         }
         return true;
     }
+
+    public void UnhighlightAllPieces()
+    {
+        foreach (var piece in allPieces)
+        {
+            piece.HighlightPiece(false);
+        }
+    }
+
+
 }
