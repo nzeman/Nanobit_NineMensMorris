@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    public enum GamePhase { Placing, Moving, MillRemoval }
+    public enum GamePhase { Placing, Moving, MillRemoval, GameEnd }
     public GamePhase currentPhase = GamePhase.Placing;
     public GamePhase gamePhasePriorToMillRemoval = GamePhase.Placing;
 
@@ -243,6 +243,13 @@ public class GameManager : MonoBehaviour
 
     public void DeclareWinner(bool isPlayer1Turn)
     {
+        if (currentPhase == GamePhase.GameEnd)
+            return;
+
+        currentPhase = GamePhase.GameEnd;
+
+        PieceManager.Instance.UnhighlightAllPieces();
+
         string winner = isPlayer1Turn ? "Player 1" : "Player 2";
         Debug.Log(winner + " wins!");
         GameUIManager.Instance.gameView.SetTopText(winner + " wins!!!!!!!!!!!!!!!!!!!!!!!");
