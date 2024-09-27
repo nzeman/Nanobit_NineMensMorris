@@ -10,6 +10,8 @@ public class BoardPosition : MonoBehaviour
     // Store adjacent board positions for move validation
     public List<BoardPosition> adjacentPositions = new List<BoardPosition>();
 
+    public SpriteRenderer highlightSpriteRenderer;
+
     public void SetIndex(int i)
     {
         index = i;

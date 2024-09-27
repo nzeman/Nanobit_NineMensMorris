@@ -49,6 +49,12 @@ public class GameManager : MonoBehaviour
                 currentPhase = GamePhase.Moving;
                 GameUIManager.Instance.gameView.SetTopText("Transitioning to Moving Phase");
                 Debug.Log("Transitioning to Moving Phase");
+                BoardManager.Instance.HideHightlightsFromBoardPositions();
+            }
+
+            if (currentPhase == GamePhase.Placing)
+            {
+                BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
             }
         }
 
@@ -78,11 +84,11 @@ public class GameManager : MonoBehaviour
 
     public void OnMillFormed()
     {
+        Debug.Log("Mill formed! Player must remove an opponents piece.");
         gamePhasePriorToMillRemoval = currentPhase;
         currentPhase = GamePhase.MillRemoval;
-        Debug.Log("Mill formed! Player must remove an opponent's piece.");
         GameUIManager.Instance.gameView.SetTopText("Mill formed! Player must remove an opponent's piece.");
-
+        BoardManager.Instance.HideHightlightsFromBoardPositions();
         if (IsPlayer1Turn())
         {
             foreach (var piece in PieceManager.Instance.allPieces)
@@ -91,7 +97,7 @@ public class GameManager : MonoBehaviour
                 {
                     piece.HighlightPiece(true);
                 }
-                
+
             }
         }
         else
@@ -132,6 +138,10 @@ public class GameManager : MonoBehaviour
             Debug.Log("Player 2 turn");
         }
 
+        if (currentPhase == GamePhase.Placing)
+        {
+            BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
+        }
         PieceManager.Instance.UnhighlightAllPieces();
     }
 

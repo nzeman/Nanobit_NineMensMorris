@@ -3,6 +3,20 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
+
+    #region Singleton
+    private static BoardManager _Instance;
+    public static BoardManager Instance
+    {
+        get
+        {
+            if (_Instance == null)
+                _Instance = FindObjectOfType<BoardManager>();
+            return _Instance;
+        }
+    }
+    #endregion
+
     public GameObject pointPrefab;
     public Material lineMaterial;
     public int numberOfRings = 3;
@@ -135,5 +149,29 @@ public class BoardManager : MonoBehaviour
         lineRenderer.SetPosition(1, end);
 
         lines.Add(lineObj);
+    }
+
+    public void HighlightAllUnoccupiedBoardPositions()
+    {
+        foreach (BoardPosition position in allBoardPositions)
+        {
+            if (!position.isOccupied)
+            {
+                position.highlightSpriteRenderer.enabled = true;
+            }
+            else
+            {
+                position.highlightSpriteRenderer.enabled = false;
+            }
+        }
+
+    }
+
+    public void HideHightlightsFromBoardPositions()
+    {
+        foreach (BoardPosition position in allBoardPositions)
+        {
+            position.highlightSpriteRenderer.enabled = false;
+        }
     }
 }
