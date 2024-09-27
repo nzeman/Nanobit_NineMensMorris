@@ -21,4 +21,32 @@ public class MainMenuCanvasManager : MonoBehaviour
 
     public MainMenuView mainMenuView;
     public SettingsView settingsView;
+
+    public void Start()
+    {
+        Init();
+    }
+
+    public void Init()
+    {
+        mainMenuView.playButton.onClick.AddListener(OnPlayButtonClicked);
+        mainMenuView.settingsButton.onClick.AddListener(OnSettingsButtonClicked);
+        mainMenuView.exitButton.onClick.AddListener(OnExitButtonClicked);
+    }
+
+    public void OnPlayButtonClicked()
+    {
+        Debug.Log("OnPlayButtonClicked");
+    }
+
+    public void OnSettingsButtonClicked()
+    {
+        Debug.Log("OnSettingsButtonClicked");
+    }
+
+    public void OnExitButtonClicked()
+    {
+        Debug.Log("OnExitButtonClicked");
+        Application.Quit();
+    }
 }
