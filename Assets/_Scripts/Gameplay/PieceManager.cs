@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -124,7 +125,8 @@ public class PieceManager : MonoBehaviour
         piece.HighlightPiece(false);
         from.ClearPosition();
         to.OccupyPosition(piece);
-        piece.transform.position = to.transform.position;
+        //piece.transform.position = to.transform.position;
+        piece.transform.DOMove(to.transform.position, .3f);
         selectedPiecePosition = null;
     }
 
