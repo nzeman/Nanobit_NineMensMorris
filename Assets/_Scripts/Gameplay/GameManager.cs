@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
     {
         SetUi();
         GameUIManager.Instance.gameView.SetTurnText("PLAYER 1");
-       
+        PieceManager.Instance.SpawnAllPiecesAtStart();
     }
 
     // Called when a piece is placed or moved
@@ -131,7 +131,7 @@ public class GameManager : MonoBehaviour
         }
 
         currentPhase = gamePhasePriorToMillRemoval;
-        isPlayer1Turn = !isPlayer1Turn; 
+        isPlayer1Turn = !isPlayer1Turn;
 
         if (isPlayer1Turn)
         {

@@ -25,6 +25,9 @@ public class PieceManager : MonoBehaviour
     [SerializeField] private BoardPosition selectedPiecePosition;
     public List<Piece> allPieces;
 
+    private Queue<Piece> player1PiecesQueue = new Queue<Piece>();
+    private Queue<Piece> player2PiecesQueue = new Queue<Piece>();
+
     void Start()
     {
 
@@ -69,8 +72,14 @@ public class PieceManager : MonoBehaviour
     {
         if (!position.isOccupied)
         {
-            PlacePiece(position, GameManager.Instance.IsPlayer1Turn());
-            bool millFormed = CheckForMill(position, GameManager.Instance.IsPlayer1Turn());
+            bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
+            Piece pieceToPlace = isPlayer1Turn ? player1PiecesQueue.Dequeue() : player2PiecesQueue.Dequeue();
+            pieceToPlace.transform.DOJump(position.transform.position, 2f, 1, 0.3f);
+
+            position.OccupyPosition(pieceToPlace);
+            pieceToPlace.boardPosition = position;
+
+            bool millFormed = CheckForMill(position, isPlayer1Turn);
             GameManager.Instance.PiecePlacedByPlayer(millFormed);
         }
     }
@@ -123,9 +132,28 @@ public class PieceManager : MonoBehaviour
         }
     }
 
+    public void SpawnAllPiecesAtStart()
+    {
+        Vector3 offScreenPlayer1Position = new Vector3(-8f, 0f, 0f); 
+        Vector3 offScreenPlayer2Position = new Vector3(8f, 0f, 0f); 
 
+        Vector3 offsetBetweenPieces = new Vector3(0f, .6f, 0f);
 
+        for (int i = 0; i < GameManager.Instance.maxPiecesPerPlayer; i++)
+        {
+            GameObject piecePlayer1 = Instantiate(piecePrefabPlayer1, offScreenPlayer1Position + i * offsetBetweenPieces, Quaternion.identity);
+            Piece p1 = piecePlayer1.GetComponent<Piece>();
+            player1PiecesQueue.Enqueue(p1);
+            allPieces.Add(p1);
 
+            GameObject piecePlayer2 = Instantiate(piecePrefabPlayer2, offScreenPlayer2Position + i * offsetBetweenPieces, Quaternion.identity);
+            Piece p2 = piecePlayer2.GetComponent<Piece>();
+            player2PiecesQueue.Enqueue(p2);
+            allPieces.Add(p2);
+        }
+    }
+
+    /*
     void PlacePiece(BoardPosition position, bool isPlayer1Turn)
     {
         GameObject piecePrefab = isPlayer1Turn ? piecePrefabPlayer1 : piecePrefabPlayer2;
@@ -139,7 +167,7 @@ public class PieceManager : MonoBehaviour
         piece.transform.DOJump(position.transform.position, 5f, 1, .3f);
         position.OccupyPosition(p);
         allPieces.Add(p);
-    }
+    }*/
 
 
     void MovePiece(BoardPosition from, BoardPosition to)
