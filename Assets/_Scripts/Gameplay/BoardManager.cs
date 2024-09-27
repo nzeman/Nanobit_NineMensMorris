@@ -32,6 +32,7 @@ public class BoardManager : MonoBehaviour
         InitializeBoard();
         SetAdjacentPositions(); // Set adjacent positions after initializing the board
         DrawLinesBetweenPoints();
+        HighlightAllUnoccupiedBoardPositions();
     }
 
     // Create points for each ring dynamically

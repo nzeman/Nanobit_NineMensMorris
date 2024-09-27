@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour
     {
         SetUi();
         GameUIManager.Instance.gameView.SetTurnText("PLAYER 1");
+       
     }
 
     // Called when a piece is placed or moved

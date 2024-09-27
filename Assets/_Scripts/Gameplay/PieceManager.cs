@@ -23,7 +23,6 @@ public class PieceManager : MonoBehaviour
     public LayerMask pieceLayer;
 
     [SerializeField] private BoardPosition selectedPiecePosition;
-    public List<BoardPosition> allBoardPositions;
     public List<Piece> allPieces;
 
     void Start()
@@ -50,7 +49,7 @@ public class PieceManager : MonoBehaviour
             BoardPosition boardPosition = hitBoard.collider.GetComponent<BoardPosition>();
             HandleMillRemoval(boardPosition);
         }
-        
+
         else if (hitBoard.collider != null)
         {
             BoardPosition boardPosition = hitBoard.collider.GetComponent<BoardPosition>();
@@ -76,9 +75,13 @@ public class PieceManager : MonoBehaviour
         }
     }
 
+    public bool IsFlyingPhaseForCurrentTurnPlayer()
+    {
+        return GetPieceCountForPlayer(GameManager.Instance.IsPlayer1Turn()) == 3;
+    }
+
     void HandleMovingPhase(BoardPosition position)
     {
-        // there is nothing selected currently
         if (selectedPiecePosition == null && position.isOccupied)
         {
             if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
@@ -88,16 +91,26 @@ public class PieceManager : MonoBehaviour
         }
         else if (selectedPiecePosition != null && !position.isOccupied)
         {
-            if (selectedPiecePosition.IsAdjacent(position))
+            bool isFlyingPhase = GetPieceCountForPlayer(GameManager.Instance.IsPlayer1Turn()) == 3;
+
+            if (isFlyingPhase || selectedPiecePosition.IsAdjacent(position))
             {
                 MovePiece(selectedPiecePosition, position);
-                bool millFormed = CheckForMill(position, GameManager.Instance.IsPlayer1Turn());
-                GameManager.Instance.PiecePlacedByPlayer(millFormed);
+
+                // Get mill positions and highlight if mill is formed
+                List<BoardPosition> millPositions = GetMillPositions(position, GameManager.Instance.IsPlayer1Turn());
+                /*
+                if (millPositions != null)
+                {
+                    BoardManager.Instance.HighlightMillLine(millPositions); // Highlight the mill
+                }*/
+
+                GameManager.Instance.PiecePlacedByPlayer(millPositions != null);
                 BoardManager.Instance.HideHightlightsFromBoardPositions();
             }
             else
             {
-                Debug.Log("Invalid move: Not adjacent");
+                Debug.Log("Invalid move: Not adjacent and not in flying phase.");
             }
         }
         else if (selectedPiecePosition != null && position.isOccupied)
@@ -110,11 +123,17 @@ public class PieceManager : MonoBehaviour
         }
     }
 
+
+
+
     void PlacePiece(BoardPosition position, bool isPlayer1Turn)
     {
         GameObject piecePrefab = isPlayer1Turn ? piecePrefabPlayer1 : piecePrefabPlayer2;
-        GameObject piece = Instantiate(piecePrefab, position.transform.position, Quaternion.identity);
+
+        Vector3 spawnPos = new Vector3(0f, 10f, 0f);
+        GameObject piece = Instantiate(piecePrefab, spawnPos, Quaternion.identity);
         Piece p = piece.GetComponent<Piece>();
+        piece.transform.DOJump(position.transform.position, 5f, 1, .3f);
         position.OccupyPosition(p);
         allPieces.Add(p);
     }
@@ -135,18 +154,37 @@ public class PieceManager : MonoBehaviour
         DeselectAllPieces();
         selectedPiecePosition = position;
         position.occupyingPiece.HighlightPiece(true);
-
-        foreach (var adjacentPosition in position.adjacentPositions)
+        Debug.Log("CAN FLY: " + IsFlyingPhaseForCurrentTurnPlayer());
+        if (IsFlyingPhaseForCurrentTurnPlayer())
         {
-            if (!adjacentPosition.isOccupied)
+            foreach (var positionOnBoard in BoardManager.Instance.allBoardPositions)
             {
-                adjacentPosition.HighlightBoardPosition(true);
-            }
-            else
-            {
-                adjacentPosition.HighlightBoardPosition(false);
+                if (!positionOnBoard.isOccupied)
+                {
+                    positionOnBoard.HighlightBoardPosition(true);
+                }
+                else
+                {
+                    positionOnBoard.HighlightBoardPosition(false);
+                }
             }
         }
+        else
+        {
+            foreach (var adjacentPosition in position.adjacentPositions)
+            {
+                if (!adjacentPosition.isOccupied)
+                {
+                    adjacentPosition.HighlightBoardPosition(true);
+                }
+                else
+                {
+                    adjacentPosition.HighlightBoardPosition(false);
+                }
+            }
+        }
+
+     
 
         Debug.Log("Selected piece at: " + position.name);
     }
@@ -164,11 +202,29 @@ public class PieceManager : MonoBehaviour
         }
     }
 
+    List<BoardPosition> GetMillPositions(BoardPosition position, bool isPlayer1Turn)
+    {
+        string playerTag = isPlayer1Turn ? "Player1Piece" : "Player2Piece";
+
+        List<BoardPosition> horizontalMill = GetMillInLinePositions(position, playerTag, true);
+        if (horizontalMill != null)
+            return horizontalMill;
+
+        List<BoardPosition> verticalMill = GetMillInLinePositions(position, playerTag, false);
+        if (verticalMill != null)
+            return verticalMill;
+
+        return null; // No mill formed
+    }
+
+
+
     bool CheckForMill(BoardPosition position, bool isPlayer1Turn)
     {
         string playerTag = isPlayer1Turn ? "Player1Piece" : "Player2Piece";
         return CheckMillInLine(position, playerTag, true) || CheckMillInLine(position, playerTag, false);
     }
+
 
     bool CheckMillInLine(BoardPosition position, string playerTag, bool checkHorizontal)
     {
@@ -191,8 +247,34 @@ public class PieceManager : MonoBehaviour
             }
         }
 
-        return linePositions.Count == 3;
+        return linePositions.Count == 3; // Return true if exactly 3 pieces form a mill
     }
+
+    List<BoardPosition> GetMillInLinePositions(BoardPosition position, string playerTag, bool checkHorizontal)
+    {
+        List<BoardPosition> linePositions = new List<BoardPosition> { position };
+
+        foreach (var adjacent in position.adjacentPositions)
+        {
+            if (IsAlignedInLine(position, adjacent, checkHorizontal) && adjacent.isOccupied && adjacent.occupyingPiece.CompareTag(playerTag))
+            {
+                linePositions.Add(adjacent);
+
+                foreach (var secondAdjacent in adjacent.adjacentPositions)
+                {
+                    if (secondAdjacent != position && IsAlignedInLine(adjacent, secondAdjacent, checkHorizontal)
+                        && secondAdjacent.isOccupied && secondAdjacent.occupyingPiece.CompareTag(playerTag))
+                    {
+                        linePositions.Add(secondAdjacent);
+                    }
+                }
+            }
+        }
+
+        return linePositions.Count == 3 ? linePositions : null; // Return the list of positions if mill is formed, otherwise null
+    }
+
+
 
     bool IsAlignedInLine(BoardPosition pos1, BoardPosition pos2, bool checkHorizontal)
     {
@@ -261,7 +343,7 @@ public class PieceManager : MonoBehaviour
     bool AllOpponentPiecesInMill()
     {
         string opponentTag = GameManager.Instance.IsPlayer1Turn() ? "Player2Piece" : "Player1Piece";
-        foreach (var position in allBoardPositions)
+        foreach (var position in BoardManager.Instance.allBoardPositions)
         {
             if (position.isOccupied && position.occupyingPiece.CompareTag(opponentTag) && !IsInMill(position))
             {
@@ -270,6 +352,20 @@ public class PieceManager : MonoBehaviour
         }
         return true;
     }
+
+    int GetPieceCountForPlayer(bool isPlayer1)
+    {
+        int count = 0;
+        foreach (Piece piece in allPieces)
+        {
+            if (piece.CompareTag(isPlayer1 ? "Player1Piece" : "Player2Piece"))
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
 
     public void UnhighlightAllPieces()
     {
