@@ -5,7 +5,7 @@ public class BoardPosition : MonoBehaviour
 {
     private int index; // Unique index of this board position
     public bool isOccupied = false;
-    public GameObject occupyingPiece; // Reference to the piece occupying this position
+    public Piece occupyingPiece; // Reference to the piece occupying this position
 
     // Store adjacent board positions for move validation
     public List<BoardPosition> adjacentPositions = new List<BoardPosition>();
@@ -20,7 +20,7 @@ public class BoardPosition : MonoBehaviour
         return index;
     }
 
-    public void OccupyPosition(GameObject piece)
+    public void OccupyPosition(Piece piece)
     {
         isOccupied = true;
         occupyingPiece = piece;

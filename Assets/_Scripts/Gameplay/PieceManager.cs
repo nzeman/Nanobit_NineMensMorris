@@ -98,14 +98,15 @@ public class PieceManager : MonoBehaviour
     {
         GameObject piecePrefab = isPlayer1Turn ? piecePrefabPlayer1 : piecePrefabPlayer2;
         GameObject piece = Instantiate(piecePrefab, position.transform.position, Quaternion.identity);
-        position.OccupyPosition(piece);
-        allPieces.Add(piece.GetComponent<Piece>());
+        Piece p = piece.GetComponent<Piece>();
+        position.OccupyPosition(p);
+        allPieces.Add(p);
     }
 
     void MovePiece(BoardPosition from, BoardPosition to)
     {
-        GameObject piece = from.occupyingPiece;
-        piece.GetComponent<Piece>().selectedSprite.gameObject.SetActive(false);
+        Piece piece = from.occupyingPiece;
+        piece.HighlightPiece(false);
         from.ClearPosition();
         to.OccupyPosition(piece);
         piece.transform.position = to.transform.position;
@@ -116,7 +117,7 @@ public class PieceManager : MonoBehaviour
     {
         DeselectAllPieces();
         selectedPiecePosition = position;
-        position.occupyingPiece.GetComponent<Piece>().selectedSprite.gameObject.SetActive(true);
+        position.occupyingPiece.HighlightPiece(true);
         Debug.Log("Selected piece at: " + position.name);
     }
 
@@ -124,7 +125,7 @@ public class PieceManager : MonoBehaviour
     {
         foreach (var piece in allPieces)
         {
-            piece.selectedSprite.gameObject.SetActive(false);
+            piece.HighlightPiece(false);
         }
     }
 
@@ -184,8 +185,9 @@ public class PieceManager : MonoBehaviour
         {
             if (!IsInMill(position) || AllOpponentPiecesInMill())
             {
-                allPieces.Remove(position.occupyingPiece.GetComponent<Piece>());
-                Destroy(position.occupyingPiece);
+                allPieces.Remove(position.occupyingPiece);
+                //Destroy(position.occupyingPiece);
+                Destroy(position.occupyingPiece.gameObject);
                 position.ClearPosition();
                 gameManager.PieceRemoved();
             }
