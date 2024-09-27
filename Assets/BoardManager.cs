@@ -15,6 +15,7 @@ public class BoardManager : MonoBehaviour
     void Start()
     {
         InitializeBoard();
+        SetAdjacentPositions(); // Set adjacent positions after initializing the board
         DrawLinesBetweenPoints();
     }
 
@@ -24,35 +25,72 @@ public class BoardManager : MonoBehaviour
         for (int ring = 0; ring < numberOfRings; ring++)
         {
             float squareSize = spacing * (ring + 1);
-            CreateRingPoints(squareSize);
+            CreateRingPoints(squareSize, ring);
         }
     }
 
     // Instantiate points at corners and midpoints for each square
-    void CreateRingPoints(float squareSize)
+    void CreateRingPoints(float squareSize, int ringIndex)
     {
         Vector2[] positions = new Vector2[]
         {
-            new Vector2(-squareSize, squareSize),
-            new Vector2(0, squareSize),
-            new Vector2(squareSize, squareSize),
-            new Vector2(squareSize, 0),
-            new Vector2(squareSize, -squareSize),
-            new Vector2(0, -squareSize),
-            new Vector2(-squareSize, -squareSize),
-            new Vector2(-squareSize, 0)
+            new Vector2(-squareSize, squareSize),    // Top-left corner
+            new Vector2(0, squareSize),              // Top-center
+            new Vector2(squareSize, squareSize),     // Top-right corner
+            new Vector2(squareSize, 0),              // Right-center
+            new Vector2(squareSize, -squareSize),    // Bottom-right corner
+            new Vector2(0, -squareSize),             // Bottom-center
+            new Vector2(-squareSize, -squareSize),   // Bottom-left corner
+            new Vector2(-squareSize, 0)              // Left-center
         };
 
         List<BoardPosition> currentRingPoints = new List<BoardPosition>();
 
-        foreach (var position in positions)
+        for (int i = 0; i < positions.Length; i++)
         {
-            GameObject point = Instantiate(pointPrefab, position, Quaternion.identity);
+            GameObject point = Instantiate(pointPrefab, positions[i], Quaternion.identity);
             BoardPosition boardPos = point.GetComponent<BoardPosition>();
+            boardPos.SetIndex(ringIndex * positions.Length + i); // Assign a unique index
             currentRingPoints.Add(boardPos);
         }
 
         ringPoints.Add(currentRingPoints);
+    }
+
+    // Set adjacent positions for each board point
+    void SetAdjacentPositions()
+    {
+        // Loop through each ring and set adjacent points
+        for (int ring = 0; ring < ringPoints.Count; ring++)
+        {
+            List<BoardPosition> currentRing = ringPoints[ring];
+
+            // Set adjacent positions within the same ring (circular adjacency)
+            for (int i = 0; i < currentRing.Count; i++)
+            {
+                BoardPosition currentPosition = currentRing[i];
+                BoardPosition nextPosition = currentRing[(i + 1) % currentRing.Count];
+                BoardPosition prevPosition = currentRing[(i - 1 + currentRing.Count) % currentRing.Count];
+
+                currentPosition.adjacentPositions.Add(nextPosition);
+                currentPosition.adjacentPositions.Add(prevPosition);
+            }
+
+            // Set adjacent positions between rings (midpoints)
+            if (ring > 0)
+            {
+                List<BoardPosition> previousRing = ringPoints[ring - 1];
+
+                for (int i = 1; i < currentRing.Count; i += 2)
+                {
+                    BoardPosition currentMidpoint = currentRing[i];
+                    BoardPosition previousMidpoint = previousRing[i];
+
+                    currentMidpoint.adjacentPositions.Add(previousMidpoint);
+                    previousMidpoint.adjacentPositions.Add(currentMidpoint);
+                }
+            }
+        }
     }
 
     // Draw lines connecting points in the same ring and between rings
@@ -62,14 +100,12 @@ public class BoardManager : MonoBehaviour
         {
             List<BoardPosition> currentRing = ringPoints[ring];
 
-            // Connect points within the same ring
             for (int i = 0; i < currentRing.Count; i++)
             {
                 int nextIndex = (i + 1) % currentRing.Count;
                 CreateLine(currentRing[i].transform.position, currentRing[nextIndex].transform.position);
             }
 
-            // Connect midpoints between this ring and the previous ring
             if (ring > 0)
             {
                 List<BoardPosition> previousRing = ringPoints[ring - 1];

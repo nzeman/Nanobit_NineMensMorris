@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 701725053380520839}
   - component: {fileID: 8194926056630129597}
   - component: {fileID: 4644379246311164202}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: PointPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48,6 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isOccupied: 0
   occupyingPiece: {fileID: 0}
+  adjacentPositions: []
 --- !u!61 &4644379246311164202
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -104,7 +105,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4859276892211316132}
   - component: {fileID: 8643696889688708779}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Square
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8591703607593583176}
   - component: {fileID: 7421005382004449618}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CircleSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,7 +96,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8853638598613579918}
   - component: {fileID: 7294260209649968172}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlayerPieceBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}

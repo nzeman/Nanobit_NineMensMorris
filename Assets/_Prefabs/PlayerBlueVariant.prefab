@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerBlueVariant
       objectReference: {fileID: 0}
+    - target: {fileID: 3640379526795780192, guid: a3456059728f4e9488d469189ecf1e05, type: 3}
+      propertyPath: m_TagString
+      value: Player1Piece
+      objectReference: {fileID: 0}
     - target: {fileID: 7421005382004449618, guid: a3456059728f4e9488d469189ecf1e05, type: 3}
       propertyPath: m_Color.b
       value: 0.8207547
