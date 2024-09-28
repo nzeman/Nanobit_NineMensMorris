@@ -143,6 +143,7 @@ public class BoardManager : MonoBehaviour
         lineRenderer.startWidth = lineWidth;
         lineRenderer.endWidth = lineWidth;
         lineRenderer.positionCount = 2;
+        lineRenderer.sortingLayerID = SortingLayer.NameToID("BoardLines");
         lineRenderer.SetPosition(0, start);
         lineRenderer.SetPosition(1, end);
 

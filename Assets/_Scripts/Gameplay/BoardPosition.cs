@@ -43,4 +43,6 @@ public class BoardPosition : MonoBehaviour
     {
         highlightSpriteRenderer.enabled = on;
     }
+
 }
+
