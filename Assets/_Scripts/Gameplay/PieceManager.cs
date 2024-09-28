@@ -435,5 +435,22 @@ public class PieceManager : MonoBehaviour
         }
     }
 
+    public void ScaleUpDownPieces(List<Piece> piecesAnimation)
+    {
+       
+
+        foreach (var piece in piecesAnimation)
+        {
+            Sequence seq = DOTween.Sequence();
+            seq.SetLoops(-1);
+            seq.SetId("PiecesScaleUpDown");
+            seq.OnKill(() =>
+            {
+                piece.ResetVisual();
+            });
+            seq.Append(piece.transform.DOBlendableScaleBy(new Vector3(.1f, .1f, .1f), .3f));
+            seq.Append(piece.transform.DOBlendableScaleBy(new Vector3(-.1f, -.1f, -.1f), .3f));
+        }
+    }
 
 }

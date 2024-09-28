@@ -1,4 +1,7 @@
+using DG.Tweening;
 using DG.Tweening.Core.Easing;
+using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -90,6 +93,7 @@ public class GameManager : MonoBehaviour
         BoardManager.Instance.HideHightlightsFromBoardPositions();
         if (IsPlayer1Turn())
         {
+            List<Piece> piecesToHighlight = new List<Piece>();
             foreach (var piece in PieceManager.Instance.allPieces)
             {
                 if (piece.CompareTag("Player2Piece"))
@@ -97,13 +101,16 @@ public class GameManager : MonoBehaviour
                     if (piece.boardPosition != null)
                     {
                         piece.HighlightPiece(true);
+                        piecesToHighlight.Add(piece);
                     }
                 }
 
             }
+            PieceManager.Instance.ScaleUpDownPieces(piecesToHighlight);
         }
         else
         {
+            List<Piece> piecesToHighlight = new List<Piece>();
             foreach (var piece in PieceManager.Instance.allPieces)
             {
                 if (piece.CompareTag("Player1Piece"))
@@ -111,10 +118,11 @@ public class GameManager : MonoBehaviour
                     if (piece.boardPosition != null)
                     {
                         piece.HighlightPiece(true);
+                        piecesToHighlight.Add(piece);
                     }
                 }
-
             }
+            PieceManager.Instance.ScaleUpDownPieces(piecesToHighlight);
         }
     }
 
@@ -127,6 +135,7 @@ public class GameManager : MonoBehaviour
     public void PieceRemoved()
     {
         Debug.Log("Piece removed");
+        DOTween.Kill("PiecesScaleUpDown", true);
 
         if (CheckLossByPieceCount() || (CheckLossByNoValidMoves() && currentPhase == GamePhase.Moving))
         {
