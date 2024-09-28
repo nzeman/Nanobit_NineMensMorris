@@ -34,6 +34,7 @@ public class GameManager : MonoBehaviour
         SetUi();
         GameUIManager.Instance.gameView.SetTurnText();
         PieceManager.Instance.SpawnAllPiecesAtStart();
+        PieceManager.Instance.HighlightNextPieceToPlace();
     }
 
     // Called when a piece is placed or moved
@@ -56,10 +57,8 @@ public class GameManager : MonoBehaviour
                 BoardManager.Instance.HideHightlightsFromBoardPositions();
             }
 
-            if (currentPhase == GamePhase.Placing)
-            {
-                BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
-            }
+           
+            BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
         }
 
         if (millFormed)
@@ -81,6 +80,11 @@ public class GameManager : MonoBehaviour
                 Debug.Log("Player 2 turn");
             }
             SetUi();
+
+            if(currentPhase == GamePhase.Placing)
+            {
+                PieceManager.Instance.HighlightNextPieceToPlace();
+            }
         }
     }
 

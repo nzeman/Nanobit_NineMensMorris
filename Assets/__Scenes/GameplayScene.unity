@@ -248,7 +248,7 @@ Camera:
   far clip plane: 100
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 7
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1512,7 +1512,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pointPrefab: {fileID: 5493100960549252907, guid: bfe60ffb269b58142b98fd7079b84757, type: 3}
   numberOfRings: 3
-  spacing: 1
+  spacing: 1.5
   lineWidth: 0.1
   allBoardPositions: []
   normalLineMaterial: {fileID: 2100000, guid: 793acbb87d3a19c4aa641753c90e6d7f, type: 2}

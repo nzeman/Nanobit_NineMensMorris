@@ -100,6 +100,23 @@ public class PieceManager : MonoBehaviour
         }
     }
 
+    public void HighlightNextPieceToPlace()
+    {
+        bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
+        Piece nextPieceToPlace = isPlayer1Turn ? player1PiecesQueue.Peek() : player2PiecesQueue.Peek();
+        if (isPlayer1Turn)
+        {
+            nextPieceToPlace.transform.DOMove(nextPieceToPlace.transform.position + new Vector3(1f, 0f, 0f), 0.5f);
+        }
+        else
+        {
+            nextPieceToPlace.transform.DOMove(nextPieceToPlace.transform.position + new Vector3(-1f, 0f, 0f), 0.5f);
+        }
+    }
+
+
+
+
 
     public bool IsFlyingPhaseForCurrentTurnPlayer()
     {
@@ -148,27 +165,33 @@ public class PieceManager : MonoBehaviour
             }
         }
     }
-
     public void SpawnAllPiecesAtStart()
     {
-        Vector3 offScreenPlayer1Position = new Vector3(-8f, 0f, 0f);
-        Vector3 offScreenPlayer2Position = new Vector3(8f, 0f, 0f);
+        Vector3 player1StartPosition = new Vector3(-Camera.main.orthographicSize * Camera.main.aspect + 1.5f, -Camera.main.orthographicSize + 1.5f, 0f);
+        Vector3 player2StartPosition = new Vector3(Camera.main.orthographicSize * Camera.main.aspect - 1.5f, Camera.main.orthographicSize - 1.5f, 0f);
 
-        Vector3 offsetBetweenPieces = new Vector3(0f, .6f, 0f);
+        float spacing = .4f;
 
-        for (int i = 0; i < GameManager.Instance.maxPiecesPerPlayer; i++)
+        for (int i = GameManager.Instance.maxPiecesPerPlayer - 1; i >= 0; i--)
         {
-            GameObject piecePlayer1 = Instantiate(piecePrefabPlayer1, offScreenPlayer1Position + i * offsetBetweenPieces, Quaternion.identity);
+            Vector3 player1Position = player1StartPosition + new Vector3(i * spacing, 0f, 0f);
+            GameObject piecePlayer1 = Instantiate(piecePrefabPlayer1, player1Position, Quaternion.identity);
             Piece p1 = piecePlayer1.GetComponent<Piece>();
             player1PiecesQueue.Enqueue(p1);
             allPieces.Add(p1);
+        }
 
-            GameObject piecePlayer2 = Instantiate(piecePrefabPlayer2, offScreenPlayer2Position + i * offsetBetweenPieces, Quaternion.identity);
+        for (int i = GameManager.Instance.maxPiecesPerPlayer - 1; i >= 0; i--)
+        {
+            Vector3 player2Position = player2StartPosition - new Vector3(i * spacing, 0f, 0f);
+            GameObject piecePlayer2 = Instantiate(piecePrefabPlayer2, player2Position, Quaternion.identity);
             Piece p2 = piecePlayer2.GetComponent<Piece>();
             player2PiecesQueue.Enqueue(p2);
             allPieces.Add(p2);
         }
     }
+
+
 
     /*
     void PlacePiece(BoardPosition position, bool isPlayer1Turn)
