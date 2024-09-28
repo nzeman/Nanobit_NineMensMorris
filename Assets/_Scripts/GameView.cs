@@ -19,6 +19,8 @@ public class GameView : ViewBase
     public void SetTurnText()
     {
         DOTween.Kill(GetInstanceID());
+        if (GameManager.Instance.currentPhase == GameManager.GamePhase.GameEnd) return;
+
         if (GameManager.Instance.IsPlayer1Turn())
         {
             turnText.text = "PLAYER 1";

@@ -265,6 +265,8 @@ public class GameManager : MonoBehaviour
 
         string winner = isPlayer1Turn ? "Player 1" : "Player 2";
         Debug.Log(winner + " wins!");
-        GameUIManager.Instance.gameView.SetTopText(winner + " WINS!");
+        //GameUIManager.Instance.gameView.SetTopText(winner + " WINS!");
+        GameUIManager.Instance.gameView.SetTopText("");
+        GameUIManager.Instance.gameView.SetTurnText();
     }
 }

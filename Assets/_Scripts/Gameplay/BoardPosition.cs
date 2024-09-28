@@ -10,6 +10,7 @@ public class BoardPosition : MonoBehaviour
     public List<BoardPosition> adjacentPositions = new List<BoardPosition>();
 
     public SpriteRenderer highlightSpriteRenderer;
+    public SpriteRenderer onHoveredSpriteRenderer;
 
     public void SetIndex(int i)
     {
@@ -26,6 +27,7 @@ public class BoardPosition : MonoBehaviour
     {
         isOccupied = true;
         occupyingPiece = piece;
+        ResetVisual();
     }
 
     public void ClearPosition()
@@ -44,5 +46,44 @@ public class BoardPosition : MonoBehaviour
         highlightSpriteRenderer.enabled = on;
     }
 
+    public void OnMouseEnter()
+    {
+        if(GameManager.Instance.currentPhase == GameManager.GamePhase.Placing)
+        {
+            if (!isOccupied)
+            {
+                Debug.Log("OnMouseEnter" + index);
+                transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
+                onHoveredSpriteRenderer.enabled = true;
+                if (GameManager.Instance.IsPlayer1Turn())
+                {
+                    onHoveredSpriteRenderer.color = Color.blue;
+                    highlightSpriteRenderer.color = Color.blue;
+
+                }
+                else
+                {
+                    onHoveredSpriteRenderer.color = Color.red;
+                    highlightSpriteRenderer.color = Color.red;
+                }
+            }
+        }
+        else if(GameManager.Instance.currentPhase == GameManager.GamePhase.Moving)
+        {
+
+        }
+    }
+
+    public void OnMouseExit()
+    {
+        ResetVisual();
+    }
+
+    public void ResetVisual()
+    {
+        transform.localScale = Vector3.one;
+        onHoveredSpriteRenderer.enabled = false;
+        highlightSpriteRenderer.color = Color.white;
+    }
 }
 
