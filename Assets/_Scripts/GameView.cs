@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -10,11 +11,26 @@ public class GameView : ViewBase
 
     public void SetTopText(string topString)
     {
+        topString = topString.ToUpperInvariant();
         topText.text = topString;
+
     }
 
-    public void SetTurnText(string turnString)
+    public void SetTurnText()
     {
-        turnText.text = turnString;
+        DOTween.Kill(GetInstanceID());
+        if (GameManager.Instance.IsPlayer1Turn())
+        {
+            turnText.text = "PLAYER 1";
+            turnText.color = Color.blue;
+        }
+        else
+        {
+            turnText.text = "PLAYER 2";
+            turnText.color = Color.red;
+        }
+        turnText.transform.localScale = Vector3.one;
+        turnText.transform.DOPunchScale(new Vector3(.3f, .3f, .3f), .4f, 0, 1f).SetId(GetInstanceID());
+        
     }
 }

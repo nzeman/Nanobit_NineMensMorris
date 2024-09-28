@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
     public void Start()
     {
         SetUi();
-        GameUIManager.Instance.gameView.SetTurnText("PLAYER 1");
+        GameUIManager.Instance.gameView.SetTurnText();
         PieceManager.Instance.SpawnAllPiecesAtStart();
     }
 
@@ -72,12 +72,12 @@ public class GameManager : MonoBehaviour
 
             if (isPlayer1Turn)
             {
-                GameUIManager.Instance.gameView.SetTurnText("PLAYER 1");
+                GameUIManager.Instance.gameView.SetTurnText();
                 Debug.Log("Player 1 turn");
             }
             else
             {
-                GameUIManager.Instance.gameView.SetTurnText("PLAYER 2");
+                GameUIManager.Instance.gameView.SetTurnText();
                 Debug.Log("Player 2 turn");
             }
             SetUi();
@@ -148,13 +148,13 @@ public class GameManager : MonoBehaviour
 
         if (isPlayer1Turn)
         {
-            GameUIManager.Instance.gameView.SetTurnText("PLAYER 1");
+            GameUIManager.Instance.gameView.SetTurnText();
             SetUi();
             Debug.Log("Player 1 turn");
         }
         else
         {
-            GameUIManager.Instance.gameView.SetTurnText("PLAYER 2");
+            GameUIManager.Instance.gameView.SetTurnText();
             SetUi();
             Debug.Log("Player 2 turn");
         }
@@ -172,11 +172,11 @@ public class GameManager : MonoBehaviour
     {
         if (currentPhase == GamePhase.Placing)
         {
-            GameUIManager.Instance.gameView.SetTopText("PLACE YOUR PIECES");
+            GameUIManager.Instance.gameView.SetTopText("PLACE YOUR PIECES ON THE BOARD!");
         }
         else if (currentPhase == GamePhase.Moving)
         {
-            GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECES");
+            GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECES AND TRY TO FORM A MILL!");
         }
     }
 
@@ -265,6 +265,6 @@ public class GameManager : MonoBehaviour
 
         string winner = isPlayer1Turn ? "Player 1" : "Player 2";
         Debug.Log(winner + " wins!");
-        GameUIManager.Instance.gameView.SetTopText(winner + " wins!!!!!!!!!!!!!!!!!!!!!!!");
+        GameUIManager.Instance.gameView.SetTopText(winner + " WINS!");
     }
 }

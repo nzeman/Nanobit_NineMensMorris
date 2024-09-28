@@ -82,7 +82,7 @@ public class PieceManager : MonoBehaviour
         {
             bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
             Piece pieceToPlace = isPlayer1Turn ? player1PiecesQueue.Dequeue() : player2PiecesQueue.Dequeue();
-            pieceToPlace.transform.DOJump(position.transform.position, 2f, 1, 0.3f);
+            pieceToPlace.transform.DOJump(position.transform.position, 1f, 1, 0.4f);
 
             position.OccupyPosition(pieceToPlace);
             pieceToPlace.boardPosition = position;
