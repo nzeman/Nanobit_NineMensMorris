@@ -80,9 +80,18 @@ public class PieceManager : MonoBehaviour
             pieceToPlace.boardPosition = position;
 
             bool millFormed = CheckForMill(position, isPlayer1Turn);
+
+            // Highlight the mill if it's formed
+            if (millFormed)
+            {
+                List<BoardPosition> millPositions = GetMillPositions(position, isPlayer1Turn);
+                BoardManager.Instance.HighlightMillLine(millPositions);
+            }
+
             GameManager.Instance.PiecePlacedByPlayer(millFormed);
         }
     }
+
 
     public bool IsFlyingPhaseForCurrentTurnPlayer()
     {
@@ -190,7 +199,7 @@ public class PieceManager : MonoBehaviour
         DeselectAllPieces();
         selectedPiecePosition = position;
         position.occupyingPiece.HighlightPiece(true);
-        Debug.Log("CAN FLY: " + IsFlyingPhaseForCurrentTurnPlayer());
+        Debug.Log("Can this piece fly? " + IsFlyingPhaseForCurrentTurnPlayer());
         if (IsFlyingPhaseForCurrentTurnPlayer())
         {
             foreach (var positionOnBoard in BoardManager.Instance.allBoardPositions)
@@ -230,15 +239,7 @@ public class PieceManager : MonoBehaviour
                 selectedPiecePosition.occupyingPiece.HighlightPiece(false);
             }
         }
-
-     
-
         Debug.Log("Selected piece at: " + position.name);
-    }
-
-    public void GetAdjacentBoardPositionsFromAPiece()
-    {
-
     }
 
     void DeselectAllPieces()
@@ -343,10 +344,11 @@ public class PieceManager : MonoBehaviour
         {
             if (!IsInMill(position) || AllOpponentPiecesInMill() || IsEndgameScenario())
             {
-                // Remove the opponent's piece
                 allPieces.Remove(position.occupyingPiece);
                 Destroy(position.occupyingPiece.gameObject);
                 position.ClearPosition();
+
+                BoardManager.Instance.ResetMillLines();
                 GameManager.Instance.PieceRemoved();
             }
             else
@@ -359,6 +361,7 @@ public class PieceManager : MonoBehaviour
             Debug.Log("Piece does not belong to the opponent.");
         }
     }
+
 
     bool IsEndgameScenario()
     {

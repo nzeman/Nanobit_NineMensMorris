@@ -1210,7 +1210,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentPhase: 0
   gamePhasePriorToMillRemoval: 0
-  maxPiecesPerPlayer: 4
+  maxPiecesPerPlayer: 9
 --- !u!1 &1869036383
 GameObject:
   m_ObjectHideFlags: 0
@@ -1288,11 +1288,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pointPrefab: {fileID: 5493100960549252907, guid: bfe60ffb269b58142b98fd7079b84757, type: 3}
-  lineMaterial: {fileID: 10756, guid: 0000000000000000e000000000000000, type: 0}
   numberOfRings: 3
   spacing: 1
   lineWidth: 0.1
   allBoardPositions: []
+  normalLineMaterial: {fileID: 2100000, guid: 793acbb87d3a19c4aa641753c90e6d7f, type: 2}
+  millLineMaterial: {fileID: 2100000, guid: 9fa1f0dbc8d168e4db79e27656fe438e, type: 2}
 --- !u!4 &2132193408
 Transform:
   m_ObjectHideFlags: 0

@@ -18,14 +18,16 @@ public class BoardManager : MonoBehaviour
     #endregion
 
     public GameObject pointPrefab;
-    public Material lineMaterial;
     public int numberOfRings = 3;
     public float spacing = 2f;
     public float lineWidth = 0.1f;
 
     public List<BoardPosition> allBoardPositions = new List<BoardPosition>();
     private List<List<BoardPosition>> ringPoints = new List<List<BoardPosition>>();
-    private List<GameObject> lines = new List<GameObject>();
+
+    public Material normalLineMaterial;
+    public Material millLineMaterial;  
+    private List<LineRenderer> lines = new List<LineRenderer>();
 
     void Start()
     {
@@ -142,14 +144,48 @@ public class BoardManager : MonoBehaviour
         GameObject lineObj = new GameObject("Line");
         LineRenderer lineRenderer = lineObj.AddComponent<LineRenderer>();
 
-        lineRenderer.material = lineMaterial;
+        lineRenderer.material = normalLineMaterial;
         lineRenderer.startWidth = lineWidth;
         lineRenderer.endWidth = lineWidth;
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, start);
         lineRenderer.SetPosition(1, end);
 
-        lines.Add(lineObj);
+        lines.Add(lineRenderer);
+    }
+
+    public void HighlightMillLine(List<BoardPosition> millPositions)
+    {
+        if (millPositions == null || millPositions.Count != 3)
+            return;
+
+        for (int i = 0; i < millPositions.Count; i++)
+        {
+            BoardPosition start = millPositions[i];
+            BoardPosition end = millPositions[(i + 1) % millPositions.Count];
+
+            foreach (var line in lines)
+            {
+                if (IsLineConnectingPositions(line, start.transform.position, end.transform.position))
+                {
+                    line.material = millLineMaterial;  
+                }
+            }
+        }
+    }
+
+    public void ResetMillLines()
+    {
+        foreach (var line in lines)
+        {
+            line.material = normalLineMaterial;  // Reset back to the normal line material
+        }
+    }
+
+    private bool IsLineConnectingPositions(LineRenderer line, Vector3 pos1, Vector3 pos2)
+    {
+        return (line.GetPosition(0) == pos1 && line.GetPosition(1) == pos2) ||
+               (line.GetPosition(0) == pos2 && line.GetPosition(1) == pos1);
     }
 
     public void HighlightAllUnoccupiedBoardPositions()
