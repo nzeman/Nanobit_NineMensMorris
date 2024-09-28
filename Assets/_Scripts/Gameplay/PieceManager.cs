@@ -47,8 +47,16 @@ public class PieceManager : MonoBehaviour
         RaycastHit2D hitPiece = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, pieceLayer);
         RaycastHit2D hitBoard = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, boardLayer);
 
+        // mill removal 
         if (GameManager.Instance.currentPhase == GameManager.GamePhase.MillRemoval && hitPiece.collider != null)
         {
+
+            if(hitBoard.collider == null)
+            {
+                // the pieces that was not yet placed (for example in placing phase)
+                return;
+            }
+
             BoardPosition boardPosition = hitBoard.collider.GetComponent<BoardPosition>();
             HandleMillRemoval(boardPosition);
         }
@@ -143,8 +151,8 @@ public class PieceManager : MonoBehaviour
 
     public void SpawnAllPiecesAtStart()
     {
-        Vector3 offScreenPlayer1Position = new Vector3(-8f, 0f, 0f); 
-        Vector3 offScreenPlayer2Position = new Vector3(8f, 0f, 0f); 
+        Vector3 offScreenPlayer1Position = new Vector3(-8f, 0f, 0f);
+        Vector3 offScreenPlayer2Position = new Vector3(8f, 0f, 0f);
 
         Vector3 offsetBetweenPieces = new Vector3(0f, .6f, 0f);
 

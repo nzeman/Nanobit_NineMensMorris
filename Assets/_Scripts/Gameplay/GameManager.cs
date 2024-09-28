@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
     public GamePhase currentPhase = GamePhase.Placing;
     public GamePhase gamePhasePriorToMillRemoval = GamePhase.Placing;
 
-    private bool isPlayer1Turn = true; // Track which player's turn it is
+    private bool isPlayer1Turn = true;
     public int maxPiecesPerPlayer = 9;
     private int piecesPlacedPlayer1 = 0;
     private int piecesPlacedPlayer2 = 0;
@@ -59,14 +59,12 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // If a mill was formed, switch to Mill Removal Phase
         if (millFormed)
         {
             OnMillFormed();
         }
         else
         {
-            // Switch the turn after each valid piece placement or move
             isPlayer1Turn = !isPlayer1Turn;
 
             if (isPlayer1Turn)
@@ -96,7 +94,10 @@ public class GameManager : MonoBehaviour
             {
                 if (piece.CompareTag("Player2Piece"))
                 {
-                    piece.HighlightPiece(true);
+                    if (piece.boardPosition != null)
+                    {
+                        piece.HighlightPiece(true);
+                    }
                 }
 
             }
@@ -107,7 +108,10 @@ public class GameManager : MonoBehaviour
             {
                 if (piece.CompareTag("Player1Piece"))
                 {
-                    piece.HighlightPiece(true);
+                    if (piece.boardPosition != null)
+                    {
+                        piece.HighlightPiece(true);
+                    }
                 }
 
             }

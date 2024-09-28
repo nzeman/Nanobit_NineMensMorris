@@ -7,7 +7,6 @@ public class BoardPosition : MonoBehaviour
     public bool isOccupied = false;
     public Piece occupyingPiece; // Reference to the piece occupying this position
 
-    // Store adjacent board positions for move validation
     public List<BoardPosition> adjacentPositions = new List<BoardPosition>();
 
     public SpriteRenderer highlightSpriteRenderer;

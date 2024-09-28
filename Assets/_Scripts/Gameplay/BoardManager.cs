@@ -80,12 +80,10 @@ public class BoardManager : MonoBehaviour
     // Set adjacent positions for each board point
     void SetAdjacentPositions()
     {
-        // Loop through each ring and set adjacent points
         for (int ring = 0; ring < ringPoints.Count; ring++)
         {
             List<BoardPosition> currentRing = ringPoints[ring];
 
-            // Set adjacent positions within the same ring (circular adjacency)
             for (int i = 0; i < currentRing.Count; i++)
             {
                 BoardPosition currentPosition = currentRing[i];
@@ -96,7 +94,6 @@ public class BoardManager : MonoBehaviour
                 currentPosition.adjacentPositions.Add(prevPosition);
             }
 
-            // Set adjacent positions between rings (midpoints)
             if (ring > 0)
             {
                 List<BoardPosition> previousRing = ringPoints[ring - 1];
@@ -113,7 +110,6 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    // Draw lines connecting points in the same ring and between rings
     void DrawLinesBetweenPoints()
     {
         for (int ring = 0; ring < ringPoints.Count; ring++)
@@ -138,7 +134,6 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    // Create a line between two points
     void CreateLine(Vector3 start, Vector3 end)
     {
         GameObject lineObj = new GameObject("Line");
