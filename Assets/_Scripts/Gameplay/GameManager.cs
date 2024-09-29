@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    public enum GamePhase { Placing, Moving, MillRemoval, GameEnd }
+    public enum GamePhase { Placing, Moving, MillRemoval, GameEnd, DisableControls }
     public GamePhase currentPhase = GamePhase.Placing;
     public GamePhase gamePhasePriorToMillRemoval = GamePhase.Placing;
 
@@ -141,33 +141,36 @@ public class GameManager : MonoBehaviour
         Debug.Log("Piece removed");
         DOTween.Kill("PiecesScaleUpDown", true);
 
+        currentPhase = GamePhase.DisableControls;
+
         if (CheckLossByPieceCount() || (CheckLossByNoValidMoves() && currentPhase == GamePhase.Moving))
         {
             DeclareWinner(IsPlayer1Turn());
             return;
         }
 
-        currentPhase = gamePhasePriorToMillRemoval;
-        isPlayer1Turn = !isPlayer1Turn;
-
-        if (isPlayer1Turn)
+        DOVirtual.DelayedCall(.5f, () =>
         {
-            GameUIManager.Instance.gameView.SetTurnText();
-            SetUi();
-            Debug.Log("Player 1 turn");
-        }
-        else
-        {
-            GameUIManager.Instance.gameView.SetTurnText();
-            SetUi();
-            Debug.Log("Player 2 turn");
-        }
+            currentPhase = gamePhasePriorToMillRemoval;
+            isPlayer1Turn = !isPlayer1Turn;
+            if (isPlayer1Turn)
+            {
+                GameUIManager.Instance.gameView.SetTurnText();
+                SetUi();
+                Debug.Log("Player 1 turn");
+            }
+            else
+            {
+                GameUIManager.Instance.gameView.SetTurnText();
+                SetUi();
+                Debug.Log("Player 2 turn");
+            }
 
-        if (currentPhase == GamePhase.Placing)
-        {
-            BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
-        }
-
+            if (currentPhase == GamePhase.Placing)
+            {
+                BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
+            }
+        });
         PieceManager.Instance.UnhighlightAllPieces();
     }
 

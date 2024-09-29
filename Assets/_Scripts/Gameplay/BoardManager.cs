@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -164,7 +165,16 @@ public class BoardManager : MonoBehaviour
             {
                 if (IsLineConnectingPositions(line, start.transform.position, end.transform.position))
                 {
-                    line.material = millLineMaterial;  
+                    //line.material = millLineMaterial;
+                    if (GameManager.Instance.IsPlayer1Turn())
+                    {
+                        line.material.DOColor(Color.blue, .2f);
+                    }
+                    else
+                    {
+                        line.material.DOColor(Color.red, .2f);
+                    }
+                    
                 }
             }
         }

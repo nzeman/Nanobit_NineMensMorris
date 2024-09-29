@@ -18,4 +18,6 @@ public class Piece : MonoBehaviour
     {
         transform.localScale = Vector3.one;
     }
+
+   
 }

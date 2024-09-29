@@ -37,6 +37,7 @@ public class PieceManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            if (GameManager.Instance.currentPhase == GameManager.GamePhase.DisableControls) return;
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             HandleBoardPointClick(mousePosition);
         }
@@ -82,7 +83,7 @@ public class PieceManager : MonoBehaviour
         {
             bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
             Piece pieceToPlace = isPlayer1Turn ? player1PiecesQueue.Dequeue() : player2PiecesQueue.Dequeue();
-            pieceToPlace.transform.DOJump(position.transform.position, 1f, 1, 0.4f);
+            pieceToPlace.transform.DOMove(position.transform.position, 0.4f);
 
             position.OccupyPosition(pieceToPlace);
             pieceToPlace.boardPosition = position;
@@ -107,10 +108,12 @@ public class PieceManager : MonoBehaviour
         if (isPlayer1Turn)
         {
             nextPieceToPlace.transform.DOMove(nextPieceToPlace.transform.position + new Vector3(1f, 0f, 0f), 0.5f);
+            nextPieceToPlace.transform.DOScale(Vector3.one, .5f);
         }
         else
         {
             nextPieceToPlace.transform.DOMove(nextPieceToPlace.transform.position + new Vector3(-1f, 0f, 0f), 0.5f);
+            nextPieceToPlace.transform.DOScale(Vector3.one, .5f);
         }
     }
 
@@ -170,12 +173,13 @@ public class PieceManager : MonoBehaviour
         Vector3 player1StartPosition = new Vector3(-Camera.main.orthographicSize * Camera.main.aspect + 1.5f, -Camera.main.orthographicSize + 1.5f, 0f);
         Vector3 player2StartPosition = new Vector3(Camera.main.orthographicSize * Camera.main.aspect - 1.5f, Camera.main.orthographicSize - 1.5f, 0f);
 
-        float spacing = .4f;
+        float spacing = .3f;
 
         for (int i = GameManager.Instance.maxPiecesPerPlayer - 1; i >= 0; i--)
         {
             Vector3 player1Position = player1StartPosition + new Vector3(i * spacing, 0f, 0f);
             GameObject piecePlayer1 = Instantiate(piecePrefabPlayer1, player1Position, Quaternion.identity);
+            piecePlayer1.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
             Piece p1 = piecePlayer1.GetComponent<Piece>();
             player1PiecesQueue.Enqueue(p1);
             allPieces.Add(p1);
@@ -185,6 +189,7 @@ public class PieceManager : MonoBehaviour
         {
             Vector3 player2Position = player2StartPosition - new Vector3(i * spacing, 0f, 0f);
             GameObject piecePlayer2 = Instantiate(piecePrefabPlayer2, player2Position, Quaternion.identity);
+            piecePlayer2.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
             Piece p2 = piecePlayer2.GetComponent<Piece>();
             player2PiecesQueue.Enqueue(p2);
             allPieces.Add(p2);
@@ -376,11 +381,15 @@ public class PieceManager : MonoBehaviour
             if (!IsInMill(position) || AllOpponentPiecesInMill() || IsEndgameScenario())
             {
                 allPieces.Remove(position.occupyingPiece);
-                Destroy(position.occupyingPiece.gameObject);
-                position.ClearPosition();
+                GameObject pieceToDestroy = position.occupyingPiece.gameObject;
+                pieceToDestroy.transform.DOScale(0f, .3f).OnComplete(() => {
 
+                    Destroy(pieceToDestroy);
+                });
+                position.ClearPosition();
                 BoardManager.Instance.ResetMillLines();
                 GameManager.Instance.PieceRemoved();
+
             }
             else
             {
