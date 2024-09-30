@@ -390,7 +390,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.5f);
         camera.DOOrthoSize(10f, 1.5f);
 
-        yield return new WaitForSecondsRealtime(0.5f);
+        yield return new WaitForSecondsRealtime(1.4f);
         GameUIManager.Instance.EnableView(GameUIManager.Instance.endView);
 
         yield return new WaitForSecondsRealtime(0.5f);

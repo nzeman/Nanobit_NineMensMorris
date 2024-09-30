@@ -23,7 +23,12 @@ public class GameUIManager : CanvasManagerBase
     public GameView gameView;
     public GameEndView endView;
     public GamePauseView pauseView;
-    
+
+    public void Start()
+    {
+        EnableView(gameView);
+    }
+
     public void OnContinueButtonClicked()
     {
         Debug.Log("OnContinueButtonClicked");
