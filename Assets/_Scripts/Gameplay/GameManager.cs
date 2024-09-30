@@ -299,5 +299,7 @@ public class GameManager : MonoBehaviour
         //GameUIManager.Instance.gameView.SetTopText(winner + " WINS!");
         GameUIManager.Instance.gameView.SetTopText("");
         GameUIManager.Instance.gameView.HideTurnText();
+
+        GameUIManager.Instance.EnableView(GameUIManager.Instance.endView);
     }
 }

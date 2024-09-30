@@ -20,6 +20,7 @@ public class GameUIManager : CanvasManagerBase
     #endregion
     
     public GameView gameView;
+    public GameEndView endView;
 
 }
 
