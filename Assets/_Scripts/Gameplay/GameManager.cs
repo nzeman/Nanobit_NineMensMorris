@@ -47,6 +47,7 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            if (currentPhase == GamePhase.GameEnd) return;
             if (isGamePaused)
             {
                 ResumeGameFromPause();
