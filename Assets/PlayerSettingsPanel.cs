@@ -15,6 +15,7 @@ public class PlayerSettingsPanel : MonoBehaviour
     public TMP_InputField nameInputField;
 
     public bool isPlayer1 = true;
+    public PlayerSettingsPanel otherPlayerSettingsPanel;
 
     [Button]
     // Start is called before the first frame update
@@ -41,6 +42,11 @@ public class PlayerSettingsPanel : MonoBehaviour
 
     public void OnColorSelected(string _colorId)
     {
+        foreach (var item in otherPlayerSettingsPanel.colorPickerButtons)
+        {
+            item.button.interactable = true;
+        }
+
         selectedColorId = _colorId;
         PlayerColorPicker pcp = colorPickerButtons.Find(x => x.colorId == selectedColorId);
         playerNameText.color = Colors.Instance.GetColorById(pcp.colorId).color;
@@ -52,5 +58,7 @@ public class PlayerSettingsPanel : MonoBehaviour
 
         PlayerProfile.Instance.GetGamePlayerData(isPlayer1).colorId = _colorId;
         PlayerProfile.Instance.SavePlayerProfile();
+
+        otherPlayerSettingsPanel.colorPickerButtons.Find(x => x.colorId == _colorId).button.interactable = false;
     }
 }
