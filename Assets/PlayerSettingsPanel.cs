@@ -20,6 +20,8 @@ public class PlayerSettingsPanel : MonoBehaviour
     private string nameBeforeEdit;
     [SerializeField] private TMP_Text duplicateNamesWarningText;
 
+    [SerializeField] private Image editNameImage;
+
     [Button]
     // Start is called before the first frame update
     void Start()
@@ -31,6 +33,7 @@ public class PlayerSettingsPanel : MonoBehaviour
         nameInputField.onEndEdit.AddListener(delegate { OnEndEditName(); });
         nameInputField.onSelect.AddListener(delegate { OnBeginEditName(); });
         duplicateNamesWarningText.gameObject.SetActive(false);
+        editNameImage.gameObject.SetActive(true);
     }
 
     // Update is called once per frame
@@ -42,10 +45,12 @@ public class PlayerSettingsPanel : MonoBehaviour
     public void OnBeginEditName()
     {
         nameBeforeEdit = nameInputField.text;
+        editNameImage.gameObject.SetActive(false);
     }
 
     public void OnEndEditName()
     {
+        editNameImage.gameObject.SetActive(true);
         if (isPlayer1)
         {
             if(nameInputField.text == PlayerProfile.Instance.GetGamePlayerData(false).playerName)
