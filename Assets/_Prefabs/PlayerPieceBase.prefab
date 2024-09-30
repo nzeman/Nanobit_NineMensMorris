@@ -169,6 +169,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feadea63b32ced6449295309d5375ef8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainSprite: {fileID: 7421005382004449618}
   boardPosition: {fileID: 0}
   selectedSprite: {fileID: 1920664346942031553}
 --- !u!1 &9151322333409098491

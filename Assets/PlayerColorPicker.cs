@@ -8,7 +8,6 @@ public class PlayerColorPicker : MonoBehaviour
 
     public PlayerSettingsPanel playerSettingsPanel;
     public Button button;
-    public Color color;
     public string colorId;
     public Image checkmarkImage;
 
@@ -16,7 +15,7 @@ public class PlayerColorPicker : MonoBehaviour
     void Start()
     {
         button.onClick.AddListener(OnPlayerColorButtonClicked);
-        button.image.color = color;
+        button.image.color = Colors.Instance.GetColorById(colorId).color;
     }
 
     public void OnPlayerColorButtonClicked()

@@ -43,7 +43,7 @@ public class PlayerSettingsPanel : MonoBehaviour
     {
         selectedColorId = _colorId;
         PlayerColorPicker pcp = colorPickerButtons.Find(x => x.colorId == selectedColorId);
-        playerNameText.color = pcp.color;
+        playerNameText.color = Colors.Instance.GetColorById(pcp.colorId).color;
         foreach (var item in colorPickerButtons)
         {
             item.checkmarkImage.gameObject.SetActive(false);

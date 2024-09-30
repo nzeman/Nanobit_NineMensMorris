@@ -8,12 +8,24 @@ public class GameView : ViewBase
 {
     [SerializeField] private TMP_Text topText;
     [SerializeField] private TMP_Text turnText;
+    [SerializeField] private TMP_Text player1NameText;
+    [SerializeField] private TMP_Text player2NameText;
+
+    public override void Start()
+    {
+        if (PlayerProfile.Instance == null) return;
+
+        player1NameText.text = PlayerProfile.Instance.GetGamePlayerData(true).playerName;
+        player1NameText.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId)).color;
+
+        player2NameText.text = PlayerProfile.Instance.GetGamePlayerData(false).playerName;
+        player2NameText.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId)).color;
+    }
 
     public void SetTopText(string topString)
     {
         topString = topString.ToUpperInvariant();
         topText.text = topString;
-
     }
 
     public void SetTurnText()
@@ -23,13 +35,13 @@ public class GameView : ViewBase
 
         if (GameManager.Instance.IsPlayer1Turn())
         {
-            turnText.text = "PLAYER 1";
-            turnText.color = Color.blue;
+            turnText.text = PlayerProfile.Instance.GetGamePlayerData(true).playerName;
+            turnText.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId)).color;
         }
         else
         {
-            turnText.text = "PLAYER 2";
-            turnText.color = Color.red;
+            turnText.text = PlayerProfile.Instance.GetGamePlayerData(false).playerName;
+            turnText.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId)).color;
         }
         turnText.transform.localScale = Vector3.one;
         turnText.transform.DOPunchScale(new Vector3(.3f, .3f, .3f), .4f, 0, 1f).SetId(GetInstanceID());

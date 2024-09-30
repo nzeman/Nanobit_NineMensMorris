@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.SceneManagement;
 
 public class MainMenuCanvasManager : CanvasManagerBase
 {
@@ -38,6 +39,7 @@ public class MainMenuCanvasManager : CanvasManagerBase
     public void OnPlayButtonClicked()
     {
         Debug.Log("OnPlayButtonClicked");
+        SceneManager.LoadScene(1);
     }
 
     public void OnSettingsButtonClicked()

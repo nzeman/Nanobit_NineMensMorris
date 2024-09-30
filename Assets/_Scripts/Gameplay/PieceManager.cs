@@ -198,6 +198,7 @@ public class PieceManager : MonoBehaviour
             GameObject piecePlayer1 = Instantiate(piecePrefabPlayer1, player1Position, Quaternion.identity);
             piecePlayer1.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
             Piece p1 = piecePlayer1.GetComponent<Piece>();
+            p1.Color(Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId));
             player1PiecesQueue.Enqueue(p1);
             allPieces.Add(p1);
         }
@@ -208,6 +209,7 @@ public class PieceManager : MonoBehaviour
             GameObject piecePlayer2 = Instantiate(piecePrefabPlayer2, player2Position, Quaternion.identity);
             piecePlayer2.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
             Piece p2 = piecePlayer2.GetComponent<Piece>();
+            p2.Color(Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId));
             player2PiecesQueue.Enqueue(p2);
             allPieces.Add(p2);
         }

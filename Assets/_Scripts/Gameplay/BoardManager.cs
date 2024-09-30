@@ -168,11 +168,12 @@ public class BoardManager : MonoBehaviour
                     //line.material = millLineMaterial;
                     if (GameManager.Instance.IsPlayer1Turn())
                     {
-                        line.material.DOColor(Color.blue, .2f);
+                        
+                        line.material.DOColor((Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId)).color, .2f);
                     }
                     else
                     {
-                        line.material.DOColor(Color.red, .2f);
+                        line.material.DOColor((Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId)).color, .2f);
                     }
                     
                 }

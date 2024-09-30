@@ -2096,6 +2096,8 @@ MonoBehaviour:
   canvasGroup: {fileID: 1460623485}
   topText: {fileID: 1162925297}
   turnText: {fileID: 670748696}
+  player1NameText: {fileID: 780911211}
+  player2NameText: {fileID: 982617367}
 --- !u!1001 &1463321883
 PrefabInstance:
   m_ObjectHideFlags: 0

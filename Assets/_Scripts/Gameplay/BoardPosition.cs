@@ -58,14 +58,14 @@ public class BoardPosition : MonoBehaviour
                 onHoveredSpriteRenderer.enabled = true;
                 if (GameManager.Instance.IsPlayer1Turn())
                 {
-                    onHoveredSpriteRenderer.color = Color.blue;
-                    highlightSpriteRenderer.color = Color.blue;
+                    onHoveredSpriteRenderer.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId)).color;
+                    highlightSpriteRenderer.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId)).color;
 
                 }
                 else
                 {
-                    onHoveredSpriteRenderer.color = Color.red;
-                    highlightSpriteRenderer.color = Color.red;
+                    onHoveredSpriteRenderer.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId)).color;
+                    highlightSpriteRenderer.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId)).color;
                 }
             }
         }

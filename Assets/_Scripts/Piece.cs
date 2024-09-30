@@ -7,6 +7,7 @@ using UnityEngine.UIElements;
 
 public class Piece : MonoBehaviour
 {
+    public SpriteRenderer mainSprite;
     public BoardPosition boardPosition;
     public SpriteRenderer selectedSprite;
 
@@ -29,5 +30,9 @@ public class Piece : MonoBehaviour
     {
         transform.localScale = Vector3.one;
     }
-   
+
+    internal void Color(ColorPair colorPair)
+    {
+        mainSprite.color = colorPair.color;
+    }
 }
