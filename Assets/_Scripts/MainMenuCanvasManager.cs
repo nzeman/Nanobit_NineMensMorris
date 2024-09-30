@@ -32,7 +32,7 @@ public class MainMenuCanvasManager : CanvasManagerBase
         mainMenuView.settingsButton.onClick.AddListener(OnSettingsButtonClicked);
         mainMenuView.exitButton.onClick.AddListener(OnExitButtonClicked);
 
-        EnableView(mainMenuView);
+        EnableView(mainMenuView, 0f);
     }
 
     public void OnPlayButtonClicked()
