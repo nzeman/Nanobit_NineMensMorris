@@ -37,10 +37,12 @@ public class GameManager : MonoBehaviour
 
     public void Start()
     {
+        maxPiecesPerPlayer = PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer;
         SetUi();
         GameUIManager.Instance.gameView.SetTurnText();
         PieceManager.Instance.SpawnAllPiecesAtStart();
         PieceManager.Instance.HighlightNextPieceToPlace();
+        canInteract = true;
     }
 
     void Update()

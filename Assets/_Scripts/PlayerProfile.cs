@@ -103,6 +103,8 @@ public class PlayerData
     [Header("Settings Data")]
     public SettingsData settingsData;
 
+    public GameRulesData gameRulesData;
+
     public GamePlayerData player1GameData;
     public GamePlayerData player2GameData;
 }
@@ -119,6 +121,13 @@ public class GamePlayerData
 {
     public string playerName;
     public string colorId;
+}
+
+[System.Serializable]
+public class GameRulesData
+{
+    public int numberOfRings = 3;
+    public int numberOfPiecesPerPlayer = 9;
 }
 
 

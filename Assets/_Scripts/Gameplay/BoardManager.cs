@@ -32,6 +32,7 @@ public class BoardManager : MonoBehaviour
 
     void Start()
     {
+        numberOfRings = PlayerProfile.Instance.playerData.gameRulesData.numberOfRings;
         InitializeBoard();
         SetAdjacentPositions(); // Set adjacent positions after initializing the board
         DrawLinesBetweenPoints();
