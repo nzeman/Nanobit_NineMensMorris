@@ -20,10 +20,11 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    public enum GamePhase { Placing, Moving, MillRemoval, GameEnd, DisableControls }
+    public enum GamePhase { Placing, Moving, MillRemoval, GameEnd }
     public GamePhase currentPhase = GamePhase.Placing;
     public GamePhase gamePhasePriorToMillRemoval = GamePhase.Placing;
 
+    public bool canInteract = true;
     private bool isPlayer1Turn = true;
     public int maxPiecesPerPlayer = 9;
     private int piecesPlacedPlayer1 = 0;
@@ -48,27 +49,26 @@ public class GameManager : MonoBehaviour
             else
                 piecesPlacedPlayer2++;
 
-            // Check if all pieces have been placed
-            if (piecesPlacedPlayer1 >= maxPiecesPerPlayer && piecesPlacedPlayer2 >= maxPiecesPerPlayer)
+            if (CheckIfAllPiecesHaveBeenPlaced())
             {
-                currentPhase = GamePhase.Moving;
-                GameUIManager.Instance.gameView.SetTopText("Transitioning to Moving Phase");
-                Debug.Log("Transitioning to Moving Phase");
-                BoardManager.Instance.HideHightlightsFromBoardPositions();
+                TransitionToMovingPhase();
             }
-
-           
-            BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
+            else
+            {
+                BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
+            }
         }
 
+        canInteract = true;
         if (millFormed)
         {
+            
             OnMillFormed();
         }
         else
         {
             isPlayer1Turn = !isPlayer1Turn;
-
+            
             if (isPlayer1Turn)
             {
                 GameUIManager.Instance.gameView.SetTurnText();
@@ -81,17 +81,44 @@ public class GameManager : MonoBehaviour
             }
             SetUi();
 
-            if(currentPhase == GamePhase.Placing)
+            if (currentPhase == GamePhase.Placing)
             {
                 PieceManager.Instance.HighlightNextPieceToPlace();
             }
         }
     }
 
+    public bool CheckIfAllPiecesHaveBeenPlaced()
+    {
+        // Check if all pieces have been placed
+        if (piecesPlacedPlayer1 >= maxPiecesPerPlayer && piecesPlacedPlayer2 >= maxPiecesPerPlayer)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public void TransitionToMovingPhase()
+    {
+        currentPhase = GamePhase.Moving;
+        GameUIManager.Instance.gameView.SetTopText("Transitioning to Moving Phase");
+        Debug.Log("Transitioning to Moving Phase");
+        BoardManager.Instance.HideHightlightsFromBoardPositions();
+    }
+
+    public void SavePreviousPhase()
+    {
+        gamePhasePriorToMillRemoval = currentPhase;
+    }
+
     public void OnMillFormed()
     {
         Debug.Log("Mill formed! Player must remove an opponents piece.");
-        gamePhasePriorToMillRemoval = currentPhase;
+        //SavePreviousPhase();
+        
         currentPhase = GamePhase.MillRemoval;
         GameUIManager.Instance.gameView.SetTopText("Mill formed! Player must remove an opponent's piece.");
         BoardManager.Instance.HideHightlightsFromBoardPositions();
@@ -141,7 +168,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("Piece removed");
         DOTween.Kill("PiecesScaleUpDown", true);
 
-        currentPhase = GamePhase.DisableControls;
+        canInteract = false;
 
         if (CheckLossByPieceCount() || (CheckLossByNoValidMoves() && currentPhase == GamePhase.Moving))
         {
@@ -149,9 +176,20 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        DOVirtual.DelayedCall(.5f, () =>
+        DOVirtual.DelayedCall(.3f, () =>
         {
-            currentPhase = gamePhasePriorToMillRemoval;
+            
+            if (CheckIfAllPiecesHaveBeenPlaced())
+            {
+                currentPhase = GamePhase.Moving;
+            }
+            else
+            {
+                currentPhase = GamePhase.Placing;
+            }
+            
+          
+            canInteract = true;
             isPlayer1Turn = !isPlayer1Turn;
             if (isPlayer1Turn)
             {

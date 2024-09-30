@@ -37,7 +37,7 @@ public class PieceManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (GameManager.Instance.currentPhase == GameManager.GamePhase.DisableControls) return;
+            if (GameManager.Instance.canInteract == false) return;
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             HandleBoardPointClick(mousePosition);
         }
@@ -52,7 +52,7 @@ public class PieceManager : MonoBehaviour
         if (GameManager.Instance.currentPhase == GameManager.GamePhase.MillRemoval && hitPiece.collider != null)
         {
 
-            if(hitBoard.collider == null)
+            if (hitBoard.collider == null)
             {
                 // the pieces that was not yet placed (for example in placing phase)
                 return;
@@ -82,22 +82,31 @@ public class PieceManager : MonoBehaviour
         if (!position.isOccupied)
         {
             bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
+
+            GameManager.Instance.SavePreviousPhase();
+            GameManager.Instance.canInteract = false;
+
             Piece pieceToPlace = isPlayer1Turn ? player1PiecesQueue.Dequeue() : player2PiecesQueue.Dequeue();
-            pieceToPlace.transform.DOMove(position.transform.position, 0.4f);
-
-            position.OccupyPosition(pieceToPlace);
-            pieceToPlace.boardPosition = position;
-
-            bool millFormed = CheckForMill(position, isPlayer1Turn);
-
-            // Highlight the mill if it's formed
-            if (millFormed)
+            pieceToPlace.transform.DOMove(position.transform.position, 0.3f).OnComplete(() =>
             {
-                List<BoardPosition> millPositions = GetMillPositions(position, isPlayer1Turn);
-                BoardManager.Instance.HighlightMillLine(millPositions);
-            }
 
-            GameManager.Instance.PiecePlacedByPlayer(millFormed);
+                position.OccupyPosition(pieceToPlace);
+                pieceToPlace.boardPosition = position;
+
+                bool millFormed = CheckForMill(position, isPlayer1Turn);
+
+                // Highlight the mill if it's formed
+                if (millFormed)
+                {
+                    List<BoardPosition> millPositions = GetMillPositions(position, isPlayer1Turn);
+                    BoardManager.Instance.HighlightMillLine(millPositions);
+                }
+                GameManager.Instance.currentPhase = GameManager.Instance.gamePhasePriorToMillRemoval;
+                GameManager.Instance.PiecePlacedByPlayer(millFormed);
+                GameManager.Instance.canInteract = true;
+            });
+
+
         }
     }
 
@@ -107,13 +116,13 @@ public class PieceManager : MonoBehaviour
         Piece nextPieceToPlace = isPlayer1Turn ? player1PiecesQueue.Peek() : player2PiecesQueue.Peek();
         if (isPlayer1Turn)
         {
-            nextPieceToPlace.transform.DOMove(nextPieceToPlace.transform.position + new Vector3(1f, 0f, 0f), 0.5f);
-            nextPieceToPlace.transform.DOScale(Vector3.one, .5f);
+            nextPieceToPlace.transform.DOMove(nextPieceToPlace.transform.position + new Vector3(1f, 0f, 0f), 0.3f);
+            nextPieceToPlace.transform.DOScale(Vector3.one, .3f);
         }
         else
         {
-            nextPieceToPlace.transform.DOMove(nextPieceToPlace.transform.position + new Vector3(-1f, 0f, 0f), 0.5f);
-            nextPieceToPlace.transform.DOScale(Vector3.one, .5f);
+            nextPieceToPlace.transform.DOMove(nextPieceToPlace.transform.position + new Vector3(-1f, 0f, 0f), 0.3f);
+            nextPieceToPlace.transform.DOScale(Vector3.one, .3f);
         }
     }
 
@@ -132,6 +141,7 @@ public class PieceManager : MonoBehaviour
         {
             if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
             {
+                BoardManager.Instance.HideHightlightsFromBoardPositions();
                 SelectPiece(position);
             }
         }
@@ -141,18 +151,24 @@ public class PieceManager : MonoBehaviour
 
             if (isFlyingPhase || selectedPiecePosition.IsAdjacent(position))
             {
+                GameManager.Instance.canInteract = false;
                 MovePiece(selectedPiecePosition, position);
 
-                // Get mill positions and highlight if mill is formed
-                List<BoardPosition> millPositions = GetMillPositions(position, GameManager.Instance.IsPlayer1Turn());
-                /*
-                if (millPositions != null)
+                DOVirtual.DelayedCall(0.3f, () =>
                 {
-                    BoardManager.Instance.HighlightMillLine(millPositions); // Highlight the mill
-                }*/
+                    // Get mill positions and highlight if mill is formed
+                    List<BoardPosition> millPositions = GetMillPositions(position, GameManager.Instance.IsPlayer1Turn());
+                    /*
+                    if (millPositions != null)
+                    {
+                        BoardManager.Instance.HighlightMillLine(millPositions); // Highlight the mill
+                    }*/
 
-                GameManager.Instance.PiecePlacedByPlayer(millPositions != null);
-                BoardManager.Instance.HideHightlightsFromBoardPositions();
+                    GameManager.Instance.PiecePlacedByPlayer(millPositions != null);
+                    BoardManager.Instance.HideHightlightsFromBoardPositions();
+                });
+
+               
             }
             else
             {
@@ -217,6 +233,8 @@ public class PieceManager : MonoBehaviour
 
     void MovePiece(BoardPosition from, BoardPosition to)
     {
+        
+
         Piece piece = from.occupyingPiece;
         piece.HighlightPiece(false);
 
@@ -235,6 +253,7 @@ public class PieceManager : MonoBehaviour
         DeselectAllPieces();
         selectedPiecePosition = position;
         position.occupyingPiece.HighlightPiece(true);
+
         Debug.Log("Can this piece fly? " + IsFlyingPhaseForCurrentTurnPlayer());
         if (IsFlyingPhaseForCurrentTurnPlayer())
         {
@@ -382,7 +401,8 @@ public class PieceManager : MonoBehaviour
             {
                 allPieces.Remove(position.occupyingPiece);
                 GameObject pieceToDestroy = position.occupyingPiece.gameObject;
-                pieceToDestroy.transform.DOScale(0f, .3f).OnComplete(() => {
+                pieceToDestroy.transform.DOScale(0f, .3f).OnComplete(() =>
+                {
 
                     Destroy(pieceToDestroy);
                 });
@@ -469,7 +489,7 @@ public class PieceManager : MonoBehaviour
 
     public void ScaleUpDownPieces(List<Piece> piecesAnimation)
     {
-       
+
 
         foreach (var piece in piecesAnimation)
         {
