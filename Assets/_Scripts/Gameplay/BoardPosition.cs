@@ -48,6 +48,7 @@ public class BoardPosition : MonoBehaviour
 
     public void OnMouseEnter()
     {
+        if (GameManager.Instance.isGamePaused) return;
         if(GameManager.Instance.currentPhase == GameManager.GamePhase.Placing)
         {
             if (!isOccupied)
