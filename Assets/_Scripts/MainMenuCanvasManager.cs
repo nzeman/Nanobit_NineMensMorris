@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
-public class MainMenuCanvasManager : MonoBehaviour
+public class MainMenuCanvasManager : CanvasManagerBase
 {
-
     #region Singleton
     private static MainMenuCanvasManager _Instance;
     public static MainMenuCanvasManager Instance
@@ -32,6 +31,8 @@ public class MainMenuCanvasManager : MonoBehaviour
         mainMenuView.playButton.onClick.AddListener(OnPlayButtonClicked);
         mainMenuView.settingsButton.onClick.AddListener(OnSettingsButtonClicked);
         mainMenuView.exitButton.onClick.AddListener(OnExitButtonClicked);
+
+        EnableView(mainMenuView);
     }
 
     public void OnPlayButtonClicked()
@@ -42,6 +43,7 @@ public class MainMenuCanvasManager : MonoBehaviour
     public void OnSettingsButtonClicked()
     {
         Debug.Log("OnSettingsButtonClicked");
+        EnableView(settingsView);
     }
 
     public void OnExitButtonClicked()
