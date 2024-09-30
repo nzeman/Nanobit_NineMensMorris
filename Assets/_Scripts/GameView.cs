@@ -33,6 +33,10 @@ public class GameView : ViewBase
         }
         turnText.transform.localScale = Vector3.one;
         turnText.transform.DOPunchScale(new Vector3(.3f, .3f, .3f), .4f, 0, 1f).SetId(GetInstanceID());
-        
+    }
+
+    public void HideTurnText()
+    {
+        turnText.gameObject.SetActive(false);
     }
 }

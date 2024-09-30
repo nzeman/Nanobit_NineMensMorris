@@ -168,7 +168,7 @@ public class PieceManager : MonoBehaviour
                     BoardManager.Instance.HideHightlightsFromBoardPositions();
                 });
 
-               
+
             }
             else
             {
@@ -187,7 +187,7 @@ public class PieceManager : MonoBehaviour
     public void SpawnAllPiecesAtStart()
     {
         Vector3 player1StartPosition = new Vector3(-Camera.main.orthographicSize * Camera.main.aspect + 1.5f, -Camera.main.orthographicSize + 1.5f, 0f);
-        Vector3 player2StartPosition = new Vector3(Camera.main.orthographicSize * Camera.main.aspect - 1.5f, Camera.main.orthographicSize - 1.5f, 0f);
+        Vector3 player2StartPosition = new Vector3(Camera.main.orthographicSize * Camera.main.aspect - 1.5f, -Camera.main.orthographicSize + 1.5f, 0f);
 
         float spacing = .3f;
 
@@ -233,7 +233,7 @@ public class PieceManager : MonoBehaviour
 
     void MovePiece(BoardPosition from, BoardPosition to)
     {
-        
+
 
         Piece piece = from.occupyingPiece;
         piece.HighlightPiece(false);
@@ -339,6 +339,7 @@ public class PieceManager : MonoBehaviour
             {
                 linePositions.Add(adjacent);
 
+                // Look for a second adjacent piece in the same line
                 foreach (var secondAdjacent in adjacent.adjacentPositions)
                 {
                     if (secondAdjacent != position && IsAlignedInLine(adjacent, secondAdjacent, checkHorizontal)
@@ -352,6 +353,7 @@ public class PieceManager : MonoBehaviour
 
         return linePositions.Count == 3; // Return true if exactly 3 pieces form a mill
     }
+
 
     List<BoardPosition> GetMillInLinePositions(BoardPosition position, string playerTag, bool checkHorizontal)
     {
@@ -387,6 +389,7 @@ public class PieceManager : MonoBehaviour
             return Mathf.Approximately(pos1.transform.position.x, pos2.transform.position.x);
     }
 
+
     void HandleMillRemoval(BoardPosition position)
     {
         if (position == null || position.occupyingPiece == null)
@@ -395,21 +398,21 @@ public class PieceManager : MonoBehaviour
             return;
         }
 
+        // Check if it's the opponent's piece that the player is trying to remove
         if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player2Piece" : "Player1Piece"))
         {
+            // Only allow removing pieces if they are NOT in a mill OR if all opponent pieces are in mills OR if it's an endgame scenario
             if (!IsInMill(position) || AllOpponentPiecesInMill() || IsEndgameScenario())
             {
                 allPieces.Remove(position.occupyingPiece);
                 GameObject pieceToDestroy = position.occupyingPiece.gameObject;
                 pieceToDestroy.transform.DOScale(0f, .3f).OnComplete(() =>
                 {
-
                     Destroy(pieceToDestroy);
                 });
                 position.ClearPosition();
                 BoardManager.Instance.ResetMillLines();
                 GameManager.Instance.PieceRemoved();
-
             }
             else
             {
@@ -431,28 +434,27 @@ public class PieceManager : MonoBehaviour
     }
 
 
-    bool IsInMill(BoardPosition position)
+    public bool IsInMill(BoardPosition position)
     {
         string playerTag = position.occupyingPiece.CompareTag("Player1Piece") ? "Player1Piece" : "Player2Piece";
 
-        foreach (var adjacent in position.adjacentPositions)
+        // Check for mill in horizontal direction
+        if (CheckMillInLine(position, playerTag, true))
         {
-            if (adjacent.isOccupied && adjacent.occupyingPiece.CompareTag(playerTag))
-            {
-                foreach (var secondAdjacent in adjacent.adjacentPositions)
-                {
-                    if (secondAdjacent != position && secondAdjacent.isOccupied && secondAdjacent.occupyingPiece.CompareTag(playerTag))
-                    {
-                        return true;
-                    }
-                }
-            }
+            return true;
+        }
+
+        // Check for mill in vertical direction
+        if (CheckMillInLine(position, playerTag, false))
+        {
+            return true;
         }
 
         return false;
     }
 
-    bool AllOpponentPiecesInMill()
+
+    public bool AllOpponentPiecesInMill()
     {
         string opponentTag = GameManager.Instance.IsPlayer1Turn() ? "Player2Piece" : "Player1Piece";
         foreach (var position in BoardManager.Instance.allBoardPositions)

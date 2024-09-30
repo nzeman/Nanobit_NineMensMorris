@@ -12,6 +12,7 @@ public class Piece : MonoBehaviour
 
     public void HighlightPiece(bool on)
     {
+        if (boardPosition == null) return;
         selectedSprite.enabled = on;
         if (on)
         {

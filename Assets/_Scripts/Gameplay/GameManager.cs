@@ -3,6 +3,7 @@ using DG.Tweening.Core.Easing;
 using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
 {
@@ -116,46 +117,32 @@ public class GameManager : MonoBehaviour
 
     public void OnMillFormed()
     {
-        Debug.Log("Mill formed! Player must remove an opponents piece.");
-        //SavePreviousPhase();
-        
+        Debug.Log("Mill formed! Player must remove an opponent's piece.");
+
         currentPhase = GamePhase.MillRemoval;
         GameUIManager.Instance.gameView.SetTopText("Mill formed! Player must remove an opponent's piece.");
         BoardManager.Instance.HideHightlightsFromBoardPositions();
-        if (IsPlayer1Turn())
-        {
-            List<Piece> piecesToHighlight = new List<Piece>();
-            foreach (var piece in PieceManager.Instance.allPieces)
-            {
-                if (piece.CompareTag("Player2Piece"))
-                {
-                    if (piece.boardPosition != null)
-                    {
-                        piece.HighlightPiece(true);
-                        piecesToHighlight.Add(piece);
-                    }
-                }
 
-            }
-            PieceManager.Instance.ScaleUpDownPieces(piecesToHighlight);
-        }
-        else
+        List<Piece> piecesToHighlight = new List<Piece>();
+        bool isPlayer1Turn = IsPlayer1Turn();
+        string opponentTag = isPlayer1Turn ? "Player2Piece" : "Player1Piece";
+
+        foreach (var piece in PieceManager.Instance.allPieces)
         {
-            List<Piece> piecesToHighlight = new List<Piece>();
-            foreach (var piece in PieceManager.Instance.allPieces)
+            if (piece.CompareTag(opponentTag) && piece.boardPosition != null)
             {
-                if (piece.CompareTag("Player1Piece"))
+                // Only highlight and scale up/down pieces that are NOT in a mill, or if all opponent pieces are in mills
+                if (!PieceManager.Instance.IsInMill(piece.boardPosition) || PieceManager.Instance.AllOpponentPiecesInMill())
                 {
-                    if (piece.boardPosition != null)
-                    {
-                        piece.HighlightPiece(true);
-                        piecesToHighlight.Add(piece);
-                    }
+                    piece.HighlightPiece(true);
+                    piecesToHighlight.Add(piece);
                 }
             }
-            PieceManager.Instance.ScaleUpDownPieces(piecesToHighlight);
         }
+
+        PieceManager.Instance.ScaleUpDownPieces(piecesToHighlight);
     }
+
 
     // Returns true if it's Player 1's turn, false if it's Player 2's turn
     public bool IsPlayer1Turn()
@@ -178,7 +165,9 @@ public class GameManager : MonoBehaviour
 
         DOVirtual.DelayedCall(.3f, () =>
         {
-            
+          
+            canInteract = true;
+            isPlayer1Turn = !isPlayer1Turn;
             if (CheckIfAllPiecesHaveBeenPlaced())
             {
                 currentPhase = GamePhase.Moving;
@@ -186,11 +175,8 @@ public class GameManager : MonoBehaviour
             else
             {
                 currentPhase = GamePhase.Placing;
+                PieceManager.Instance.HighlightNextPieceToPlace();
             }
-            
-          
-            canInteract = true;
-            isPlayer1Turn = !isPlayer1Turn;
             if (isPlayer1Turn)
             {
                 GameUIManager.Instance.gameView.SetTurnText();
@@ -312,6 +298,6 @@ public class GameManager : MonoBehaviour
         Debug.Log(winner + " wins!");
         //GameUIManager.Instance.gameView.SetTopText(winner + " WINS!");
         GameUIManager.Instance.gameView.SetTopText("");
-        GameUIManager.Instance.gameView.SetTurnText();
+        GameUIManager.Instance.gameView.HideTurnText();
     }
 }
