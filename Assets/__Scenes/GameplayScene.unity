@@ -825,7 +825,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 980420742}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -1624,7 +1624,8 @@ MonoBehaviour:
   currentPhase: 0
   gamePhasePriorToMillRemoval: 0
   canInteract: 1
-  maxPiecesPerPlayer: 6
+  maxPiecesPerPlayer: 8
+  camera: {fileID: 519420031}
 --- !u!1 &1869036383
 GameObject:
   m_ObjectHideFlags: 0
@@ -1671,7 +1672,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allViews:
   - {fileID: 1460623486}
+  - {fileID: 980420745}
   gameView: {fileID: 1460623486}
+  endView: {fileID: 980420745}
 --- !u!1 &2099651452
 GameObject:
   m_ObjectHideFlags: 0

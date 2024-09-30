@@ -156,19 +156,14 @@ public class PieceManager : MonoBehaviour
 
                 DOVirtual.DelayedCall(0.3f, () =>
                 {
-                    // Get mill positions and highlight if mill is formed
                     List<BoardPosition> millPositions = GetMillPositions(position, GameManager.Instance.IsPlayer1Turn());
-                    /*
-                    if (millPositions != null)
-                    {
-                        BoardManager.Instance.HighlightMillLine(millPositions); // Highlight the mill
-                    }*/
-
                     GameManager.Instance.PiecePlacedByPlayer(millPositions != null);
+
+                    // Log the board state after a move
+                    BoardManager.Instance.PrintBoardState();
+
                     BoardManager.Instance.HideHightlightsFromBoardPositions();
                 });
-
-
             }
             else
             {
@@ -184,6 +179,7 @@ public class PieceManager : MonoBehaviour
             }
         }
     }
+
     public void SpawnAllPiecesAtStart()
     {
         Vector3 player1StartPosition = new Vector3(-Camera.main.orthographicSize * Camera.main.aspect + 1.5f, -Camera.main.orthographicSize + 1.5f, 0f);
@@ -390,6 +386,7 @@ public class PieceManager : MonoBehaviour
     }
 
 
+
     void HandleMillRemoval(BoardPosition position)
     {
         if (position == null || position.occupyingPiece == null)
@@ -398,21 +395,30 @@ public class PieceManager : MonoBehaviour
             return;
         }
 
-        // Check if it's the opponent's piece that the player is trying to remove
         if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player2Piece" : "Player1Piece"))
         {
-            // Only allow removing pieces if they are NOT in a mill OR if all opponent pieces are in mills OR if it's an endgame scenario
             if (!IsInMill(position) || AllOpponentPiecesInMill() || IsEndgameScenario())
             {
+                GameManager.Instance.canInteract = false;
                 allPieces.Remove(position.occupyingPiece);
                 GameObject pieceToDestroy = position.occupyingPiece.gameObject;
                 pieceToDestroy.transform.DOScale(0f, .3f).OnComplete(() =>
                 {
                     Destroy(pieceToDestroy);
                 });
+
                 position.ClearPosition();
                 BoardManager.Instance.ResetMillLines();
                 GameManager.Instance.PieceRemoved();
+
+                // Log the board state after a piece is removed
+                BoardManager.Instance.PrintBoardState();
+
+                if (GameManager.Instance.CheckLossByNoValidMoves())
+                {
+                    GameManager.Instance.DeclareWinner(GameManager.Instance.IsPlayer1Turn());
+                    return;
+                }
             }
             else
             {
@@ -424,6 +430,8 @@ public class PieceManager : MonoBehaviour
             Debug.Log("Piece does not belong to the opponent.");
         }
     }
+
+
 
 
     bool IsEndgameScenario()

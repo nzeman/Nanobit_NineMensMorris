@@ -15,8 +15,11 @@ public class CanvasManagerBase : MonoBehaviour
             view.canvasGroup.interactable = false;
             view.canvasGroup.blocksRaycasts = false;
         }
-        vb.canvasGroup.DOFade(1f, duration).SetUpdate(true);
-        vb.canvasGroup.interactable = true;
-        vb.canvasGroup.blocksRaycasts = true;
+        if(vb != null)
+        {
+            vb.canvasGroup.DOFade(1f, duration).SetUpdate(true);
+            vb.canvasGroup.interactable = true;
+            vb.canvasGroup.blocksRaycasts = true;
+        }
     }
 }
