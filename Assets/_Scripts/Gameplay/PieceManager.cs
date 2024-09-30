@@ -159,9 +159,6 @@ public class PieceManager : MonoBehaviour
                     List<BoardPosition> millPositions = GetMillPositions(position, GameManager.Instance.IsPlayer1Turn());
                     GameManager.Instance.PiecePlacedByPlayer(millPositions != null);
 
-                    // Log the board state after a move
-                    BoardManager.Instance.PrintBoardState();
-
                     BoardManager.Instance.HideHightlightsFromBoardPositions();
                 });
             }
@@ -410,9 +407,6 @@ public class PieceManager : MonoBehaviour
                 position.ClearPosition();
                 BoardManager.Instance.ResetMillLines();
                 GameManager.Instance.PieceRemoved();
-
-                // Log the board state after a piece is removed
-                BoardManager.Instance.PrintBoardState();
 
                 if (GameManager.Instance.CheckLossByNoValidMoves())
                 {
