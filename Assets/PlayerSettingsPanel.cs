@@ -17,6 +17,9 @@ public class PlayerSettingsPanel : MonoBehaviour
     public bool isPlayer1 = true;
     public PlayerSettingsPanel otherPlayerSettingsPanel;
 
+    private string nameBeforeEdit;
+    [SerializeField] private TMP_Text duplicateNamesWarningText;
+
     [Button]
     // Start is called before the first frame update
     void Start()
@@ -26,6 +29,8 @@ public class PlayerSettingsPanel : MonoBehaviour
         nameInputField.text = PlayerProfile.Instance.GetGamePlayerData(isPlayer1).playerName;
         OnColorSelected(PlayerProfile.Instance.GetGamePlayerData(isPlayer1).colorId);
         nameInputField.onEndEdit.AddListener(delegate { OnEndEditName(); });
+        nameInputField.onSelect.AddListener(delegate { OnBeginEditName(); });
+        duplicateNamesWarningText.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -34,10 +39,50 @@ public class PlayerSettingsPanel : MonoBehaviour
         
     }
 
+    public void OnBeginEditName()
+    {
+        nameBeforeEdit = nameInputField.text;
+    }
+
     public void OnEndEditName()
     {
-        PlayerProfile.Instance.GetGamePlayerData(isPlayer1).playerName = nameInputField.text;
-        PlayerProfile.Instance.SavePlayerProfile();
+        if (isPlayer1)
+        {
+            if(nameInputField.text == PlayerProfile.Instance.GetGamePlayerData(false).playerName)
+            {
+                Debug.Log("Players cannot have the same name!");
+                nameInputField.text = nameBeforeEdit;
+                duplicateNamesWarningText.gameObject.SetActive(true);
+                StartCoroutine(HideWarningAfterDelay());
+            }
+            else
+            {
+                PlayerProfile.Instance.GetGamePlayerData(isPlayer1).playerName = nameInputField.text;
+                PlayerProfile.Instance.SavePlayerProfile();
+            }
+        }
+        else
+        {
+            // is player 2
+            if (nameInputField.text == PlayerProfile.Instance.GetGamePlayerData(true).playerName)
+            {
+                nameInputField.text = nameBeforeEdit;
+                Debug.Log("Players cannot have the same name!");
+                duplicateNamesWarningText.gameObject.SetActive(true);
+                StartCoroutine(HideWarningAfterDelay());
+            }
+            else
+            {
+                PlayerProfile.Instance.GetGamePlayerData(isPlayer1).playerName = nameInputField.text;
+                PlayerProfile.Instance.SavePlayerProfile();
+            }
+        }
+    }
+
+    public IEnumerator HideWarningAfterDelay()
+    {
+        yield return new WaitForSecondsRealtime(2f);
+        duplicateNamesWarningText.gameObject.SetActive(false);
     }
 
     public void OnColorSelected(string _colorId)
