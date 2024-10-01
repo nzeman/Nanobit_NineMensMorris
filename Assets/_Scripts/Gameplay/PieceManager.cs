@@ -183,15 +183,17 @@ public class PieceManager : MonoBehaviour
 
     public void SpawnAllPiecesAtStart()
     {
-        // Convert screen space positions to world space
+        // Convert the UI RectTransform positions (in screen space) to world space
         Vector3 player1StartPosition = Camera.main.ScreenToWorldPoint(player1SpawnUI.position);
-        player1StartPosition.z = 0; // Make sure the z-coordinate is set properly for 2D
-
         Vector3 player2StartPosition = Camera.main.ScreenToWorldPoint(player2SpawnUI.position);
+
+        // Ensure the Z-axis is properly set for 2D world space (make it 0)
+        player1StartPosition.z = 0;
         player2StartPosition.z = 0;
 
         float spacing = 0.3f; // Adjust the spacing appropriately
 
+        // Spawn pieces for Player 1
         for (int i = GameManager.Instance.maxPiecesPerPlayer - 1; i >= 0; i--)
         {
             Vector3 player1Position = player1StartPosition + new Vector3(i * spacing, 0f, 0f);
@@ -203,6 +205,7 @@ public class PieceManager : MonoBehaviour
             allPieces.Add(p1);
         }
 
+        // Spawn pieces for Player 2
         for (int i = GameManager.Instance.maxPiecesPerPlayer - 1; i >= 0; i--)
         {
             Vector3 player2Position = player2StartPosition - new Vector3(i * spacing, 0f, 0f);
@@ -214,6 +217,9 @@ public class PieceManager : MonoBehaviour
             allPieces.Add(p2);
         }
     }
+
+
+
 
 
     /*

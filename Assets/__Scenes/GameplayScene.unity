@@ -1208,6 +1208,7 @@ MonoBehaviour:
   canvasGroup: {fileID: 980420744}
   restartButton: {fileID: 1522808822}
   returnToMainMenuButton: {fileID: 1896866759}
+  winnerPlayerText: {fileID: 1307092757}
 --- !u!222 &980420746
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1414,8 +1415,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: THE WINNER IS
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a40944eb5c537c942857b6c34a6d938a, type: 2}
+  m_sharedMaterial: {fileID: 7196298524082209780, guid: a40944eb5c537c942857b6c34a6d938a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1439,8 +1440,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25
-  m_fontSizeBase: 25
+  m_fontSize: 35
+  m_fontSizeBase: 35
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1661,8 +1662,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -121.421875}
-  m_SizeDelta: {x: 637.8409, y: 42.723}
+  m_AnchoredPosition: {x: 0, y: -130}
+  m_SizeDelta: {x: 637.8409, y: 74.9439}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1307092757
 MonoBehaviour:
@@ -1686,8 +1687,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: PLAYER 1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a40944eb5c537c942857b6c34a6d938a, type: 2}
+  m_sharedMaterial: {fileID: 7196298524082209780, guid: a40944eb5c537c942857b6c34a6d938a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1711,13 +1712,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25
-  m_fontSizeBase: 25
+  m_fontSize: 45
+  m_fontSizeBase: 50
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 35
+  m_fontSizeMax: 45
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -1941,8 +1942,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: PAUSED
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a40944eb5c537c942857b6c34a6d938a, type: 2}
+  m_sharedMaterial: {fileID: 7196298524082209780, guid: a40944eb5c537c942857b6c34a6d938a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2252,7 +2253,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4482821104948655454, guid: f12676370cc739a499c975a7043b3d96, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 40
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 4482821104948655454, guid: f12676370cc739a499c975a7043b3d96, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2288,7 +2289,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4482821104948655454, guid: f12676370cc739a499c975a7043b3d96, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 149
+      value: 166
       objectReference: {fileID: 0}
     - target: {fileID: 4482821104948655454, guid: f12676370cc739a499c975a7043b3d96, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2478,7 +2479,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4482821104948655454, guid: f12676370cc739a499c975a7043b3d96, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 40
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 4482821104948655454, guid: f12676370cc739a499c975a7043b3d96, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2590,8 +2591,10 @@ MonoBehaviour:
   gamePhasePriorToMillRemoval: 0
   canInteract: 1
   maxPiecesPerPlayer: 9
-  camera: {fileID: 519420031}
   isGamePaused: 0
+  camera: {fileID: 519420031}
+  defaultCameraSize: 7
+  cameraOrtoSize: 7
 --- !u!1 &1869036383
 GameObject:
   m_ObjectHideFlags: 0

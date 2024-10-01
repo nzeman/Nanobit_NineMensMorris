@@ -32,17 +32,27 @@ public class GameManager : MonoBehaviour
     public int maxPiecesPerPlayer = 9;
     private int piecesPlacedPlayer1 = 0;
     private int piecesPlacedPlayer2 = 0;
-    public Camera camera;
     public bool isGamePaused = false;
+
+    [Header("Camera settings")]
+    public Camera camera;
+    public float defaultCameraSize = 5f;
+    public float cameraOrtoSize = 5f;
 
     public void Start()
     {
         maxPiecesPerPlayer = PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer;
+
+        float ortoSizeCamera = defaultCameraSize + (BoardManager.Instance.numberOfRings * 1.15F);
+        cameraOrtoSize = ortoSizeCamera;
+        camera.orthographicSize = ortoSizeCamera;
+
         SetUi();
         GameUIManager.Instance.gameView.SetTurnText();
         PieceManager.Instance.SpawnAllPiecesAtStart();
         PieceManager.Instance.HighlightNextPieceToPlace();
         canInteract = true;
+
     }
 
     void Update()
@@ -76,7 +86,7 @@ public class GameManager : MonoBehaviour
         GameUIManager.Instance.EnableView(GameUIManager.Instance.gameView);
         isGamePaused = false;
         //camera.transform.DOMoveY(0f, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
-        camera.DOOrthoSize(7f, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
+        camera.DOOrthoSize(cameraOrtoSize, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
     }
 
     public void PiecePlacedByPlayer(bool millFormed)
@@ -379,24 +389,35 @@ public class GameManager : MonoBehaviour
     {
 
         currentPhase = GamePhase.GameEnd;
+        canInteract = false;
 
         PieceManager.Instance.UnhighlightAllPieces();
 
-        string winner = isPlayer1Turn ? "Player 1" : "Player 2";
+        string winner = isPlayer1Turn ? 
+            PlayerProfile.Instance.GetGamePlayerData(true).playerName 
+            :
+            PlayerProfile.Instance.GetGamePlayerData(false).playerName;
+
         Debug.Log(winner + " wins!");
         //GameUIManager.Instance.gameView.SetTopText(winner + " WINS!");
         GameUIManager.Instance.gameView.SetTopText("");
         GameUIManager.Instance.gameView.HideTurnText();
-
         GameUIManager.Instance.EnableView(null);
-
+        foreach (var piece in PieceManager.Instance.allPieces)
+        {
+            if(piece.boardPosition == null)
+            {
+                piece.gameObject.SetActive(false);
+            }
+        }
         yield return new WaitForSecondsRealtime(0.5f);
-        camera.DOOrthoSize(10f, 1.5f);
+        camera.DOOrthoSize(cameraOrtoSize * 1.75f, 1.5f);
 
         yield return new WaitForSecondsRealtime(1.4f);
         GameUIManager.Instance.EnableView(GameUIManager.Instance.endView);
+        GameUIManager.Instance.endView.StartWinAnimation(isPlayer1Turn);
 
-        yield return new WaitForSecondsRealtime(0.5f);
+
     }
 
     [Button]

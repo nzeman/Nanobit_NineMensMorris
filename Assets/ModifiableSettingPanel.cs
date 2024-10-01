@@ -17,22 +17,25 @@ public class ModifiableSettingPanel : MonoBehaviour
     public int minAmount = 0;
     public int maxAmount = 0;
 
-    [SerializeField] private ModifiableSettingPanel piecesPerPlayerPanel; 
+    [SerializeField] private ModifiableSettingPanel numberOfRingsPanel; // Link the number of rings panel
 
     void Start()
     {
         plusOneButton.onClick.AddListener(() => ModifyAmount(1));
         deductOneButton.onClick.AddListener(() => ModifyAmount(-1));
 
+        // Initialize currentAmount based on the setting type
         if (setting == ModifiableSetting.NumberOfRings)
         {
             currentAmount = PlayerProfile.Instance.playerData.gameRulesData.numberOfRings;
-            UpdateMaxPiecesPerPlayer(); 
+            UpdateMaxPiecesPerPlayer();
         }
-        else
+        else if (setting == ModifiableSetting.PiecesPerPlayer)
         {
             currentAmount = PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer;
+            UpdateMaxPiecesPerPlayer(); // Ensure max pieces are updated
         }
+
         ModifyAmount(0); // Initial update
     }
 
@@ -44,9 +47,10 @@ public class ModifiableSettingPanel : MonoBehaviour
         ApplyValues();
         UpdateButtonInteractability();
 
+        // If this is the rings panel, update the pieces per player panel based on the new rings value
         if (setting == ModifiableSetting.NumberOfRings)
         {
-            UpdateMaxPiecesPerPlayer();
+            UpdateMaxPiecesPerPlayer(); // This updates the piecesPerPlayerPanel
         }
     }
 
@@ -73,19 +77,23 @@ public class ModifiableSettingPanel : MonoBehaviour
 
     private void UpdateMaxPiecesPerPlayer()
     {
-        int totalPositions = CalculateTotalPositions(currentAmount);
+        // Get the current number of rings from the rings panel
+        int numberOfRings = (numberOfRingsPanel != null) ? numberOfRingsPanel.currentAmount : 3; // Default to 3 rings if not available
+        int totalPositions = CalculateTotalPositions(numberOfRings);
         int maxPiecesPerPlayer = totalPositions / 2;
 
-        if (piecesPerPlayerPanel != null)
+        if (setting == ModifiableSetting.PiecesPerPlayer)
         {
-            piecesPerPlayerPanel.minAmount = 3; 
-            piecesPerPlayerPanel.maxAmount = maxPiecesPerPlayer; 
-            piecesPerPlayerPanel.currentAmount = Mathf.Clamp(piecesPerPlayerPanel.currentAmount, piecesPerPlayerPanel.minAmount, piecesPerPlayerPanel.maxAmount);
-            piecesPerPlayerPanel.amountText.text = piecesPerPlayerPanel.currentAmount.ToString();
-            piecesPerPlayerPanel.ApplyValues();
-            piecesPerPlayerPanel.UpdateButtonInteractability();
+            minAmount = 3; // Set the minimum number of pieces to 3
+            maxAmount = maxPiecesPerPlayer; // Set the maximum pieces based on the number of rings
+
+            currentAmount = Mathf.Clamp(currentAmount, minAmount, maxAmount);
+            amountText.text = currentAmount.ToString();
+            ApplyValues();
+            UpdateButtonInteractability();
         }
-        Debug.Log($"Max pieces per player: {maxPiecesPerPlayer}");
+
+        Debug.Log($"Max pieces per player: {maxPiecesPerPlayer} based on {numberOfRings} rings.");
     }
 
     private int CalculateTotalPositions(int rings)
@@ -104,10 +112,11 @@ public class ModifiableSettingPanel : MonoBehaviour
         {
             PlayerProfile.Instance.playerData.gameRulesData.numberOfRings = currentAmount;
         }
-        else
+        else if (setting == ModifiableSetting.PiecesPerPlayer)
         {
             PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer = currentAmount;
         }
+
         PlayerProfile.Instance.SavePlayerProfile();
     }
 }
