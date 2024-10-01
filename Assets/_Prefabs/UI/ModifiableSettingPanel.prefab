@@ -34,10 +34,10 @@ RectTransform:
   - {fileID: 3700148694028871054}
   m_Father: {fileID: 2015487160678168991}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 178.25, y: 0}
-  m_SizeDelta: {x: 100, y: 90}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -221.75, y: 0}
+  m_SizeDelta: {x: 100, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7522043852861653241
 CanvasRenderer:
@@ -153,9 +153,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2015487160678168991}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -140, y: -50}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -140, y: 0}
   m_SizeDelta: {x: 100, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3164762737957728249
@@ -289,9 +289,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2015487160678168991}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 240, y: -50}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 240, y: 0}
   m_SizeDelta: {x: 415, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &432414423694249913
@@ -563,10 +563,10 @@ RectTransform:
   - {fileID: 3957282751533337363}
   m_Father: {fileID: 2015487160678168991}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 337, y: 0}
-  m_SizeDelta: {x: 100, y: 90}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -63, y: 0}
+  m_SizeDelta: {x: 100, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4952939904815747603
 CanvasRenderer:
@@ -742,12 +742,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a419fc4bac3d62047a5f516218226896, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  setting: 0
   plusOneButton: {fileID: 649651145035496383}
   deductOneButton: {fileID: 4431716521499241715}
   amountText: {fileID: 1750274190217949418}
   currentAmount: 0
   minAmount: 0
   maxAmount: 0
+  piecesPerPlayerPanel: {fileID: 0}
 --- !u!1 &7621282749889123388
 GameObject:
   m_ObjectHideFlags: 0
