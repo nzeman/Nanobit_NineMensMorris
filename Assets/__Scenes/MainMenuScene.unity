@@ -421,6 +421,10 @@ PrefabInstance:
       propertyPath: currentAmount
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: 5662854889606354581, guid: e307538ec05fd1948b32fbdef5fafa87, type: 3}
+      propertyPath: piecesPerPlayerPanel
+      value: 
+      objectReference: {fileID: 108021275}
     - target: {fileID: 7194326859133752400, guid: e307538ec05fd1948b32fbdef5fafa87, type: 3}
       propertyPath: m_Name
       value: ModifiableSettingPanel (1)
