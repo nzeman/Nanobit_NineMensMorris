@@ -38,12 +38,14 @@ public class GameUIManager : CanvasManagerBase
     public void OnRestartButtonClicked()
     {
         Debug.Log("OnRestartButtonClicked");
+        Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void OnReturnToMainMenuClicked()
     {
         Debug.Log("OnReturnToMainMenuClicked");
+        Time.timeScale = 1f;
         SceneManager.LoadScene(0);
     }
 }
