@@ -95,6 +95,7 @@ public class PlayerSettingsPanel : MonoBehaviour
         foreach (var item in otherPlayerSettingsPanel.colorPickerButtons)
         {
             item.button.interactable = true;
+            item.cannotSelectImage.gameObject.SetActive(false);
         }
 
         selectedColorId = _colorId;
@@ -109,6 +110,8 @@ public class PlayerSettingsPanel : MonoBehaviour
         PlayerProfile.Instance.GetGamePlayerData(isPlayer1).colorId = _colorId;
         PlayerProfile.Instance.SavePlayerProfile();
 
-        otherPlayerSettingsPanel.colorPickerButtons.Find(x => x.colorId == _colorId).button.interactable = false;
+        PlayerColorPicker pcpUsed = otherPlayerSettingsPanel.colorPickerButtons.Find(x => x.colorId == _colorId);
+        pcpUsed.button.interactable = false;
+        pcpUsed.cannotSelectImage.gameObject.SetActive(true);
     }
 }

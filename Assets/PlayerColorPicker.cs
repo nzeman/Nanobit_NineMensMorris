@@ -10,6 +10,7 @@ public class PlayerColorPicker : MonoBehaviour
     public Button button;
     public string colorId;
     public Image checkmarkImage;
+    public Image cannotSelectImage;
 
     // Start is called before the first frame update
     void Start()
