@@ -415,6 +415,8 @@ public class GameManager : MonoBehaviour
                 piece.gameObject.SetActive(false);
             }
         }
+
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.winnerJingle);
         yield return new WaitForSecondsRealtime(0.5f);
         camera.DOOrthoSize(cameraOrtoSize * 1.75f, 1.5f);
 

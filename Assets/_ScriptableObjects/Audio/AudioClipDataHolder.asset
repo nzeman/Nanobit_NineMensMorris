@@ -20,4 +20,4 @@ MonoBehaviour:
   onPieceSelected: {fileID: 11400000, guid: c679abb0d4266eb4488aa9fd4ed1815a, type: 2}
   onPieceRemovedFromBoardByMill: {fileID: 11400000, guid: 456ebe02ef6beb842aea12dae2b82ea1, type: 2}
   onMillFormed: {fileID: 11400000, guid: 9236dfb644ae57e45b3bc977901b3774, type: 2}
-  winnerJingle: {fileID: 0}
+  winnerJingle: {fileID: 11400000, guid: dc9b4fe773c963d48bd1db513d5f4cf6, type: 2}

@@ -43,9 +43,11 @@ public class GameView : ViewBase
     private IEnumerator ShowBottomTextCoroutine(string textToSet)
     {
         bottomText.gameObject.SetActive(true);
+        bottomText.DOFade(1f, .2f);
         bottomText.text = textToSet;
         isShowingBottomText = true;
-        yield return new WaitForSecondsRealtime(1f);
+        yield return new WaitForSecondsRealtime(1.5f);
+        bottomText.alpha = 0f;
         bottomText.gameObject.SetActive(false);
         isShowingBottomText = false;
     }
