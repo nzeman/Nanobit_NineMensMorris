@@ -53,6 +53,7 @@ public class GameManager : MonoBehaviour
         PieceManager.Instance.HighlightNextPieceToPlace();
         canInteract = true;
 
+        AudioManager.Instance.PlayGameMusic(AudioManager.Instance.audioClipDataHolder.gameMusic);
     }
 
     void Update()

@@ -42,6 +42,7 @@ public class PieceManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             if (GameManager.Instance.canInteract == false) return;
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceCliked);
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             HandleBoardPointClick(mousePosition);
         }
