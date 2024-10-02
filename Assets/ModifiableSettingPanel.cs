@@ -100,8 +100,7 @@ public class ModifiableSettingPanel : MonoBehaviour
             ApplyValues();
             UpdateButtonInteractability();
         }
-
-        Debug.Log($"Max pieces per player: {maxPiecesPerPlayer} based on {numberOfRings} rings.");
+        //Debug.Log($"Max pieces per player: {maxPiecesPerPlayer} based on {numberOfRings} rings.");
     }
 
     private int CalculateTotalPositions(int rings)

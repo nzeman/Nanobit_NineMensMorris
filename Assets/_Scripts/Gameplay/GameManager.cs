@@ -362,7 +362,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"No valid moves for {(isPlayer1Turn ? "Player 1" : "Player 2")}. Declaring other player as winner.");
+        //Debug.Log($"No valid moves for {(isPlayer1Turn ? "Player 1" : "Player 2")}. Declaring other player as winner.");
         DeclareWinner(!isPlayer1Turn);
         return true;
     }
@@ -375,39 +375,39 @@ public class GameManager : MonoBehaviour
         // Check if the player is in the flying phase (only 3 pieces left)
         if (PieceManager.Instance.IsFlyingPhaseForCurrentTurnPlayer())
         {
-            Debug.Log("Player is in the flying phase. Checking for any open positions.");
+            //Debug.Log("Player is in the flying phase. Checking for any open positions.");
             for (int i = 0; i < BoardManager.Instance.allBoardPositions.Count; i++)
             {
                 BoardPosition position = BoardManager.Instance.allBoardPositions[i];
                 if (!position.isOccupied)
                 {
-                    Debug.Log("Found a valid position to fly to.");
+                    //Debug.Log("Found a valid position to fly to.");
                     return true; // Found at least one valid move
                 }
             }
         }
         else
         {
-            Debug.Log($"Checking adjacent positions for piece at {piece.boardPosition.name}");
+            //Debug.Log($"Checking adjacent positions for piece at {piece.boardPosition.name}");
 
             // Log the number of adjacent positions
-            Debug.Log($"Piece at {piece.boardPosition.name} has {piece.boardPosition.adjacentPositions.Count} adjacent positions.");
+            //Debug.Log($"Piece at {piece.boardPosition.name} has {piece.boardPosition.adjacentPositions.Count} adjacent positions.");
 
             // If not in flying phase, check if the piece has any adjacent valid moves
             for (int i = 0; i < piece.boardPosition.adjacentPositions.Count; i++)
             {
                 BoardPosition adjacent = piece.boardPosition.adjacentPositions[i];
-                Debug.Log($"Adjacent position: {adjacent.name}, Occupied: {adjacent.isOccupied}");
+                //Debug.Log($"Adjacent position: {adjacent.name}, Occupied: {adjacent.isOccupied}");
 
                 if (!adjacent.isOccupied)
                 {
-                    Debug.Log($"Found a valid adjacent move to position: {adjacent.name}");
+                    //Debug.Log($"Found a valid adjacent move to position: {adjacent.name}");
                     return true;
                 }
             }
         }
 
-        Debug.Log("No valid moves for this piece.");
+        //Debug.Log("No valid moves for this piece.");
         return false;
     }
 

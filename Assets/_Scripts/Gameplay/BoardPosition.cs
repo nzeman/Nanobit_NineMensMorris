@@ -19,11 +19,6 @@ public class BoardPosition : MonoBehaviour
         name = i.ToString();
     }
 
-    public int GetIndex()
-    {
-        return index;
-    }
-
     public void OccupyPosition(Piece piece)
     {
         isOccupied = true;
@@ -51,8 +46,6 @@ public class BoardPosition : MonoBehaviour
             highlightSpriteRenderer.color = new Color(1f, 1f, 1f, .2f);
             highlightSpriteRenderer.DOFade(1f, .8f).SetLoops(-1, LoopType.Yoyo).SetId(highlightSpriteRenderer.GetInstanceID()).SetEase(Ease.InOutSine);
         }
-      
-        
     }
 
     public void OnMouseOver()
@@ -69,6 +62,12 @@ public class BoardPosition : MonoBehaviour
 
     public void ChangeVisualsOnMouseOver()
     {
+        if(GameManager.Instance.canInteract == false)
+        {
+            ResetVisual();
+            return;
+        }
+
         if (GameManager.Instance.currentPhase == GameManager.GamePhase.Placing)
         {
             if (!isOccupied)
