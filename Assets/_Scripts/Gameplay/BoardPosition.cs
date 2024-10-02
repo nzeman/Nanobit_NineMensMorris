@@ -62,7 +62,7 @@ public class BoardPosition : MonoBehaviour
 
     public void ChangeVisualsOnMouseOver()
     {
-        if(GameManager.Instance.canInteract == false)
+        if (GameManager.Instance.canInteract == false)
         {
             ResetVisual();
             return;
@@ -89,7 +89,16 @@ public class BoardPosition : MonoBehaviour
         }
         else if (GameManager.Instance.currentPhase == GameManager.GamePhase.Moving)
         {
-
+            if (!isOccupied)
+            {
+                if (PieceManager.Instance.GetSelectedPiecePosition() != null)
+                {
+                    if (PieceManager.Instance.GetSelectedPiecePosition().IsAdjacent(this))
+                    {
+                        transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+                    }
+                }
+            }
         }
     }
 

@@ -51,6 +51,11 @@ public class PieceManager : MonoBehaviour
         }
     }
 
+    public BoardPosition GetSelectedPiecePosition()
+    {
+        return selectedPiecePosition;
+    }
+
     public void HandleBoardPointClick(Vector2 mousePosition)
     {
         RaycastHit2D hitPiece = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, pieceLayer);
@@ -340,7 +345,7 @@ public class PieceManager : MonoBehaviour
         }
 
         selectedPiecePosition = position;
-        Debug.Log("Can this piece fly? " + IsFlyingPhaseForCurrentTurnPlayer());
+        //Debug.Log("Can this piece fly? " + IsFlyingPhaseForCurrentTurnPlayer());
         if (IsFlyingPhaseForCurrentTurnPlayer())
         {
             foreach (var positionOnBoard in BoardManager.Instance.allBoardPositions)
@@ -380,7 +385,7 @@ public class PieceManager : MonoBehaviour
                 GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
             }
         }
-        Debug.Log("Selected piece at: " + position.name);
+        //Debug.Log("Selected piece at: " + position.name);
     }
 
     public int CountPiecesOfAvailableAdjacentSpots(BoardPosition position)

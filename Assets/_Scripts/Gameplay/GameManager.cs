@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour
     {
         maxPiecesPerPlayer = PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer;
 
-        float ortoSizeCamera = defaultCameraSize + (BoardManager.Instance.numberOfRings * 1.15F);
+        float ortoSizeCamera = defaultCameraSize + (BoardManager.Instance.numberOfRings * 1.8F);
         cameraOrtoSize = ortoSizeCamera;
         camera.orthographicSize = ortoSizeCamera;
 
@@ -428,15 +428,13 @@ public class GameManager : MonoBehaviour
 
         currentPhase = GamePhase.GameEnd;
         canInteract = false;
-
         PieceManager.Instance.UnhighlightAllPieces();
-
         string winner = isPlayer1Turn ? 
             PlayerProfile.Instance.GetGamePlayerData(true).playerName 
             :
             PlayerProfile.Instance.GetGamePlayerData(false).playerName;
 
-        Debug.Log(winner + " wins!");
+        Debug.Log("GameManager :: GAME OVER! :: " + winner + " wins!");
         //GameUIManager.Instance.gameView.SetTopText(winner + " WINS!");
         GameUIManager.Instance.gameView.SetTopText("");
         GameUIManager.Instance.gameView.HideTurnText();
@@ -451,7 +449,7 @@ public class GameManager : MonoBehaviour
 
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.winnerJingle);
         yield return new WaitForSecondsRealtime(0.5f);
-        camera.DOOrthoSize(cameraOrtoSize * 1.75f, 1.5f);
+        camera.DOOrthoSize(cameraOrtoSize * 2.25f, 1.5f);
 
         yield return new WaitForSecondsRealtime(1.4f);
         GameUIManager.Instance.EnableView(GameUIManager.Instance.endView);
