@@ -12,6 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e48de66e8208a0e4c99c2236d89881e7, type: 3}
   m_Name: AudioClipDataHolder
   m_EditorClassIdentifier: 
-  mainMenuMusic: {fileID: 0}
-  gameMusic: {fileID: 0}
-  onPieceCliked: {fileID: 11400000, guid: d654f60af83a32949ac0c8ef6d3ef376, type: 2}
+  mainMenuMusic: {fileID: 11400000, guid: 44bf34af518be1d40aceaf3ccf43bda1, type: 2}
+  gameMusic: {fileID: 11400000, guid: 10cc2593ac44b4744b39dfe71d3c2fa3, type: 2}
+  onPiecePlacedClick: {fileID: 11400000, guid: d654f60af83a32949ac0c8ef6d3ef376, type: 2}
+  onPieceMove: {fileID: 11400000, guid: 367e4a4c6ee964b4f9cb48139c852528, type: 2}
+  onIllegalMove: {fileID: 11400000, guid: c88497e52443ecc4285f9807e2848bf1, type: 2}
+  onPieceSelected: {fileID: 11400000, guid: c679abb0d4266eb4488aa9fd4ed1815a, type: 2}
+  onPieceRemovedFromBoardByMill: {fileID: 0}
+  onMillFormed: {fileID: 0}
+  winnerJingle: {fileID: 0}

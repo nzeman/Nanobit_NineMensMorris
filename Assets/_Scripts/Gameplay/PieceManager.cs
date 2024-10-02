@@ -42,7 +42,7 @@ public class PieceManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             if (GameManager.Instance.canInteract == false) return;
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceCliked);
+            
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             HandleBoardPointClick(mousePosition);
         }
@@ -91,6 +91,8 @@ public class PieceManager : MonoBehaviour
             GameManager.Instance.SavePreviousPhase();
             GameManager.Instance.canInteract = false;
 
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPiecePlacedClick);
+
             Piece pieceToPlace = isPlayer1Turn ? player1PiecesQueue.Dequeue() : player2PiecesQueue.Dequeue();
             pieceToPlace.transform.DOMove(position.transform.position, 0.3f).OnComplete(() =>
             {
@@ -105,6 +107,7 @@ public class PieceManager : MonoBehaviour
                 {
                     List<BoardPosition> millPositions = GetMillPositions(position, isPlayer1Turn);
                     BoardManager.Instance.HighlightMillLine(millPositions);
+                    AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
                 }
                 GameManager.Instance.currentPhase = GameManager.Instance.gamePhasePriorToMillRemoval;
                 GameManager.Instance.PiecePlacedByPlayer(millFormed);
@@ -158,6 +161,7 @@ public class PieceManager : MonoBehaviour
             {
                 GameManager.Instance.canInteract = false;
                 MovePiece(selectedPiecePosition, position);
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceMove);
 
                 DOVirtual.DelayedCall(0.3f, () =>
                 {
@@ -170,6 +174,7 @@ public class PieceManager : MonoBehaviour
             else
             {
                 Debug.Log("Invalid move: Not adjacent and not in flying phase.");
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
             }
         }
         else if (selectedPiecePosition != null && position.isOccupied)
@@ -277,6 +282,7 @@ public class PieceManager : MonoBehaviour
                     positionOnBoard.HighlightBoardPosition(false);
                 }
             }
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
         }
         else
         {
@@ -301,6 +307,10 @@ public class PieceManager : MonoBehaviour
                 Debug.Log("Selected piece has no adjacent position that is not occupied, and there is no flying. You cannot move this piece!");
                 // TODO add different outline or something here, so it's more clear that you cannot move it
                 selectedPiecePosition.occupyingPiece.HighlightPiece(false);
+            }
+            else
+            {
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
             }
         }
         Debug.Log("Selected piece at: " + position.name);
@@ -420,6 +430,8 @@ public class PieceManager : MonoBehaviour
                     Destroy(pieceToDestroy);
                 });
 
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceRemovedFromBoardByMill);
+
                 position.ClearPosition();
                 BoardManager.Instance.ResetMillLines();
                 GameManager.Instance.PieceRemoved();
@@ -433,11 +445,13 @@ public class PieceManager : MonoBehaviour
             else
             {
                 Debug.Log("Cannot remove a piece that is in a mill unless all opponent pieces are in mills.");
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
             }
         }
         else
         {
             Debug.Log("Piece does not belong to the opponent.");
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
         }
     }
 

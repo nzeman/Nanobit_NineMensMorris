@@ -24,10 +24,6 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void Start()
-    {
-        PlayMainMenuMusic(audioClipDataHolder.mainMenuMusic);
-    }
 
     public void PlayMainMenuMusic(AudioClipData musicClipData, bool fade = true, float fadeDuration = 1f)
     {

@@ -54,6 +54,8 @@ public class GameManager : MonoBehaviour
         canInteract = true;
 
         AudioManager.Instance.PlayGameMusic(AudioManager.Instance.audioClipDataHolder.gameMusic);
+        AudioManager.Instance.StopMainMenuMusic();
+
     }
 
     void Update()
@@ -184,6 +186,8 @@ public class GameManager : MonoBehaviour
         List<Piece> piecesToHighlight = new List<Piece>();
         bool isPlayer1Turn = IsPlayer1Turn();
         string opponentTag = isPlayer1Turn ? "Player2Piece" : "Player1Piece";
+
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
 
         foreach (var piece in PieceManager.Instance.allPieces)
         {

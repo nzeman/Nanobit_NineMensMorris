@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0ce844931be58494eb13493d1f038017, type: 3}
-  m_Name: PiecePlaced
+  m_Name: OnPieceSelected
   m_EditorClassIdentifier: 
-  clip: {fileID: 8300000, guid: 739511a4740abd84e830d755658f6b25, type: 3}
+  clip: {fileID: 8300000, guid: 6a94b13b6902675489ac8135c346da57, type: 3}
   volume: 1
   pitch: 1
   loop: 0
