@@ -30,8 +30,8 @@ public class GameManager : MonoBehaviour
     public bool canInteract = true;
     private bool isPlayer1Turn = true;
     public int maxPiecesPerPlayer = 9;
-    private int piecesPlacedPlayer1 = 0;
-    private int piecesPlacedPlayer2 = 0;
+    public int piecesPlacedPlayer1 = 0;
+    public int piecesPlacedPlayer2 = 0;
     public bool isGamePaused = false;
 
     [Header("Camera settings")]
@@ -55,6 +55,8 @@ public class GameManager : MonoBehaviour
 
         AudioManager.Instance.PlayGameMusic(AudioManager.Instance.audioClipDataHolder.gameMusic);
         AudioManager.Instance.StopMainMenuMusic();
+
+        PieceManager.Instance.RefreshPiecesLeftUi();
 
     }
 
@@ -109,6 +111,8 @@ public class GameManager : MonoBehaviour
             {
                 BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
             }
+
+           
         }
 
         canInteract = true;
@@ -162,7 +166,9 @@ public class GameManager : MonoBehaviour
         currentPhase = GamePhase.Moving;
         GameUIManager.Instance.gameView.SetTopText("Transitioning to Moving Phase");
         Debug.Log("Transitioning to Moving Phase");
+        GameUIManager.Instance.gameView.ShowBottomText("You are now in the Moving Phase of the game!");
         BoardManager.Instance.HideHightlightsFromBoardPositions();
+        PieceManager.Instance.RefreshPiecesLeftUi();
         if (CheckLossByNoValidMoves())
         {
             DeclareWinner(!isPlayer1Turn);

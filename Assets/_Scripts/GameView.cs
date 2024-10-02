@@ -8,9 +8,10 @@ public class GameView : ViewBase
 {
     [SerializeField] private TMP_Text topText;
     [SerializeField] private TMP_Text turnText;
-    [SerializeField] private TMP_Text player1NameText;
-    [SerializeField] private TMP_Text player2NameText;
 
+
+    public PlayerUiPanel player1UiPanel;
+    public PlayerUiPanel player2UiPanel;
 
     [SerializeField] private TMP_Text bottomText;
     private bool isShowingBottomText = false;
@@ -19,11 +20,11 @@ public class GameView : ViewBase
     {
         if (PlayerProfile.Instance == null) return;
 
-        player1NameText.text = PlayerProfile.Instance.GetGamePlayerData(true).playerName;
-        player1NameText.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId)).color;
+        player1UiPanel.playerNameText.text = PlayerProfile.Instance.GetGamePlayerData(true).playerName;
+        player1UiPanel.playerNameText.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId)).color;
 
-        player2NameText.text = PlayerProfile.Instance.GetGamePlayerData(false).playerName;
-        player2NameText.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId)).color;
+        player2UiPanel.playerNameText.text = PlayerProfile.Instance.GetGamePlayerData(false).playerName;
+        player2UiPanel.playerNameText.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId)).color;
     }
 
     public void SetTopText(string topString)

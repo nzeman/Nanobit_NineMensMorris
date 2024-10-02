@@ -82,6 +82,22 @@ public class PieceManager : MonoBehaviour
         }
     }
 
+    public void RefreshPiecesLeftUi()
+    {
+        int countPlayer1 = GameManager.Instance.maxPiecesPerPlayer - GameManager.Instance.piecesPlacedPlayer1;
+        int countPlayer2 = GameManager.Instance.maxPiecesPerPlayer - GameManager.Instance.piecesPlacedPlayer2;
+        GameUIManager.Instance.gameView.player1UiPanel.piecesLeftToPlaceText.text = (countPlayer1).ToString();
+        GameUIManager.Instance.gameView.player2UiPanel.piecesLeftToPlaceText.text = (countPlayer2).ToString();
+        if(countPlayer1 <= 0)
+        {
+            GameUIManager.Instance.gameView.player1UiPanel.piecesLeftToPlaceText.gameObject.SetActive(false);
+        }
+        if(countPlayer2 <= 0)
+        {
+            GameUIManager.Instance.gameView.player2UiPanel.piecesLeftToPlaceText.gameObject.SetActive(false);
+        }
+    }
+
     void HandlePlacingPhase(BoardPosition position)
     {
         if (!position.isOccupied)
@@ -112,6 +128,7 @@ public class PieceManager : MonoBehaviour
                 GameManager.Instance.currentPhase = GameManager.Instance.gamePhasePriorToMillRemoval;
                 GameManager.Instance.PiecePlacedByPlayer(millFormed);
                 GameManager.Instance.canInteract = true;
+                RefreshPiecesLeftUi();
             });
 
 
