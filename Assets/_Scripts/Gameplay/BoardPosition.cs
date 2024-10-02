@@ -48,8 +48,8 @@ public class BoardPosition : MonoBehaviour
         DOTween.Kill(highlightSpriteRenderer.GetInstanceID(), true);
         if (on)
         {
-            highlightSpriteRenderer.color = new Color(1f, 1f, 1f, 0f);
-            highlightSpriteRenderer.DOFade(1f, .5f).SetLoops(-1, LoopType.Yoyo).SetId(highlightSpriteRenderer.GetInstanceID());
+            highlightSpriteRenderer.color = new Color(1f, 1f, 1f, .2f);
+            highlightSpriteRenderer.DOFade(1f, .8f).SetLoops(-1, LoopType.Yoyo).SetId(highlightSpriteRenderer.GetInstanceID()).SetEase(Ease.InOutSine);
         }
       
         
@@ -83,6 +83,7 @@ public class BoardPosition : MonoBehaviour
 
         }
     }
+
 
     public void OnMouseExit()
     {

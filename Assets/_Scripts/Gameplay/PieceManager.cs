@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -108,33 +109,39 @@ public class PieceManager : MonoBehaviour
 
             GameManager.Instance.SavePreviousPhase();
             GameManager.Instance.canInteract = false;
-
+            BoardManager.Instance.HideHightlightsFromBoardPositions();
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPiecePlacedClick);
 
             Piece pieceToPlace = isPlayer1Turn ? player1PiecesQueue.Dequeue() : player2PiecesQueue.Dequeue();
-            pieceToPlace.transform.DOMove(position.transform.position, 0.3f).OnComplete(() =>
+            pieceToPlace.transform.DOMove(position.transform.position, GameManager.Instance.timeToMovePieceToBoardInPlacingPhase).OnComplete(() =>
             {
-
-                position.OccupyPosition(pieceToPlace);
-                pieceToPlace.boardPosition = position;
-
-                bool millFormed = CheckForMill(position, isPlayer1Turn);
-
-                // Highlight the mill if it's formed
-                if (millFormed)
-                {
-                    List<BoardPosition> millPositions = GetMillPositions(position, isPlayer1Turn);
-                    BoardManager.Instance.HighlightMillLine(millPositions);
-                    AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
-                }
-                GameManager.Instance.currentPhase = GameManager.Instance.gamePhasePriorToMillRemoval;
-                GameManager.Instance.PiecePlacedByPlayer(millFormed);
-                GameManager.Instance.canInteract = true;
-                RefreshPiecesLeftUi();
+                StartCoroutine(OnPieceReachedPositionInPlacingPhase(pieceToPlace, position, isPlayer1Turn));
             });
 
 
         }
+    }
+
+    public IEnumerator OnPieceReachedPositionInPlacingPhase(Piece pieceToPlace, BoardPosition position, bool isPlayer1Turn)
+    {
+        yield return new WaitForSecondsRealtime(.2f);
+
+        position.OccupyPosition(pieceToPlace);
+        pieceToPlace.boardPosition = position;
+
+        bool millFormed = CheckForMill(position, isPlayer1Turn);
+
+        // Highlight the mill if it's formed
+        if (millFormed)
+        {
+            List<BoardPosition> millPositions = GetMillPositions(position, isPlayer1Turn);
+            BoardManager.Instance.HighlightMillLine(millPositions);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
+        }
+        GameManager.Instance.currentPhase = GameManager.Instance.gamePhasePriorToMillRemoval;
+        GameManager.Instance.PiecePlacedByPlayer(millFormed);
+        GameManager.Instance.canInteract = true;
+        RefreshPiecesLeftUi();
     }
 
     public void HighlightNextPieceToPlace()
@@ -206,18 +213,18 @@ public class PieceManager : MonoBehaviour
 
             if (isFlyingPhase || selectedPiecePosition.IsAdjacent(position))
             {
-                GameUIManager.Instance.gameView.SetTopText("MOVING A PIECE...");
+                GameUIManager.Instance.gameView.SetTopText("");
                 GameManager.Instance.canInteract = false;
                 MovePiece(selectedPiecePosition, position);
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceMove);
 
-                DOVirtual.DelayedCall(0.3f, () =>
+                DOVirtual.DelayedCall(GameManager.Instance.timeToMovePieceToBoardPositionInMovingPhase, () =>
                 {
                     List<BoardPosition> millPositions = GetMillPositions(position, GameManager.Instance.IsPlayer1Turn());
                     GameManager.Instance.PiecePlacedByPlayer(millPositions != null);
 
                     BoardManager.Instance.HideHightlightsFromBoardPositions();
-                });
+                }).SetUpdate(true);
             }
             else
             {
@@ -304,7 +311,7 @@ public class PieceManager : MonoBehaviour
         piece.boardPosition = to;
 
         to.OccupyPosition(piece);
-        piece.transform.DOMove(to.transform.position, .3f);
+        piece.transform.DOMove(to.transform.position, GameManager.Instance.timeToMovePieceToBoardPositionInMovingPhase);
 
         selectedPiecePosition = null;
     }

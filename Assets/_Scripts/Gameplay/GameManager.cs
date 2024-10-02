@@ -39,6 +39,10 @@ public class GameManager : MonoBehaviour
     public float defaultCameraSize = 5f;
     public float cameraOrtoSize = 5f;
 
+    [Header("Time settings")]
+    public float timeToMovePieceToBoardPositionInMovingPhase = 0.5f;
+    public float timeToMovePieceToBoardInPlacingPhase = 0.5f;
+
     public void Start()
     {
         maxPiecesPerPlayer = PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer;
@@ -279,7 +283,11 @@ public class GameManager : MonoBehaviour
             if (currentPhase == GamePhase.Placing)
             {
                 BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
-
+                GameUIManager.Instance.gameView.SetTopText("PLACE YOUR PIECE ON THE BOARD!");
+            }
+            else
+            {
+                GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
             }
         });
         //PieceManager.Instance.UnhighlightAllPieces();
@@ -296,7 +304,7 @@ public class GameManager : MonoBehaviour
     {
         if (currentPhase == GamePhase.Placing)
         {
-            GameUIManager.Instance.gameView.SetTopText("PLACE YOUR PIECES ON THE BOARD!");
+            GameUIManager.Instance.gameView.SetTopText("PLACE YOUR PIECE ON THE BOARD!");
         }
         else if (currentPhase == GamePhase.Moving)
         {

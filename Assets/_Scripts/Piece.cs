@@ -55,7 +55,6 @@ public class Piece : MonoBehaviour
 
     internal void Color(ColorPair colorPair)
     {
-        if (boardPosition == null) return;
         mainSprite.color = colorPair.color;
     }
 }
