@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -44,6 +45,17 @@ public class BoardPosition : MonoBehaviour
     public void HighlightBoardPosition(bool on)
     {
         highlightSpriteRenderer.enabled = on;
+        if (on)
+        {
+            highlightSpriteRenderer.color = Color.white;
+            highlightSpriteRenderer.DOFade(0f, .5f).Complete();
+            highlightSpriteRenderer.DOFade(1f, .5f).SetLoops(-1, LoopType.Yoyo).SetId(highlightSpriteRenderer.GetInstanceID());
+        }
+        else
+        {
+            DOTween.Kill(highlightSpriteRenderer.GetInstanceID(), true);
+        }
+        
     }
 
     public void OnMouseEnter()

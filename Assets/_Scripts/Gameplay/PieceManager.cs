@@ -1,6 +1,8 @@
 using DG.Tweening;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PieceManager : MonoBehaviour
 {
@@ -42,7 +44,7 @@ public class PieceManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             if (GameManager.Instance.canInteract == false) return;
-            
+
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             HandleBoardPointClick(mousePosition);
         }
@@ -88,11 +90,11 @@ public class PieceManager : MonoBehaviour
         int countPlayer2 = GameManager.Instance.maxPiecesPerPlayer - GameManager.Instance.piecesPlacedPlayer2;
         GameUIManager.Instance.gameView.player1UiPanel.piecesLeftToPlaceText.text = (countPlayer1).ToString();
         GameUIManager.Instance.gameView.player2UiPanel.piecesLeftToPlaceText.text = (countPlayer2).ToString();
-        if(countPlayer1 <= 0)
+        if (countPlayer1 <= 0)
         {
             GameUIManager.Instance.gameView.player1UiPanel.piecesLeftToPlaceText.gameObject.SetActive(false);
         }
-        if(countPlayer2 <= 0)
+        if (countPlayer2 <= 0)
         {
             GameUIManager.Instance.gameView.player2UiPanel.piecesLeftToPlaceText.gameObject.SetActive(false);
         }
@@ -151,6 +153,33 @@ public class PieceManager : MonoBehaviour
         }
     }
 
+    public void ResetAllPieceVisuals()
+    {
+        Debug.Log("ResetAllPieceVisuals");
+        foreach (var piece in PieceManager.Instance.allPieces)
+        {
+            piece.ResetVisual();
+        }
+    }
+
+    public void HighlightPiecesByPlayerWhichHeCanSelectAndThatHaveValidMoves()
+    {
+        //return;
+        string playerTag = GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece";
+        foreach (var piece in allPieces)
+        {
+            if (piece.CompareTag(playerTag))
+            {
+                bool hasValidMove = piece.boardPosition.adjacentPositions.Any(x => !x.isOccupied);
+                piece.ScaleUp(hasValidMove);
+            }
+            else
+            {
+                piece.ResetVisual();
+            }
+        }
+    }
+
 
 
 
@@ -168,6 +197,7 @@ public class PieceManager : MonoBehaviour
             {
                 BoardManager.Instance.HideHightlightsFromBoardPositions();
                 SelectPiece(position);
+
             }
         }
         else if (selectedPiecePosition != null && !position.isOccupied)
@@ -176,6 +206,7 @@ public class PieceManager : MonoBehaviour
 
             if (isFlyingPhase || selectedPiecePosition.IsAdjacent(position))
             {
+                GameUIManager.Instance.gameView.SetTopText("MOVING A PIECE...");
                 GameManager.Instance.canInteract = false;
                 MovePiece(selectedPiecePosition, position);
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceMove);
@@ -200,6 +231,7 @@ public class PieceManager : MonoBehaviour
             {
                 BoardManager.Instance.HideHightlightsFromBoardPositions();
                 SelectPiece(position);
+                GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
             }
         }
     }
@@ -267,7 +299,7 @@ public class PieceManager : MonoBehaviour
 
 
         Piece piece = from.occupyingPiece;
-        piece.HighlightPiece(false);
+        piece.OutlinePiece(false);
 
         from.ClearPosition();
         piece.boardPosition = to;
@@ -281,10 +313,27 @@ public class PieceManager : MonoBehaviour
 
     void SelectPiece(BoardPosition position)
     {
-        DeselectAllPieces();
-        selectedPiecePosition = position;
-        position.occupyingPiece.HighlightPiece(true);
+        if(selectedPiecePosition == position.occupyingPiece)
+        {
+            // do not reselect the same one over again
+            return;
+        }
 
+        foreach (var piece in allPieces)
+        {
+            piece.OutlinePiece(false);
+        }
+        string playerTag = GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece";
+        foreach (var piece in allPieces)
+        {
+            if (piece.CompareTag(playerTag))
+            {
+                bool hasValidMove = piece.boardPosition.adjacentPositions.Any(x => !x.isOccupied);
+                piece.ScaleUp(hasValidMove);
+            }
+        }
+
+        selectedPiecePosition = position;
         Debug.Log("Can this piece fly? " + IsFlyingPhaseForCurrentTurnPlayer());
         if (IsFlyingPhaseForCurrentTurnPlayer())
         {
@@ -299,46 +348,59 @@ public class PieceManager : MonoBehaviour
                     positionOnBoard.HighlightBoardPosition(false);
                 }
             }
+            //DeselectAllPieces();
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
+            GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
+            position.occupyingPiece.OutlinePiece(true);
+            position.occupyingPiece.ScaleUp(true);
         }
         else
         {
 
             // no flying
-            int countAdjacent = 0;
-            foreach (var adjacentPosition in position.adjacentPositions)
-            {
-                if (!adjacentPosition.isOccupied)
-                {
-                    adjacentPosition.HighlightBoardPosition(true);
-                    countAdjacent++;
-                }
-                else
-                {
-                    adjacentPosition.HighlightBoardPosition(false);
-                }
-            }
-
-            if (countAdjacent == 0)
+            if (CountPiecesOfAvailableAdjacentSpots(position) == 0)
             {
                 Debug.Log("Selected piece has no adjacent position that is not occupied, and there is no flying. You cannot move this piece!");
                 GameUIManager.Instance.gameView.ShowBottomText("No possible moves with this piece!");
                 // TODO add different outline or something here, so it's more clear that you cannot move it
-                selectedPiecePosition.occupyingPiece.HighlightPiece(false);
+                selectedPiecePosition.occupyingPiece.ResetVisual();
             }
             else
             {
+                //DeselectAllPieces();
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
+                position.occupyingPiece.OutlinePiece(true);
+                position.occupyingPiece.ScaleUp(true);
+                GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
             }
         }
         Debug.Log("Selected piece at: " + position.name);
+    }
+
+    public int CountPiecesOfAvailableAdjacentSpots(BoardPosition position)
+    {
+        int countAdjacent = 0;
+        foreach (var adjacentPosition in position.adjacentPositions)
+        {
+            if (!adjacentPosition.isOccupied)
+            {
+                adjacentPosition.HighlightBoardPosition(true);
+                countAdjacent++;
+            }
+            else
+            {
+                adjacentPosition.HighlightBoardPosition(false);
+            }
+        }
+
+        return countAdjacent;
     }
 
     void DeselectAllPieces()
     {
         foreach (var piece in allPieces)
         {
-            piece.HighlightPiece(false);
+            piece.ResetVisual();
         }
     }
 
@@ -463,6 +525,7 @@ public class PieceManager : MonoBehaviour
             else
             {
                 Debug.Log("Cannot remove a piece that is in a mill unless all opponent pieces are in mills.");
+                GameUIManager.Instance.gameView.ShowBottomText("Cannot remove a piece that is in a mill unless all opponent pieces are in mills!");
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
             }
         }
@@ -536,14 +599,12 @@ public class PieceManager : MonoBehaviour
     {
         foreach (var piece in allPieces)
         {
-            piece.HighlightPiece(false);
+            piece.ResetVisual();
         }
     }
 
-    public void ScaleUpDownPieces(List<Piece> piecesAnimation)
+    public void ScaleUpDownPiecesForMillOnly(List<Piece> piecesAnimation)
     {
-
-
         foreach (var piece in piecesAnimation)
         {
             Sequence seq = DOTween.Sequence();

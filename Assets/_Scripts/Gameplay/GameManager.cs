@@ -109,6 +109,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
+                
                 BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
             }
 
@@ -134,16 +135,21 @@ public class GameManager : MonoBehaviour
                     DeclareWinner(!isPlayer1Turn);
                     return;
                 }
+                else
+                {
+                    UponNeedToSelectAPiece();
+                }
             }
 
 
             GameUIManager.Instance.gameView.SetTurnText();
-            SetUi();
 
             if (currentPhase == GamePhase.Placing)
             {
+            SetUi();
                 PieceManager.Instance.HighlightNextPieceToPlace();
             }
+
         }
     }
 
@@ -195,6 +201,8 @@ public class GameManager : MonoBehaviour
 
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
 
+        PieceManager.Instance.ResetAllPieceVisuals();
+
         foreach (var piece in PieceManager.Instance.allPieces)
         {
             if (piece.CompareTag(opponentTag) && piece.boardPosition != null)
@@ -202,13 +210,14 @@ public class GameManager : MonoBehaviour
                 // Only highlight and scale up/down pieces that are NOT in a mill, or if all opponent pieces are in mills
                 if (!PieceManager.Instance.IsInMill(piece.boardPosition) || PieceManager.Instance.AllOpponentPiecesInMill())
                 {
-                    piece.HighlightPiece(true);
+                    piece.OutlinePiece(true);
+                    piece.deleteSprite.gameObject.SetActive(true);
                     piecesToHighlight.Add(piece);
                 }
             }
         }
 
-        PieceManager.Instance.ScaleUpDownPieces(piecesToHighlight);
+        PieceManager.Instance.ScaleUpDownPiecesForMillOnly(piecesToHighlight);
     }
 
 
@@ -244,31 +253,42 @@ public class GameManager : MonoBehaviour
             if (CheckIfAllPiecesHaveBeenPlaced())
             {
                 currentPhase = GamePhase.Moving;
+
+                UponNeedToSelectAPiece();
             }
             else
             {
                 currentPhase = GamePhase.Placing;
                 PieceManager.Instance.HighlightNextPieceToPlace();
+                
             }
             if (isPlayer1Turn)
             {
                 GameUIManager.Instance.gameView.SetTurnText();
-                SetUi();
+                
                 Debug.Log("Player 1 turn");
             }
             else
             {
                 GameUIManager.Instance.gameView.SetTurnText();
-                SetUi();
+                
                 Debug.Log("Player 2 turn");
             }
+            //SetUi();
 
             if (currentPhase == GamePhase.Placing)
             {
                 BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
+
             }
         });
-        PieceManager.Instance.UnhighlightAllPieces();
+        //PieceManager.Instance.UnhighlightAllPieces();
+    }
+
+    public void UponNeedToSelectAPiece()
+    {
+        PieceManager.Instance.HighlightPiecesByPlayerWhichHeCanSelectAndThatHaveValidMoves();
+        GameUIManager.Instance.gameView.SetTopText("SELECT YOUR PIECE BY CLICKING ON IT!");
     }
 
 
@@ -320,16 +340,15 @@ public class GameManager : MonoBehaviour
         bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
         string playerTag = isPlayer1Turn ? "Player1Piece" : "Player2Piece";
 
-        Debug.Log($"Checking for valid moves for: {(isPlayer1Turn ? "Player 1" : "Player 2")}");
-
+        //Debug.Log($"Checking for valid moves for: {(isPlayer1Turn ? "Player 1" : "Player 2")}");
         foreach (var piece in PieceManager.Instance.allPieces)
         {
             if (piece.CompareTag(playerTag) && piece.boardPosition != null)
             {
-                Debug.Log($"Checking piece at: {piece.boardPosition.name}");
+                //Debug.Log($"Checking piece at: {piece.boardPosition.name}");
                 if (HasAnyValidMove(piece))
                 {
-                    Debug.Log("Player has valid moves.");
+                    //Debug.Log("Player has valid moves.");
                     return false;
                 }
             }

@@ -7,17 +7,38 @@ using UnityEngine.UIElements;
 
 public class Piece : MonoBehaviour
 {
-    public SpriteRenderer mainSprite;
     public BoardPosition boardPosition;
-    public SpriteRenderer selectedSprite;
 
-    public void HighlightPiece(bool on)
+    [Header("Sprite Renderers")]
+    public SpriteRenderer mainSprite;
+    public SpriteRenderer selectedSprite;
+    public SpriteRenderer mildOutline;
+    public SpriteRenderer deleteSprite;
+
+    public void OutlinePiece(bool on)
     {
         if (boardPosition == null) return;
-        selectedSprite.enabled = on;
         if (on)
         {
-            transform.DOScale(1.2f, .3f);
+            selectedSprite.enabled = on;
+        }
+        else
+        {
+            ResetVisual();
+        }
+        
+    }
+
+    public void MildOutline(bool on)
+    {
+        mildOutline.enabled = on;
+    }
+
+    public void ScaleUp(bool scale)
+    {
+        if (scale)
+        {
+            transform.DOScale(1.25f, 1f).SetLoops(-1, LoopType.Yoyo).SetId(GetInstanceID()).SetEase(Ease.InOutExpo);
         }
         else
         {
@@ -29,6 +50,9 @@ public class Piece : MonoBehaviour
     public void ResetVisual()
     {
         transform.localScale = Vector3.one;
+        deleteSprite.gameObject.SetActive(false);
+        selectedSprite.enabled = false;
+        DOTween.Kill(GetInstanceID(), true);
     }
 
     internal void Color(ColorPair colorPair)

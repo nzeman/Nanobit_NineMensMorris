@@ -199,15 +199,16 @@ public class BoardManager : MonoBehaviour
 
     public void HighlightAllUnoccupiedBoardPositions()
     {
+        Debug.Log("HighlightAllUnoccupiedBoardPositions");
         foreach (BoardPosition position in allBoardPositions)
         {
             if (!position.isOccupied)
             {
-                position.highlightSpriteRenderer.enabled = true;
+                position.HighlightBoardPosition(true);
             }
             else
             {
-                position.highlightSpriteRenderer.enabled = false;
+                position.HighlightBoardPosition(false);
             }
         }
 
@@ -215,9 +216,10 @@ public class BoardManager : MonoBehaviour
 
     public void HideHightlightsFromBoardPositions()
     {
+        Debug.Log("HideHightlightsFromBoardPositions");
         foreach (BoardPosition position in allBoardPositions)
         {
-            position.highlightSpriteRenderer.enabled = false;
+            position.HighlightBoardPosition(false);
         }
     }
 }
