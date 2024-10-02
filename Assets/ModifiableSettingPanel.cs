@@ -33,7 +33,13 @@ public class ModifiableSettingPanel : MonoBehaviour
             currentAmount = PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer;
         }
 
-        ModifyAmount(0);
+        RefreshWithoutModidfying();
+        UpdateButtonInteractability();
+    }
+
+    public void RefreshWithoutModidfying()
+    {
+        amountText.text = currentAmount.ToString();
     }
 
     public void ModifyAmount(int amount)
@@ -49,7 +55,7 @@ public class ModifiableSettingPanel : MonoBehaviour
             currentAmount = Mathf.Clamp(currentAmount, minAmount, maxAmount);
         }
 
-        amountText.text = currentAmount.ToString();
+        RefreshWithoutModidfying();
         ApplyValues();
         UpdateButtonInteractability();
 
