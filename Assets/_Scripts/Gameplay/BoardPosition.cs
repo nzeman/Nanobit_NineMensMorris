@@ -55,14 +55,24 @@ public class BoardPosition : MonoBehaviour
         
     }
 
+    public void OnMouseOver()
+    {
+        if (GameManager.Instance.isGamePaused) return;
+        ChangeVisualsOnMouseOver();
+    }
+
     public void OnMouseEnter()
     {
         if (GameManager.Instance.isGamePaused) return;
-        if(GameManager.Instance.currentPhase == GameManager.GamePhase.Placing)
+        ChangeVisualsOnMouseOver();
+    }
+
+    public void ChangeVisualsOnMouseOver()
+    {
+        if (GameManager.Instance.currentPhase == GameManager.GamePhase.Placing)
         {
             if (!isOccupied)
             {
-                Debug.Log("OnMouseEnter" + index);
                 transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
                 onHoveredSpriteRenderer.enabled = true;
                 if (GameManager.Instance.IsPlayer1Turn())
@@ -78,7 +88,7 @@ public class BoardPosition : MonoBehaviour
                 }
             }
         }
-        else if(GameManager.Instance.currentPhase == GameManager.GamePhase.Moving)
+        else if (GameManager.Instance.currentPhase == GameManager.GamePhase.Moving)
         {
 
         }
