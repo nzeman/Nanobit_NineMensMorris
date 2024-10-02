@@ -32,7 +32,6 @@ public class MainMenuCanvasManager : CanvasManagerBase
         mainMenuView.playButton.onClick.AddListener(OnPlayButtonClicked);
         mainMenuView.settingsButton.onClick.AddListener(OnSettingsButtonClicked);
         mainMenuView.exitButton.onClick.AddListener(OnExitButtonClicked);
-
         EnableView(mainMenuView, 0f);
     }
 
@@ -51,6 +50,7 @@ public class MainMenuCanvasManager : CanvasManagerBase
     public void OnExitButtonClicked()
     {
         Debug.Log("OnExitButtonClicked");
+        Debug.Log("Application Quit is called!");
         Application.Quit();
     }
 }

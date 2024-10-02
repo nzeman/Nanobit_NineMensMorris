@@ -140,6 +140,7 @@ public class BoardManager : MonoBehaviour
     void CreateLine(Vector3 start, Vector3 end)
     {
         GameObject lineObj = new GameObject("Line");
+        lineObj.transform.SetParent(transform);
         LineRenderer lineRenderer = lineObj.AddComponent<LineRenderer>();
 
         lineRenderer.material = normalLineMaterial;

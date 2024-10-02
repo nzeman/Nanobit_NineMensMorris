@@ -499,7 +499,7 @@ Camera:
   far clip plane: 100
   field of view: 60
   orthographic: 1
-  orthographic size: 7
+  orthographic size: 6
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2864,8 +2864,8 @@ MonoBehaviour:
   piecesPlacedPlayer2: 0
   isGamePaused: 0
   camera: {fileID: 519420031}
-  defaultCameraSize: 7
-  cameraOrtoSize: 7
+  defaultCameraSize: 6
+  cameraOrtoSize: 6
 --- !u!1 &1869036383
 GameObject:
   m_ObjectHideFlags: 0

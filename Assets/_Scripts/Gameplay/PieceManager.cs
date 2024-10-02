@@ -238,22 +238,21 @@ public class PieceManager : MonoBehaviour
 
     public void SpawnAllPiecesAtStart()
     {
-        // Convert the UI RectTransform positions (in screen space) to world space
         Vector3 player1StartPosition = Camera.main.ScreenToWorldPoint(player1SpawnUI.position);
         Vector3 player2StartPosition = Camera.main.ScreenToWorldPoint(player2SpawnUI.position);
 
-        // Ensure the Z-axis is properly set for 2D world space (make it 0)
         player1StartPosition.z = 0;
         player2StartPosition.z = 0;
 
-        float spacing = 0.3f; // Adjust the spacing appropriately
+        float spacing = 0.5f;
+        float scaleOfPieces = 0.35f;
 
         // Spawn pieces for Player 1
         for (int i = GameManager.Instance.maxPiecesPerPlayer - 1; i >= 0; i--)
         {
             Vector3 player1Position = player1StartPosition + new Vector3(i * spacing, 0f, 0f);
-            GameObject piecePlayer1 = Instantiate(piecePrefabPlayer1, player1Position, Quaternion.identity);
-            piecePlayer1.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
+            GameObject piecePlayer1 = Instantiate(piecePrefabPlayer1, player1Position, Quaternion.identity, transform);
+            piecePlayer1.transform.localScale = new Vector3(scaleOfPieces, scaleOfPieces, scaleOfPieces);
             Piece p1 = piecePlayer1.GetComponent<Piece>();
             p1.Color(Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId));
             player1PiecesQueue.Enqueue(p1);
@@ -264,8 +263,8 @@ public class PieceManager : MonoBehaviour
         for (int i = GameManager.Instance.maxPiecesPerPlayer - 1; i >= 0; i--)
         {
             Vector3 player2Position = player2StartPosition - new Vector3(i * spacing, 0f, 0f);
-            GameObject piecePlayer2 = Instantiate(piecePrefabPlayer2, player2Position, Quaternion.identity);
-            piecePlayer2.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
+            GameObject piecePlayer2 = Instantiate(piecePrefabPlayer2, player2Position, Quaternion.identity, transform);
+            piecePlayer2.transform.localScale = new Vector3(scaleOfPieces, scaleOfPieces, scaleOfPieces);
             Piece p2 = piecePlayer2.GetComponent<Piece>();
             p2.Color(Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId));
             player2PiecesQueue.Enqueue(p2);

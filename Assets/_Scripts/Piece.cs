@@ -29,13 +29,10 @@ public class Piece : MonoBehaviour
         
     }
 
-    public void MildOutline(bool on)
-    {
-        mildOutline.enabled = on;
-    }
 
     public void ScaleUp(bool scale)
     {
+        if (boardPosition == null) return;
         if (scale)
         {
             transform.DOScale(1.25f, 1f).SetLoops(-1, LoopType.Yoyo).SetId(GetInstanceID()).SetEase(Ease.InOutExpo);
@@ -49,6 +46,7 @@ public class Piece : MonoBehaviour
 
     public void ResetVisual()
     {
+        if (boardPosition == null) return;
         transform.localScale = Vector3.one;
         deleteSprite.gameObject.SetActive(false);
         selectedSprite.enabled = false;
@@ -57,6 +55,7 @@ public class Piece : MonoBehaviour
 
     internal void Color(ColorPair colorPair)
     {
+        if (boardPosition == null) return;
         mainSprite.color = colorPair.color;
     }
 }
