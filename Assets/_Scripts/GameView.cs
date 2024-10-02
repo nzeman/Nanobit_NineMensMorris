@@ -11,6 +11,10 @@ public class GameView : ViewBase
     [SerializeField] private TMP_Text player1NameText;
     [SerializeField] private TMP_Text player2NameText;
 
+
+    [SerializeField] private TMP_Text bottomText;
+    private bool isShowingBottomText = false;
+
     public override void Start()
     {
         if (PlayerProfile.Instance == null) return;
@@ -26,6 +30,24 @@ public class GameView : ViewBase
     {
         topString = topString.ToUpperInvariant();
         topText.text = topString;
+    }
+
+    public void ShowBottomText(string textToSet)
+    {
+        if (isShowingBottomText)
+            return;
+
+        StartCoroutine(ShowBottomTextCoroutine(textToSet));
+    }
+
+    private IEnumerator ShowBottomTextCoroutine(string textToSet)
+    {
+        bottomText.gameObject.SetActive(true);
+        bottomText.text = textToSet;
+        isShowingBottomText = true;
+        yield return new WaitForSecondsRealtime(1f);
+        bottomText.gameObject.SetActive(false);
+        isShowingBottomText = false;
     }
 
     public void SetTurnText()

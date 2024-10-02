@@ -305,6 +305,7 @@ public class PieceManager : MonoBehaviour
             if (countAdjacent == 0)
             {
                 Debug.Log("Selected piece has no adjacent position that is not occupied, and there is no flying. You cannot move this piece!");
+                GameUIManager.Instance.gameView.ShowBottomText("No possible moves with this piece!");
                 // TODO add different outline or something here, so it's more clear that you cannot move it
                 selectedPiecePosition.occupyingPiece.HighlightPiece(false);
             }
@@ -451,6 +452,7 @@ public class PieceManager : MonoBehaviour
         else
         {
             Debug.Log("Piece does not belong to the opponent.");
+            GameUIManager.Instance.gameView.ShowBottomText("Piece does not belong to the opponent!");
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
         }
     }

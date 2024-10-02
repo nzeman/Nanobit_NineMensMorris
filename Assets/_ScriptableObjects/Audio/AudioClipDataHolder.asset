@@ -18,6 +18,6 @@ MonoBehaviour:
   onPieceMove: {fileID: 11400000, guid: 367e4a4c6ee964b4f9cb48139c852528, type: 2}
   onIllegalMove: {fileID: 11400000, guid: c88497e52443ecc4285f9807e2848bf1, type: 2}
   onPieceSelected: {fileID: 11400000, guid: c679abb0d4266eb4488aa9fd4ed1815a, type: 2}
-  onPieceRemovedFromBoardByMill: {fileID: 0}
-  onMillFormed: {fileID: 0}
+  onPieceRemovedFromBoardByMill: {fileID: 11400000, guid: 456ebe02ef6beb842aea12dae2b82ea1, type: 2}
+  onMillFormed: {fileID: 11400000, guid: 9236dfb644ae57e45b3bc977901b3774, type: 2}
   winnerJingle: {fileID: 0}

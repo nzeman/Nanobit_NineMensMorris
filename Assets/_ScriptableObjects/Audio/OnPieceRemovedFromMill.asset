@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ce844931be58494eb13493d1f038017, type: 3}
   m_Name: OnPieceRemovedFromMill
   m_EditorClassIdentifier: 
-  clip: {fileID: 8300000, guid: 6a94b13b6902675489ac8135c346da57, type: 3}
+  clip: {fileID: 8300000, guid: d26a2ddd95a095044ba2a2cbf1cb7cde, type: 3}
   volume: 1
   pitch: 1
   loop: 0
