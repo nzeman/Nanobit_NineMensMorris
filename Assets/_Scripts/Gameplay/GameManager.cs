@@ -69,6 +69,11 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("SWITCHING TURN!");
         isPlayer1Turn = !isPlayer1Turn;
+        string debugString = isPlayer1Turn ?
+            $"Player 1 turn! :: {PlayerProfile.Instance.GetGamePlayerData(true).playerName}" 
+            : 
+            $"Player 2 turn! :: {PlayerProfile.Instance.GetGamePlayerData(false).playerName}";
+        Debug.Log(debugString);
     }
 
     void Update()
@@ -120,7 +125,7 @@ public class GameManager : MonoBehaviour
                 TransitionToMovingPhase();
             }
             else
-            { 
+            {
                 // if still in placing phase, highlight all unoccupied positions
                 BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
             }
@@ -178,7 +183,7 @@ public class GameManager : MonoBehaviour
         BoardManager.Instance.HideHightlightsFromBoardPositions();
         PieceManager.Instance.RefreshPiecesLeftUi();
         IsGameOverByNoValidMoves();
-    
+
     }
 
     public void SavePreviousPhase()
@@ -222,20 +227,16 @@ public class GameManager : MonoBehaviour
 
     public void PieceRemovedFromBoardByPlayer()
     {
-        Debug.Log("Piece removed");
+        Debug.Log("GameManager :: PieceRemovedFromBoardByPlayer");
         DOTween.Kill("PiecesScaleUpDown", true);
-
         canInteract = false;
-
         if (CheckLossByPieceCount() || (IsGameOverByNoValidMoves() /*&& currentPhase == GamePhase.Moving*/))
         {
             //DeclareWinner(IsPlayer1Turn());
             return;
         }
-
         DOVirtual.DelayedCall(.3f, () =>
         {
-
             canInteract = true;
             SwitchingTurn();
             if (CheckLossByPieceCount() || (IsGameOverByNoValidMoves() /*&& currentPhase == GamePhase.Moving*/))
@@ -253,19 +254,16 @@ public class GameManager : MonoBehaviour
             {
                 currentPhase = GamePhase.Placing;
                 PieceManager.Instance.HighlightNextPieceToPlace();
-                
+
             }
             if (isPlayer1Turn)
             {
                 GameUIManager.Instance.gameView.SetTurnText();
-                
-                Debug.Log("Player 1 turn");
             }
             else
             {
                 GameUIManager.Instance.gameView.SetTurnText();
-                
-                Debug.Log("Player 2 turn");
+
             }
             if (currentPhase == GamePhase.Placing)
             {
@@ -300,6 +298,8 @@ public class GameManager : MonoBehaviour
 
     public bool CheckLossByPieceCount()
     {
+        if (currentPhase == GamePhase.GameEnd) return false;
+
         int player1Pieces = 0;
         int player2Pieces = 0;
 
@@ -317,11 +317,13 @@ public class GameManager : MonoBehaviour
 
         if (player1Pieces < 3)
         {
+            Debug.Log("GameManager :: CheckLossByPieceCount :: Player 1 has les than 3 pieces left");
             DeclareWinner(false);
             return true;
         }
         if (player2Pieces < 3)
         {
+            Debug.Log("GameManager :: CheckLossByPieceCount :: Player 2 has les than 3 pieces left");
             DeclareWinner(true);
             return true;
         }
@@ -331,6 +333,8 @@ public class GameManager : MonoBehaviour
 
     public bool IsGameOverByNoValidMoves()
     {
+        if (currentPhase == GamePhase.GameEnd) return false;
+
         bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
         Debug.Log("GameManager :: Checking if it is game over by no valid moves...");
         string playerTag = isPlayer1Turn ? "Player1Piece" : "Player2Piece";
@@ -380,7 +384,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-           
+
             // If not in flying phase, check if the piece has any adjacent valid moves
             for (int i = 0; i < piece.boardPosition.adjacentPositions.Count; i++)
             {
@@ -423,7 +427,7 @@ public class GameManager : MonoBehaviour
         {
             winner = PlayerProfile.Instance.GetGamePlayerData(false).playerName;
         }
-       
+
         Debug.Log("GameManager :: GAME OVER! :: " + winner + " wins!");
         //GameUIManager.Instance.gameView.SetTopText(winner + " WINS!");
         GameUIManager.Instance.gameView.SetTopText("");
@@ -431,7 +435,7 @@ public class GameManager : MonoBehaviour
         GameUIManager.Instance.EnableView(null);
         foreach (var piece in PieceManager.Instance.allPieces)
         {
-            if(piece.boardPosition == null)
+            if (piece.boardPosition == null)
             {
                 piece.gameObject.SetActive(false);
             }
