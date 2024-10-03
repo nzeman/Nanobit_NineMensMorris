@@ -494,7 +494,7 @@ public class PieceManager : MonoBehaviour
         //Debug.Log("Can this piece fly? " + IsFlyingPhaseForCurrentTurnPlayer());
         if (IsFlyingPhaseForCurrentTurnPlayer())
         {
-            foreach (var positionOnBoard in BoardManager.Instance.allBoardPositions)
+            foreach (var positionOnBoard in BoardManager.Instance.GetAllBoardPositions())
             {
                 if (!positionOnBoard.isOccupied)
                 {
@@ -704,7 +704,7 @@ public class PieceManager : MonoBehaviour
         List<List<BoardPosition>> millsToRemove = new List<List<BoardPosition>>();
 
         // Iterate over active mills and check if they are still valid
-        foreach (var mill in BoardManager.Instance.activeMills)
+        foreach (var mill in BoardManager.Instance.GetActiveMills())
         {
             if (!IsMillStillValid(mill))
             {
@@ -775,7 +775,7 @@ public class PieceManager : MonoBehaviour
     public bool AllOpponentPiecesInMill()
     {
         string opponentTag = GameManager.Instance.IsPlayer1Turn() ? "Player2Piece" : "Player1Piece";
-        foreach (var position in BoardManager.Instance.allBoardPositions)
+        foreach (var position in BoardManager.Instance.GetAllBoardPositions())
         {
             if (position.isOccupied && position.occupyingPiece.CompareTag(opponentTag) && !IsInMill(position))
             {

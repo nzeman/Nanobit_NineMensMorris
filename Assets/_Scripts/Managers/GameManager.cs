@@ -53,9 +53,11 @@ public class GameManager : MonoBehaviour
 
     public void Start()
     {
+        BoardManager.Instance.Initialize();
+
         maxPiecesPerPlayer = PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer;
 
-        float ortoSizeCamera = defaultCameraSize + (BoardManager.Instance.numberOfRings * 1.8F);
+        float ortoSizeCamera = defaultCameraSize + (BoardManager.Instance.GetNumberOfRings() * 1.8F);
         cameraOrtoSize = ortoSizeCamera;
         mainCamera.orthographicSize = ortoSizeCamera;
 
@@ -415,9 +417,9 @@ public class GameManager : MonoBehaviour
         // Check if the player is in the flying phase (only 3 pieces left)
         if (PieceManager.Instance.IsFlyingPhaseForCurrentTurnPlayer())
         {
-            for (int i = 0; i < BoardManager.Instance.allBoardPositions.Count; i++)
+            for (int i = 0; i < BoardManager.Instance.GetAllBoardPositions().Count; i++)
             {
-                BoardPosition position = BoardManager.Instance.allBoardPositions[i];
+                BoardPosition position = BoardManager.Instance.GetAllBoardPositions()[i];
                 if (!position.isOccupied)
                 {
                     //Debug.Log("Found a valid position to fly to.");

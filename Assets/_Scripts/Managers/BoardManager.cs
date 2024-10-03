@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// Manages the game board, including initialization, handling mills, and highlighting positions.
+/// </summary>
 public class BoardManager : MonoBehaviour
 {
-
     #region Singleton
     private static BoardManager _Instance;
+    /// <summary>
+    /// Gets the singleton instance of the BoardManager.
+    /// </summary>
     public static BoardManager Instance
     {
         get
@@ -19,35 +24,40 @@ public class BoardManager : MonoBehaviour
     }
     #endregion
 
-    public GameObject pointPrefab;
-    public int numberOfRings = 3;
-    public float spacing = 2f;
-    public float lineWidth = 0.1f;
+    #region Fields
+    [SerializeField] private GameObject pointPrefab;
+    private int numberOfRings;
+    [SerializeField] private float spacing = 2f;
+    [SerializeField] private float lineWidth = 0.1f;
 
-    public List<BoardPosition> allBoardPositions = new List<BoardPosition>();
+    private List<BoardPosition> allBoardPositions = new List<BoardPosition>();
     private List<List<BoardPosition>> ringPoints = new List<List<BoardPosition>>();
 
-    public Material normalLineMaterial;
-    public Material millLineMaterial;  
+    [SerializeField] private Material normalLineMaterial;
+    [SerializeField] private Material millLineMaterial;
     private List<LineRenderer> lines = new List<LineRenderer>();
 
-    public List<List<BoardPosition>> activeMills = new List<List<BoardPosition>>();
+    private List<List<BoardPosition>> activeMills = new List<List<BoardPosition>>();
 
+    [SerializeField] private Sprite boardSprite;
+    #endregion
 
-    public Sprite boardSprite;
-
-    void Start()
+    #region Initialization Methods
+    public void Initialize()
     {
+        // Get the number of rings from the player's game rules data
         numberOfRings = PlayerProfile.Instance.playerData.gameRulesData.numberOfRings;
         activeMills = new List<List<BoardPosition>>();
         InitializeBoard();
-        SetAdjacentPositions(); // Set adjacent positions after initializing the board
+        SetAdjacentPositions();
         DrawLinesBetweenPoints();
         HighlightAllUnoccupiedBoardPositions();
         CreateBoardBackground();
     }
 
-    // Create points for each ring dynamically
+    /// <summary>
+    /// Initializes the board by creating points for each ring.
+    /// </summary>
     void InitializeBoard()
     {
         for (int ring = 0; ring < numberOfRings; ring++)
@@ -57,6 +67,9 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Creates the background sprite for the board.
+    /// </summary>
     void CreateBoardBackground()
     {
         GameObject background = new GameObject("BoardBackground");
@@ -69,14 +82,12 @@ public class BoardManager : MonoBehaviour
         background.transform.localScale = new Vector3(scale, scale, 1);
         background.transform.position = new Vector3(0, 0, -1);
     }
+    #endregion
 
-
-
-
-
-    // Instantiate points at corners and midpoints for each square
+    #region Board Setup Methods
     void CreateRingPoints(float squareSize, int ringIndex)
     {
+        // Positions for the points in the ring
         Vector2[] positions = new Vector2[]
         {
             new Vector2(-squareSize, squareSize),    // Top-left corner
@@ -104,7 +115,9 @@ public class BoardManager : MonoBehaviour
         ringPoints.Add(currentRingPoints);
     }
 
-    // Set adjacent positions for each board point
+    /// <summary>
+    /// Sets adjacent positions for each board point to establish connectivity.
+    /// </summary>
     void SetAdjacentPositions()
     {
         for (int ring = 0; ring < ringPoints.Count; ring++)
@@ -177,8 +190,13 @@ public class BoardManager : MonoBehaviour
 
         lines.Add(lineRenderer);
     }
+    #endregion
 
-
+    #region Mill Handling Methods
+    /// <summary>
+    /// Highlights the lines forming a mill.
+    /// </summary>
+    /// <param name="millPositions">List of board positions forming the mill.</param>
     public void HighlightMillLine(List<BoardPosition> millPositions)
     {
         if (millPositions == null || millPositions.Count != 3)
@@ -196,8 +214,8 @@ public class BoardManager : MonoBehaviour
             ? Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId).color
             : Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId).color;
 
-        float initialLineWidth = 0.3f; 
-        float reducedLineWidth = 0.15f; 
+        float initialLineWidth = 0.3f;
+        float reducedLineWidth = 0.15f;
 
         for (int i = 0; i < millPositions.Count; i++)
         {
@@ -215,7 +233,7 @@ public class BoardManager : MonoBehaviour
                     line.startWidth = initialLineWidth;
                     line.endWidth = initialLineWidth;
 
-                    // Alternatively, if DOFloat doesn't work, we can use DOVirtual to animate the line width
+                    // Animate the line width to reduce it over time
                     DOVirtual.Float(initialLineWidth, reducedLineWidth, 0.5f, value =>
                     {
                         line.startWidth = value;
@@ -226,13 +244,10 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-
-    bool AreMillsEqual(List<BoardPosition> mill1, List<BoardPosition> mill2)
-    {
-        return mill1.OrderBy(pos => pos.name).SequenceEqual(mill2.OrderBy(pos => pos.name));
-    }
-
-
+    /// <summary>
+    /// Resets the visual representation of a broken mill.
+    /// </summary>
+    /// <param name="brokenMill">List of board positions forming the broken mill.</param>
     public void ResetMillLines(List<BoardPosition> brokenMill)
     {
         // Remove the broken mill from the active mills list
@@ -250,6 +265,37 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Checks if two mills are equal based on their positions.
+    /// </summary>
+    /// <param name="mill1">First mill to compare.</param>
+    /// <param name="mill2">Second mill to compare.</param>
+    /// <returns>True if mills are equal, false otherwise.</returns>
+    bool AreMillsEqual(List<BoardPosition> mill1, List<BoardPosition> mill2)
+    {
+        return mill1.OrderBy(pos => pos.name).SequenceEqual(mill2.OrderBy(pos => pos.name));
+    }
+    #endregion
+
+    #region Board Position Highlight Methods
+    public void HighlightAllUnoccupiedBoardPositions()
+    {
+        foreach (BoardPosition position in allBoardPositions)
+        {
+            position.HighlightBoardPosition(!position.isOccupied);
+        }
+    }
+
+    public void HideHightlightsFromBoardPositions()
+    {
+        foreach (BoardPosition position in allBoardPositions)
+        {
+            position.HighlightBoardPosition(false);
+        }
+    }
+    #endregion
+
+    #region Utility Methods
     private bool IsLinePartOfMill(LineRenderer line, List<BoardPosition> millPositions)
     {
         // Check if the line connects any two positions in the mill
@@ -266,38 +312,37 @@ public class BoardManager : MonoBehaviour
         return false;
     }
 
-
     private bool IsLineConnectingPositions(LineRenderer line, Vector3 pos1, Vector3 pos2)
     {
-        float tolerance = 0.01f; 
+        float tolerance = 0.01f;
         return (Vector3.Distance(line.GetPosition(0), pos1) < tolerance && Vector3.Distance(line.GetPosition(1), pos2) < tolerance) ||
                (Vector3.Distance(line.GetPosition(0), pos2) < tolerance && Vector3.Distance(line.GetPosition(1), pos1) < tolerance);
     }
+    #endregion
 
-
-    public void HighlightAllUnoccupiedBoardPositions()
+    #region Public Getter Methods
+    /// <summary>
+    /// Gets the list of all board positions.
+    /// </summary>
+    public List<BoardPosition> GetAllBoardPositions()
     {
-        //Debug.Log("HighlightAllUnoccupiedBoardPositions");
-        foreach (BoardPosition position in allBoardPositions)
-        {
-            if (!position.isOccupied)
-            {
-                position.HighlightBoardPosition(true);
-            }
-            else
-            {
-                position.HighlightBoardPosition(false);
-            }
-        }
-
+        return allBoardPositions;
     }
 
-    public void HideHightlightsFromBoardPositions()
+    /// <summary>
+    /// Gets the number of rings on the board.
+    /// </summary>
+    public int GetNumberOfRings()
     {
-        //Debug.Log("HideHightlightsFromBoardPositions");
-        foreach (BoardPosition position in allBoardPositions)
-        {
-            position.HighlightBoardPosition(false);
-        }
+        return numberOfRings;
     }
+
+    /// <summary>
+    /// Gets the list of active mills.
+    /// </summary>
+    public List<List<BoardPosition>> GetActiveMills()
+    {
+        return activeMills;
+    }
+    #endregion
 }
