@@ -12,6 +12,8 @@ public class GameEndView : ViewBase
     [SerializeField] private Button returnToMainMenuButton;
     [SerializeField] private TMP_Text winnerPlayerText;
     [SerializeField] private List<ParticleSystem> confettis = new List<ParticleSystem>();
+    [SerializeField] private ParticleSystem confettiShower;
+
 
     public override void Start()
     {
@@ -37,6 +39,7 @@ public class GameEndView : ViewBase
     public IEnumerator WinAnimation()
     {
         yield return new WaitForSecondsRealtime(.5f);
+        confettiShower.Play();
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onReachGameEndView);
         int i = 0;
         foreach (var confetti in confettis)

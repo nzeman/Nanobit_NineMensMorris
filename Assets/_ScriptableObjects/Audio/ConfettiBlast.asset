@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: ConfettiBlast
   m_EditorClassIdentifier: 
   clip: {fileID: 8300000, guid: 37fb53f0fb313ac48beff7cabbb5ec16, type: 3}
-  volume: 1
+  volume: 0.4
   pitch: 1
   loop: 0
