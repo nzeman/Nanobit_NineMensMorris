@@ -14,7 +14,7 @@ public class PieceManager : MonoBehaviour
         get
         {
             if (_Instance == null)
-                _Instance = FindObjectOfType<PieceManager>();
+                _Instance = FindFirstObjectByType<PieceManager>();
             return _Instance;
         }
     }

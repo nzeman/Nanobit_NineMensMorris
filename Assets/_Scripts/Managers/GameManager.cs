@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
         get
         {
             if (_Instance == null)
-                _Instance = FindObjectOfType<GameManager>();
+                _Instance = FindFirstObjectByType<GameManager>();
             return _Instance;
         }
     }
@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour
     private bool isPlayer1Winner = false;
 
     [Header("Camera settings")]
-    public Camera camera;
+    public Camera mainCamera;
     public float defaultCameraSize = 5f;
     public float cameraOrtoSize = 5f;
 
@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour
 
         float ortoSizeCamera = defaultCameraSize + (BoardManager.Instance.numberOfRings * 1.8F);
         cameraOrtoSize = ortoSizeCamera;
-        camera.orthographicSize = ortoSizeCamera;
+        mainCamera.orthographicSize = ortoSizeCamera;
 
         SetUi();
         GameUIManager.Instance.gameView.SetTurnText();
@@ -106,8 +106,8 @@ public class GameManager : MonoBehaviour
         isGamePaused = true;
         GameUIManager.Instance.EnableView(GameUIManager.Instance.pauseView);
         Time.timeScale = 0.0000001f;
-        //camera.transform.DOMoveY(25f, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
-        camera.DOOrthoSize(0.0001f, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
+        //mainCamera.transform.DOMoveY(25f, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
+        mainCamera.DOOrthoSize(0.0001f, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
     }
 
     public void ResumeGameFromPause()
@@ -115,8 +115,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         GameUIManager.Instance.EnableView(GameUIManager.Instance.gameView);
         isGamePaused = false;
-        //camera.transform.DOMoveY(0f, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
-        camera.DOOrthoSize(cameraOrtoSize, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
+        //mainCamera.transform.DOMoveY(0f, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
+        mainCamera.DOOrthoSize(cameraOrtoSize, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
     }
 
     public void OnPieceReachedItsPositionOnBoard(bool millFormed)
@@ -488,7 +488,7 @@ public class GameManager : MonoBehaviour
         }
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.winnerJingle);
         yield return new WaitForSecondsRealtime(0.5f);
-        camera.DOOrthoSize(cameraOrtoSize * 2.25f, 1.5f);
+        mainCamera.DOOrthoSize(cameraOrtoSize * 2.25f, 1.5f);
 
         yield return new WaitForSecondsRealtime(1.4f);
         GameUIManager.Instance.EnableView(GameUIManager.Instance.endView);

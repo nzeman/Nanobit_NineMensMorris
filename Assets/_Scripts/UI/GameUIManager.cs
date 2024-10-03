@@ -14,7 +14,7 @@ public class GameUIManager : CanvasManagerBase
         get
         {
             if (_Instance == null)
-                _Instance = FindObjectOfType<GameUIManager>();
+                _Instance = FindFirstObjectByType<GameUIManager>();
             return _Instance;
         }
     }

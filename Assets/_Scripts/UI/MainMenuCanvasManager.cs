@@ -13,7 +13,7 @@ public class MainMenuCanvasManager : CanvasManagerBase
         get
         {
             if (_Instance == null)
-                _Instance = FindObjectOfType<MainMenuCanvasManager>();
+                _Instance = FindFirstObjectByType<MainMenuCanvasManager>();
             return _Instance;
         }
     }

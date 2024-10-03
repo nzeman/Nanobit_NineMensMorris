@@ -11,7 +11,7 @@ public class Colors : MonoBehaviour
         get
         {
             if (_Instance == null)
-                _Instance = FindObjectOfType<Colors>();
+                _Instance = FindFirstObjectByType<Colors>();
             return _Instance;
         }
     }

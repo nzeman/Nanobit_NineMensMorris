@@ -18,7 +18,7 @@ public class PlayerProfile : MonoBehaviour
         get
         {
             if (_Instance == null)
-                _Instance = FindObjectOfType<PlayerProfile>();
+                _Instance = FindFirstObjectByType<PlayerProfile>();
             return _Instance;
         }
     }

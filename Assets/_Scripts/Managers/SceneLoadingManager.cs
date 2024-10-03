@@ -14,7 +14,7 @@ public class SceneLoadingManager : MonoBehaviour
         get
         {
             if (_Instance == null)
-                _Instance = FindObjectOfType<SceneLoadingManager>();
+                _Instance = FindFirstObjectByType<SceneLoadingManager>();
             return _Instance;
         }
     }

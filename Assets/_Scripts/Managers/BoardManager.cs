@@ -13,7 +13,7 @@ public class BoardManager : MonoBehaviour
         get
         {
             if (_Instance == null)
-                _Instance = FindObjectOfType<BoardManager>();
+                _Instance = FindFirstObjectByType<BoardManager>();
             return _Instance;
         }
     }
