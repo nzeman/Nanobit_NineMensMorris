@@ -125,28 +125,31 @@ public class GameManager : MonoBehaviour
             else
                 piecesPlacedPlayer2++;
 
-            // we go to movnig phase
             if (CheckIfAllPiecesHaveBeenPlaced())
             {
-                SwitchingTurn();
+                // Transition to Moving Phase without switching turn here
                 TransitionToMovingPhase();
+                return; // Exit the method as TransitionToMovingPhase handles the rest
             }
             else
             {
-                // if still in placing phase, highlight all unoccupied positions
+                // If still in placing phase, highlight all unoccupied positions
                 BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
             }
         }
+
         if (millFormed)
         {
             OnMillFormed();
+            // Do not switch turn yet; the turn will switch after mill removal
         }
         else
         {
             SwitchingTurn();
+
             if (currentPhase == GamePhase.Moving)
             {
-                // Check if the current player has no valid moves after this placement or move
+                // Check if the current player has no valid moves after this move
                 if (IsGameOverByNoValidMoves())
                 {
                     return;
@@ -156,16 +159,19 @@ public class GameManager : MonoBehaviour
                     UponNeedToSelectAPiece();
                 }
             }
+
             GameUIManager.Instance.gameView.SetTurnText();
+
             if (currentPhase == GamePhase.Placing)
             {
                 SetUi();
                 PieceManager.Instance.HighlightNextPieceToPlace();
             }
-
         }
         canInteract = true;
     }
+
+
 
 
     public bool CheckIfAllPiecesHaveBeenPlaced()
@@ -189,9 +195,24 @@ public class GameManager : MonoBehaviour
         GameUIManager.Instance.gameView.ShowBottomText("You are now in the Moving Phase of the game!");
         BoardManager.Instance.HideHightlightsFromBoardPositions();
         PieceManager.Instance.RefreshPiecesLeftUi();
-        IsGameOverByNoValidMoves();
 
+        // Switch turn to the next player
+        SwitchingTurn();
+
+        // Check if the next player has valid moves
+        if (IsGameOverByNoValidMoves())
+        {
+            return; // Game over conditions met, stop further execution
+        }
+        else
+        {
+            UponNeedToSelectAPiece();
+        }
+
+        // Update the UI for the new turn
+        GameUIManager.Instance.gameView.SetTurnText();
     }
+
 
     public void SavePreviousPhase()
     {
