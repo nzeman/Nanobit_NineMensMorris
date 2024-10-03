@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour
     public int piecesPlacedPlayer1 = 0;
     public int piecesPlacedPlayer2 = 0;
     public bool isGamePaused = false;
+    private bool isPlayer1Winner = false;
 
     [Header("Camera settings")]
     public Camera camera;
@@ -62,6 +63,12 @@ public class GameManager : MonoBehaviour
 
         PieceManager.Instance.RefreshPiecesLeftUi();
 
+    }
+
+    public void SwitchingTurn()
+    {
+        Debug.Log("SWITCHING TURN!");
+        isPlayer1Turn = !isPlayer1Turn;
     }
 
     void Update()
@@ -107,36 +114,29 @@ public class GameManager : MonoBehaviour
             else
                 piecesPlacedPlayer2++;
 
+            // we go to movnig phase
             if (CheckIfAllPiecesHaveBeenPlaced())
             {
                 TransitionToMovingPhase();
             }
             else
-            {
-                
+            { 
+                // if still in placing phase, highlight all unoccupied positions
                 BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
             }
-
-           
         }
-
-        canInteract = true;
-
         if (millFormed)
         {
             OnMillFormed();
         }
         else
         {
-
-            isPlayer1Turn = !isPlayer1Turn;
-
+            SwitchingTurn();
             if (currentPhase == GamePhase.Moving)
             {
                 // Check if the current player has no valid moves after this placement or move
                 if (IsGameOverByNoValidMoves())
                 {
-                    //DeclareWinner(!isPlayer1Turn);
                     return;
                 }
                 else
@@ -144,17 +144,15 @@ public class GameManager : MonoBehaviour
                     UponNeedToSelectAPiece();
                 }
             }
-
-
             GameUIManager.Instance.gameView.SetTurnText();
-
             if (currentPhase == GamePhase.Placing)
             {
-            SetUi();
+                SetUi();
                 PieceManager.Instance.HighlightNextPieceToPlace();
             }
 
         }
+        canInteract = true;
     }
 
 
@@ -175,7 +173,7 @@ public class GameManager : MonoBehaviour
     {
         currentPhase = GamePhase.Moving;
         GameUIManager.Instance.gameView.SetTopText("Transitioning to Moving Phase");
-        Debug.Log("Transitioning to Moving Phase");
+        Debug.Log("GameManager :: Transitioning to Moving Phase");
         GameUIManager.Instance.gameView.ShowBottomText("You are now in the Moving Phase of the game!");
         BoardManager.Instance.HideHightlightsFromBoardPositions();
         PieceManager.Instance.RefreshPiecesLeftUi();
@@ -190,20 +188,15 @@ public class GameManager : MonoBehaviour
 
     public void OnMillFormed()
     {
-        Debug.Log("Mill formed! Player must remove an opponent's piece.");
-
+        Debug.Log("GameManager :: Mill formed! Player must remove an opponent's piece.");
         currentPhase = GamePhase.MillRemoval;
         GameUIManager.Instance.gameView.SetTopText("Mill formed! Player must remove an opponent's piece.");
         BoardManager.Instance.HideHightlightsFromBoardPositions();
-
         List<Piece> piecesToHighlight = new List<Piece>();
         bool isPlayer1Turn = IsPlayer1Turn();
         string opponentTag = isPlayer1Turn ? "Player2Piece" : "Player1Piece";
-
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
-
         PieceManager.Instance.ResetAllPieceVisuals();
-
         foreach (var piece in PieceManager.Instance.allPieces)
         {
             if (piece.CompareTag(opponentTag) && piece.boardPosition != null)
@@ -217,7 +210,6 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
-
         PieceManager.Instance.ScaleUpDownPiecesForMillOnly(piecesToHighlight);
     }
 
@@ -245,7 +237,7 @@ public class GameManager : MonoBehaviour
         {
 
             canInteract = true;
-            isPlayer1Turn = !isPlayer1Turn;
+            SwitchingTurn();
             if (CheckLossByPieceCount() || (IsGameOverByNoValidMoves() /*&& currentPhase == GamePhase.Moving*/))
             {
                 DeclareWinner(IsPlayer1Turn());
@@ -340,6 +332,7 @@ public class GameManager : MonoBehaviour
     public bool IsGameOverByNoValidMoves()
     {
         bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
+        Debug.Log("GameManager :: Checking if it is game over by no valid moves...");
         string playerTag = isPlayer1Turn ? "Player1Piece" : "Player2Piece";
 
         //Debug.Log($"Checking for valid moves for: {(isPlayer1Turn ? "Player 1" : "Player 2")}");
@@ -356,29 +349,25 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        // player 1 pieces have no possible moves
         if (isPlayer1Turn)
         {
+            Debug.Log("GameManager ::Player 1 has no valid moves, thus Player 2 wins!");
             DeclareWinner(false);
         }
         else
         {
+            Debug.Log("GameManager ::Player 2 has no valid moves, thus Player 1 wins!");
             DeclareWinner(true);
         }
-
-        //Debug.Log($"No valid moves for {(isPlayer1Turn ? "Player 1" : "Player 2")}. Declaring other player as winner.");
-        //DeclareWinner(!isPlayer1Turn);
         return true;
     }
 
-
-
-
-    public bool HasAnyValidMove(Piece piece)
+    private bool HasAnyValidMove(Piece piece)
     {
         // Check if the player is in the flying phase (only 3 pieces left)
         if (PieceManager.Instance.IsFlyingPhaseForCurrentTurnPlayer())
         {
-            //Debug.Log("Player is in the flying phase. Checking for any open positions.");
             for (int i = 0; i < BoardManager.Instance.allBoardPositions.Count; i++)
             {
                 BoardPosition position = BoardManager.Instance.allBoardPositions[i];
@@ -391,17 +380,12 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            //Debug.Log($"Checking adjacent positions for piece at {piece.boardPosition.name}");
-
-            // Log the number of adjacent positions
-            //Debug.Log($"Piece at {piece.boardPosition.name} has {piece.boardPosition.adjacentPositions.Count} adjacent positions.");
-
+           
             // If not in flying phase, check if the piece has any adjacent valid moves
             for (int i = 0; i < piece.boardPosition.adjacentPositions.Count; i++)
             {
                 BoardPosition adjacent = piece.boardPosition.adjacentPositions[i];
                 //Debug.Log($"Adjacent position: {adjacent.name}, Occupied: {adjacent.isOccupied}");
-
                 if (!adjacent.isOccupied)
                 {
                     //Debug.Log($"Found a valid adjacent move to position: {adjacent.name}");
@@ -409,14 +393,9 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
-
         //Debug.Log("No valid moves for this piece.");
         return false;
     }
-
-
-
-    private bool isPlayer1Winner = false;
 
     public void DeclareWinner(bool player1isWinner)
     {
