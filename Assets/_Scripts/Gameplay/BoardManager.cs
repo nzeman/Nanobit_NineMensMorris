@@ -30,6 +30,8 @@ public class BoardManager : MonoBehaviour
     public Material millLineMaterial;  
     private List<LineRenderer> lines = new List<LineRenderer>();
 
+    public Sprite boardSprite;
+
     void Start()
     {
         numberOfRings = PlayerProfile.Instance.playerData.gameRulesData.numberOfRings;
@@ -38,6 +40,7 @@ public class BoardManager : MonoBehaviour
         SetAdjacentPositions(); // Set adjacent positions after initializing the board
         DrawLinesBetweenPoints();
         HighlightAllUnoccupiedBoardPositions();
+        CreateBoardBackground();
     }
 
     // Create points for each ring dynamically
@@ -49,6 +52,23 @@ public class BoardManager : MonoBehaviour
             CreateRingPoints(squareSize, ring);
         }
     }
+
+    void CreateBoardBackground()
+    {
+        GameObject background = new GameObject("BoardBackground");
+        SpriteRenderer spriteRenderer = background.AddComponent<SpriteRenderer>();
+
+        spriteRenderer.sprite = boardSprite;
+
+        float scale = 0.8f + 0.6f * (numberOfRings - 1);
+
+        background.transform.localScale = new Vector3(scale, scale, 1);
+        background.transform.position = new Vector3(0, 0, -1);
+    }
+
+
+
+
 
     // Instantiate points at corners and midpoints for each square
     void CreateRingPoints(float squareSize, int ringIndex)
