@@ -247,7 +247,6 @@ public class GameManager : MonoBehaviour
             if (CheckIfAllPiecesHaveBeenPlaced())
             {
                 currentPhase = GamePhase.Moving;
-
                 UponNeedToSelectAPiece();
             }
             else
@@ -272,7 +271,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
+                //GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
             }
         });
     }

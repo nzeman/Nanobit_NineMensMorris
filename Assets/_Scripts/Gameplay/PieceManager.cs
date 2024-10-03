@@ -209,8 +209,24 @@ public class PieceManager : MonoBehaviour
         {
             if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
             {
-                BoardManager.Instance.HideHightlightsFromBoardPositions();
-                SelectPiece(position);
+                if(IsFlyingPhaseForCurrentTurnPlayer())
+                {
+                    if(CountPiecesOfAvailableAdjacentSpots(position) != 0)
+                    {
+                        BoardManager.Instance.HideHightlightsFromBoardPositions();
+                        SelectPiece(position);
+                    }
+                   
+                }
+                else
+                {
+                    if (CountPiecesOfAvailableAdjacentSpots(position) != 0)
+                    {
+                        BoardManager.Instance.HideHightlightsFromBoardPositions();
+                        SelectPiece(position);
+                    }
+                }
+               
 
             }
         }
@@ -233,6 +249,7 @@ public class PieceManager : MonoBehaviour
             else
             {
                 Debug.Log("Invalid move: Not adjacent and not in flying phase.");
+                selectedPiecePosition = null;
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
             }
         }
@@ -378,9 +395,10 @@ public class PieceManager : MonoBehaviour
         {
 
             // no flying
-            if (CountPiecesOfAvailableAdjacentSpots(position) == 0)
+            if (CountPiecesOfAvailableAdjacentSpots(selectedPiecePosition) == 0)
             {
                 Debug.Log("Selected piece has no adjacent position that is not occupied, and there is no flying. You cannot move this piece!");
+                //GameUIManager.Instance.gameView.SetTopText("NO POSSIBLE MOVES WITH THIS PIECE, SELECT ANOTHER ONE!");
                 GameUIManager.Instance.gameView.ShowBottomText("No possible moves with this piece!");
                 // TODO add different outline or something here, so it's more clear that you cannot move it
                 selectedPiecePosition.occupyingPiece.ResetVisual();
