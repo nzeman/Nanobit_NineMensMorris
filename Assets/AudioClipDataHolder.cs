@@ -16,4 +16,5 @@ public class AudioClipDataHolder : ScriptableObject
     public AudioClipData onMillFormed;
     public AudioClipData winnerJingle;
     public AudioClipData onReachGameEndView;
+    public AudioClipData confettiBlast;
 }
