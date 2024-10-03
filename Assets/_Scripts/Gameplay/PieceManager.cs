@@ -64,7 +64,6 @@ public class PieceManager : MonoBehaviour
         // mill removal 
         if (GameManager.Instance.currentPhase == GameManager.GamePhase.MillRemoval && hitPiece.collider != null)
         {
-
             if (hitBoard.collider == null)
             {
                 // the pieces that was not yet placed (for example in placing phase)
@@ -78,7 +77,6 @@ public class PieceManager : MonoBehaviour
         else if (hitBoard.collider != null)
         {
             BoardPosition boardPosition = hitBoard.collider.GetComponent<BoardPosition>();
-
             if (GameManager.Instance.currentPhase == GameManager.GamePhase.Placing)
             {
                 HandlePlacingPhase(boardPosition);
@@ -110,14 +108,16 @@ public class PieceManager : MonoBehaviour
     {
         if (!position.isOccupied)
         {
-            bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
 
+            bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
             GameManager.Instance.SavePreviousPhase();
             GameManager.Instance.canInteract = false;
             BoardManager.Instance.HideHightlightsFromBoardPositions();
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPiecePlacedClick);
-
             Piece pieceToPlace = isPlayer1Turn ? player1PiecesQueue.Dequeue() : player2PiecesQueue.Dequeue();
+
+            Debug.Log($"Placing piece on {position.name}...");
+
             pieceToPlace.transform.DOMove(position.transform.position, GameManager.Instance.timeToMovePieceToBoardInPlacingPhase).OnComplete(() =>
             {
                 StartCoroutine(OnPieceReachedPositionInPlacingPhase(pieceToPlace, position, isPlayer1Turn));
@@ -134,6 +134,7 @@ public class PieceManager : MonoBehaviour
 
         position.OccupyPosition(pieceToPlace);
         pieceToPlace.boardPosition = position;
+        Debug.Log($"Piece reached it's new position...");
 
         bool millFormed = CheckForMill(position, isPlayer1Turn);
 
