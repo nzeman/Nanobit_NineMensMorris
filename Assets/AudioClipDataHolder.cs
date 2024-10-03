@@ -13,6 +13,7 @@ public class AudioClipDataHolder : ScriptableObject
     public AudioClipData onIllegalMove;
     public AudioClipData onPieceSelected;
     public AudioClipData onPieceRemovedFromBoardByMill;
+    public AudioClipData onPieceReachedPositionWhenPlacing;
     public AudioClipData onMillFormed;
     public AudioClipData winnerJingle;
     public AudioClipData onReachGameEndView;

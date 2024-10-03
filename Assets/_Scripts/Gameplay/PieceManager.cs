@@ -129,6 +129,7 @@ public class PieceManager : MonoBehaviour
 
     public IEnumerator OnPieceReachedPositionInPlacingPhase(Piece pieceToPlace, BoardPosition position, bool isPlayer1Turn)
     {
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceReachedPositionWhenPlacing);
         yield return new WaitForSecondsRealtime(.2f);
 
         position.OccupyPosition(pieceToPlace);
@@ -222,13 +223,10 @@ public class PieceManager : MonoBehaviour
                 GameManager.Instance.canInteract = false;
                 MovePiece(selectedPiecePosition, position);
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceMove);
-
                 DOVirtual.DelayedCall(GameManager.Instance.timeToMovePieceToBoardPositionInMovingPhase, () =>
                 {
-                    List<BoardPosition> millPositions = GetMillPositions(position, GameManager.Instance.IsPlayer1Turn());
-                    GameManager.Instance.PiecePlacedByPlayer(millPositions != null);
-
-                    BoardManager.Instance.HideHightlightsFromBoardPositions();
+                    StartCoroutine(OnPieceReachPositionInMovingPhase(position));
+                    
                 }).SetUpdate(true);
             }
             else
@@ -246,6 +244,16 @@ public class PieceManager : MonoBehaviour
                 GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
             }
         }
+    }
+
+    public IEnumerator OnPieceReachPositionInMovingPhase(BoardPosition position)
+    {
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceReachedPositionWhenPlacing);
+        yield return new WaitForSecondsRealtime(0.2f);
+
+        List<BoardPosition> millPositions = GetMillPositions(position, GameManager.Instance.IsPlayer1Turn());
+        GameManager.Instance.PiecePlacedByPlayer(millPositions != null);
+        BoardManager.Instance.HideHightlightsFromBoardPositions();
     }
 
     public void SpawnAllPiecesAtStart()
