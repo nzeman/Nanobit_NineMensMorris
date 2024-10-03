@@ -39,6 +39,7 @@ public class BoardPosition : MonoBehaviour
 
     public void HighlightBoardPosition(bool on)
     {
+
         highlightSpriteRenderer.enabled = on;
         DOTween.Kill(highlightSpriteRenderer.GetInstanceID(), true);
         if (on)

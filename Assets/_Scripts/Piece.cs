@@ -35,7 +35,7 @@ public class Piece : MonoBehaviour
         if (boardPosition == null) return;
         if (scale)
         {
-            transform.DOScale(1.25f, 1f).SetLoops(-1, LoopType.Yoyo).SetId(GetInstanceID()).SetEase(Ease.InOutExpo);
+            transform.DOScale(1.25f, 1f).SetLoops(-1, LoopType.Yoyo).SetId(transform.GetInstanceID()).SetEase(Ease.InOutExpo);
         }
         else
         {
@@ -50,7 +50,7 @@ public class Piece : MonoBehaviour
         transform.localScale = Vector3.one;
         deleteSprite.gameObject.SetActive(false);
         selectedSprite.enabled = false;
-        DOTween.Kill(GetInstanceID(), true);
+        DOTween.Kill(transform.GetInstanceID(), true);
     }
 
     internal void Color(ColorPair colorPair)

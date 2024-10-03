@@ -108,7 +108,7 @@ public class PieceManager : MonoBehaviour
     {
         if (!position.isOccupied)
         {
-
+            GameUIManager.Instance.gameView.SetTopText("");
             bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
             GameManager.Instance.SavePreviousPhase();
             GameManager.Instance.canInteract = false;
@@ -202,67 +202,105 @@ public class PieceManager : MonoBehaviour
     {
         return GetPieceCountForPlayer(GameManager.Instance.IsPlayer1Turn()) == 3;
     }
-
     void HandleMovingPhase(BoardPosition position)
     {
-        if (selectedPiecePosition == null && position.isOccupied)
+        if (selectedPiecePosition == null)
         {
-            if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
-            {
-                if(IsFlyingPhaseForCurrentTurnPlayer())
-                {
-                    if(CountPiecesOfAvailableAdjacentSpots(position) != 0)
-                    {
-                        BoardManager.Instance.HideHightlightsFromBoardPositions();
-                        SelectPiece(position);
-                    }
-                   
-                }
-                else
-                {
-                    if (CountPiecesOfAvailableAdjacentSpots(position) != 0)
-                    {
-                        BoardManager.Instance.HideHightlightsFromBoardPositions();
-                        SelectPiece(position);
-                    }
-                }
-               
-
-            }
+            //TrySelectPiece(position);
+            TrySelectAnotherPiece(position);
         }
-        else if (selectedPiecePosition != null && !position.isOccupied)
+        else if (!position.isOccupied)
         {
-            bool isFlyingPhase = GetPieceCountForPlayer(GameManager.Instance.IsPlayer1Turn()) == 3;
+            TryMovePiece(position);
+        }
+        else if (position.isOccupied)
+        {
+            TrySelectAnotherPiece(position);
+        }
+    }
 
-            if (isFlyingPhase || selectedPiecePosition.IsAdjacent(position))
+    private void TrySelectPiece(BoardPosition position)
+    {
+        if (position.isOccupied && position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
+        {
+            Debug.Log("TrySelectPiece");
+            BoardManager.Instance.HideHightlightsFromBoardPositions();
+            SelectPiece(position);
+        }
+    }
+
+    private void TryMovePiece(BoardPosition targetPosition)
+    {
+        Debug.Log("TryMovePiece");
+        bool isFlyingPhase = GetPieceCountForPlayer(GameManager.Instance.IsPlayer1Turn()) == 3;
+
+        if (isFlyingPhase || selectedPiecePosition.IsAdjacent(targetPosition))
+        {
+            GameUIManager.Instance.gameView.SetTopText("");
+            GameManager.Instance.canInteract = false;
+            MovePiece(selectedPiecePosition, targetPosition);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceMove);
+            DOVirtual.DelayedCall(GameManager.Instance.timeToMovePieceToBoardPositionInMovingPhase, () =>
             {
-                GameUIManager.Instance.gameView.SetTopText("");
-                GameManager.Instance.canInteract = false;
-                MovePiece(selectedPiecePosition, position);
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceMove);
-                DOVirtual.DelayedCall(GameManager.Instance.timeToMovePieceToBoardPositionInMovingPhase, () =>
-                {
-                    StartCoroutine(OnPieceReachPositionInMovingPhase(position));
-                    
-                }).SetUpdate(true);
+                StartCoroutine(OnPieceReachPositionInMovingPhase(targetPosition));
+            }).SetUpdate(true);
+        }
+        else
+        {
+            HandleInvalidMove();
+        }
+    }
+
+    private void TrySelectAnotherPiece(BoardPosition position)
+    {
+        Debug.Log("TrySelectAnotherPiece");
+        if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
+        {
+            bool isFlyingPhase = PieceManager.Instance.IsFlyingPhaseForCurrentTurnPlayer();
+            bool hasValidMove = isFlyingPhase || position.adjacentPositions.Any(x => !x.isOccupied);
+
+            if (!hasValidMove)
+            {
+                //selectedPiecePosition.occupyingPiece.ResetVisual();
+                ShowNoValidMovesFeedback(position);
             }
             else
-            {
-                Debug.Log("Invalid move: Not adjacent and not in flying phase.");
-                selectedPiecePosition = null;
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
-            }
-        }
-        else if (selectedPiecePosition != null && position.isOccupied)
-        {
-            if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
             {
                 BoardManager.Instance.HideHightlightsFromBoardPositions();
                 SelectPiece(position);
                 GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
             }
         }
+        else
+        {
+            //Debug.Log("CANNOT SELECT PIECE NOT FROM YOUU");
+            GameUIManager.Instance.gameView.ShowBottomText("This piece does not belong to you!");
+        }
     }
+
+    private void ShowNoValidMovesFeedback(BoardPosition position)
+    {
+        // Feedback for trying to select a piece without valid moves
+        Debug.Log($"Selected piece at {position.name} has no valid moves.");
+
+        GameUIManager.Instance.gameView.SetTopText("SELECT A PULSATING PIECE, WHICH CAN MOVED");
+        GameUIManager.Instance.gameView.ShowBottomText("This piece cannot be moved!");
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
+
+        BoardManager.Instance.HideHightlightsFromBoardPositions();
+        //position.occupyingPiece.ResetVisual();
+
+        GameManager.Instance.UponNeedToSelectAPiece();
+    }
+
+
+    private void HandleInvalidMove()
+    {
+        Debug.Log("Invalid move: Not adjacent and not in flying phase.");
+        GameUIManager.Instance.gameView.ShowBottomText("Selected piece cannot go to this position!");
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
+    }
+
 
     public IEnumerator OnPieceReachPositionInMovingPhase(BoardPosition position)
     {
@@ -350,7 +388,7 @@ public class PieceManager : MonoBehaviour
 
     void SelectPiece(BoardPosition position)
     {
-        if(selectedPiecePosition == position.occupyingPiece)
+        if(selectedPiecePosition == position)
         {
             // do not reselect the same one over again
             return;
@@ -399,7 +437,8 @@ public class PieceManager : MonoBehaviour
             {
                 Debug.Log("Selected piece has no adjacent position that is not occupied, and there is no flying. You cannot move this piece!");
                 //GameUIManager.Instance.gameView.SetTopText("NO POSSIBLE MOVES WITH THIS PIECE, SELECT ANOTHER ONE!");
-                GameUIManager.Instance.gameView.ShowBottomText("No possible moves with this piece!");
+                //GameUIManager.Instance.gameView.ShowBottomText("No possible moves with this piece!");
+                ShowNoValidMovesFeedback(selectedPiecePosition);
                 // TODO add different outline or something here, so it's more clear that you cannot move it
                 selectedPiecePosition.occupyingPiece.ResetVisual();
             }
