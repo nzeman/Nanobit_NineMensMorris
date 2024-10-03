@@ -33,7 +33,7 @@ public class Piece : MonoBehaviour
         if (scale && !isScalingUp)  
         {
             isScalingUp = true;
-            transform.DOScale(1.25f, 1f).SetLoops(-1, LoopType.Yoyo)
+            transform.DOScale(1.28f, .7f).SetLoops(-1, LoopType.Yoyo)
                 .SetId(transform.GetInstanceID())
                 .SetEase(Ease.InOutExpo)
                 .OnKill(() => isScalingUp = false);

@@ -28,6 +28,8 @@ public class PieceManager : MonoBehaviour
     [SerializeField] private BoardPosition selectedPiecePosition;
     public List<Piece> allPieces;
 
+    public float scaleDownDeletedPieceTime = 0.3f;
+
     private Queue<Piece> player1PiecesQueue = new Queue<Piece>();
     private Queue<Piece> player2PiecesQueue = new Queue<Piece>();
 
@@ -108,6 +110,7 @@ public class PieceManager : MonoBehaviour
     {
         if (!position.isOccupied)
         {
+            GameUIManager.Instance.gameView.HideTurnText();
             GameUIManager.Instance.gameView.SetTopText("");
             bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
             GameManager.Instance.SavePreviousPhase();
@@ -117,7 +120,6 @@ public class PieceManager : MonoBehaviour
             Piece pieceToPlace = isPlayer1Turn ? player1PiecesQueue.Dequeue() : player2PiecesQueue.Dequeue();
 
             Debug.Log($"Placing piece on {position.name}...");
-
             pieceToPlace.transform.DOMove(position.transform.position, GameManager.Instance.timeToMovePieceToBoardInPlacingPhase).OnComplete(() =>
             {
                 StartCoroutine(OnPieceReachedPositionInPlacingPhase(pieceToPlace, position, isPlayer1Turn));
@@ -325,6 +327,7 @@ public class PieceManager : MonoBehaviour
         if (isFlyingPhase || selectedPiecePosition.IsAdjacent(targetPosition))
         {
             GameUIManager.Instance.gameView.SetTopText("");
+            GameUIManager.Instance.gameView.HideTurnText();
             GameManager.Instance.canInteract = false;
 
             // Stop scaling and reset visuals for all pieces once a move is confirmed
@@ -646,7 +649,7 @@ public class PieceManager : MonoBehaviour
                 GameManager.Instance.canInteract = false;
                 allPieces.Remove(position.occupyingPiece);
                 GameObject pieceToDestroy = position.occupyingPiece.gameObject;
-                pieceToDestroy.transform.DOScale(0f, .3f).OnComplete(() =>
+                pieceToDestroy.transform.DOScale(0f, scaleDownDeletedPieceTime).OnComplete(() =>
                 {
                     Destroy(pieceToDestroy);
                 });

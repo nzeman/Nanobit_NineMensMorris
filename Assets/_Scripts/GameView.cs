@@ -57,6 +57,7 @@ public class GameView : ViewBase
         DOTween.Kill(GetInstanceID());
         if (GameManager.Instance.currentPhase == GameManager.GamePhase.GameEnd) return;
 
+        turnText.gameObject.SetActive(true);
         if (GameManager.Instance.IsPlayer1Turn())
         {
             turnText.text = PlayerProfile.Instance.GetGamePlayerData(true).playerName;

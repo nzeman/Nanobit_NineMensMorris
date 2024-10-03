@@ -13,7 +13,9 @@ public class GameEndView : ViewBase
     [SerializeField] private TMP_Text winnerPlayerText;
     [SerializeField] private List<ParticleSystem> confettis = new List<ParticleSystem>();
     [SerializeField] private ParticleSystem confettiShower;
-
+    [SerializeField] private TMP_Text winReasonText;
+    [SerializeField] private string winStringWinNoValidMoves;
+    [SerializeField] private string winStringWinNoPiecesLeft;
 
     public override void Start()
     {
@@ -33,6 +35,14 @@ public class GameEndView : ViewBase
             winnerPlayerText.text = PlayerProfile.Instance.GetGamePlayerData(false).playerName;
             winnerPlayerText.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId)).color;
         }
+        if(GameManager.Instance.winReason == GameManager.WinReason.LessThan3PiecesLeft)
+        {
+            winReasonText.text = winStringWinNoPiecesLeft;
+        }
+        else
+        {
+            winReasonText.text = winStringWinNoValidMoves;
+        }
         StartCoroutine(WinAnimation());
     }
 
@@ -40,6 +50,7 @@ public class GameEndView : ViewBase
     {
         yield return new WaitForSecondsRealtime(.5f);
         confettiShower.Play();
+        
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onReachGameEndView);
         int i = 0;
         foreach (var confetti in confettis)

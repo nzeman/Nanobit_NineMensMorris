@@ -24,8 +24,12 @@ public class GameManager : MonoBehaviour
     #endregion
 
     public enum GamePhase { Placing, Moving, MillRemoval, GameEnd }
+    public enum WinReason { LessThan3PiecesLeft, NoValidMovesLeft }
+
     public GamePhase currentPhase = GamePhase.Placing;
     public GamePhase gamePhasePriorToMillRemoval = GamePhase.Placing;
+
+    public WinReason winReason;
 
     public bool canInteract = true;
     private bool isPlayer1Turn = true;
@@ -230,51 +234,49 @@ public class GameManager : MonoBehaviour
         Debug.Log("GameManager :: PieceRemovedFromBoardByPlayer");
         DOTween.Kill("PiecesScaleUpDown", true);
         canInteract = false;
-        if (CheckLossByPieceCount() || (IsGameOverByNoValidMoves() /*&& currentPhase == GamePhase.Moving*/))
+
+        if (CheckLossByPieceCount() || IsGameOverByNoValidMoves())
         {
-            //DeclareWinner(IsPlayer1Turn());
-            return;
+            return;  // Game over conditions met, stop further execution
         }
-        DOVirtual.DelayedCall(.3f, () =>
-        {
-            canInteract = true;
-            SwitchingTurn();
-            if (CheckLossByPieceCount() || (IsGameOverByNoValidMoves() /*&& currentPhase == GamePhase.Moving*/))
-            {
-                DeclareWinner(IsPlayer1Turn());
-                return;
-            }
-            if (CheckIfAllPiecesHaveBeenPlaced())
-            {
-                currentPhase = GamePhase.Moving;
-                UponNeedToSelectAPiece();
-            }
-            else
-            {
-                currentPhase = GamePhase.Placing;
-                PieceManager.Instance.HighlightNextPieceToPlace();
 
-            }
-            if (isPlayer1Turn)
-            {
-                GameUIManager.Instance.gameView.SetTurnText();
-            }
-            else
-            {
-                GameUIManager.Instance.gameView.SetTurnText();
-
-            }
-            if (currentPhase == GamePhase.Placing)
-            {
-                BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
-                GameUIManager.Instance.gameView.SetTopText("Place your piece on the board!");
-            }
-            else
-            {
-                //GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
-            }
-        });
+        StartCoroutine(HandlePieceRemovalDelay());
     }
+
+    private IEnumerator HandlePieceRemovalDelay()
+    {
+        yield return new WaitForSeconds(PieceManager.Instance.scaleDownDeletedPieceTime);  // Wait for 0.3 seconds
+
+        canInteract = true;
+        SwitchingTurn();
+
+        if (CheckLossByPieceCount() || IsGameOverByNoValidMoves())
+        {
+            yield break;  // Stop if game is over after the turn switch
+        }
+
+        // Move to next phase depending on whether all pieces have been placed
+        currentPhase = CheckIfAllPiecesHaveBeenPlaced() ? GamePhase.Moving : GamePhase.Placing;
+        if (currentPhase == GamePhase.Moving)
+        {
+            UponNeedToSelectAPiece();
+        }
+        else
+        {
+            PieceManager.Instance.HighlightNextPieceToPlace();
+        }
+
+        // Update the UI text for the current turn
+        GameUIManager.Instance.gameView.SetTurnText();
+
+        // Highlight unoccupied positions during placing phase
+        if (currentPhase == GamePhase.Placing)
+        {
+            BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
+            GameUIManager.Instance.gameView.SetTopText("Place your piece on the board!");
+        }
+    }
+
 
     public void UponNeedToSelectAPiece()
     {
@@ -317,13 +319,13 @@ public class GameManager : MonoBehaviour
         if (player1Pieces < 3)
         {
             Debug.Log("GameManager :: CheckLossByPieceCount :: Player 1 has les than 3 pieces left");
-            DeclareWinner(false);
+            DeclareWinner(false, WinReason.LessThan3PiecesLeft);
             return true;
         }
         if (player2Pieces < 3)
         {
             Debug.Log("GameManager :: CheckLossByPieceCount :: Player 2 has les than 3 pieces left");
-            DeclareWinner(true);
+            DeclareWinner(true, WinReason.LessThan3PiecesLeft);
             return true;
         }
 
@@ -356,12 +358,12 @@ public class GameManager : MonoBehaviour
         if (isPlayer1Turn)
         {
             Debug.Log("GameManager ::Player 1 has no valid moves, thus Player 2 wins!");
-            DeclareWinner(false);
+            DeclareWinner(false, WinReason.NoValidMovesLeft);
         }
         else
         {
             Debug.Log("GameManager ::Player 2 has no valid moves, thus Player 1 wins!");
-            DeclareWinner(true);
+            DeclareWinner(true, WinReason.NoValidMovesLeft);
         }
         return true;
     }
@@ -400,11 +402,14 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    public void DeclareWinner(bool player1isWinner)
+    
+
+    public void DeclareWinner(bool player1isWinner, WinReason _winReason)
     {
         if (currentPhase == GamePhase.GameEnd)
             return;
 
+        winReason = _winReason;
         isPlayer1Winner = player1isWinner;
         StartCoroutine(OnGameEnd());
     }
@@ -453,6 +458,6 @@ public class GameManager : MonoBehaviour
     [Button]
     public void TestingOnly_OnGameEnd()
     {
-        DeclareWinner(true);
+        DeclareWinner(true, WinReason.LessThan3PiecesLeft);
     }
 }
