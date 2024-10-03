@@ -31,11 +31,17 @@ public class ModifiableSettingPanel : MonoBehaviour
         else if (setting == ModifiableSetting.PiecesPerPlayer)
         {
             currentAmount = PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer;
+
+            // Get the current number of rings
+            int numberOfRings = PlayerProfile.Instance.playerData.gameRulesData.numberOfRings;
+            // Initialize minAmount and maxAmount
+            UpdateMaxPiecesPerPlayer(numberOfRings);
         }
 
         RefreshWithoutModidfying();
         UpdateButtonInteractability();
     }
+
 
     public void RefreshWithoutModidfying()
     {

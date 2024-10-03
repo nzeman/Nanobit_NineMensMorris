@@ -128,6 +128,7 @@ public class GameManager : MonoBehaviour
             // we go to movnig phase
             if (CheckIfAllPiecesHaveBeenPlaced())
             {
+                SwitchingTurn();
                 TransitionToMovingPhase();
             }
             else
@@ -202,6 +203,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("GameManager :: Mill formed! Player must remove an opponent's piece.");
         currentPhase = GamePhase.MillRemoval;
         GameUIManager.Instance.gameView.SetTopText("Mill formed! Remove one of your opponent's pieces.");
+        GameUIManager.Instance.gameView.SetTurnText();
         BoardManager.Instance.HideHightlightsFromBoardPositions();
         List<Piece> piecesToHighlight = new List<Piece>();
         bool isPlayer1Turn = IsPlayer1Turn();

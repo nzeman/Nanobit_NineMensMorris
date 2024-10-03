@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ce844931be58494eb13493d1f038017, type: 3}
   m_Name: OnChangeTurn
   m_EditorClassIdentifier: 
-  clip: {fileID: 8300000, guid: 37fb53f0fb313ac48beff7cabbb5ec16, type: 3}
-  volume: 0.4
+  clip: {fileID: 8300000, guid: 1fbff186e334f0c4a9a4038fddc2407e, type: 3}
+  volume: 0.25
   pitch: 1
   loop: 0

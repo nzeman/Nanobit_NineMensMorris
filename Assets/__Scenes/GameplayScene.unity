@@ -1245,7 +1245,7 @@ MonoBehaviour:
   m_enableAutoSizing: 1
   m_fontSizeMin: 22
   m_fontSizeMax: 30
-  m_fontStyle: 0
+  m_fontStyle: 16
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -1495,6 +1495,7 @@ MonoBehaviour:
     m_Bits: 64
   selectedPiecePosition: {fileID: 0}
   allPieces: []
+  scaleDownDeletedPieceTime: 0.3
   player1SpawnUI: {fileID: 4716603959856684018}
   player2SpawnUI: {fileID: 243257197}
 --- !u!1 &980420742
@@ -1952,7 +1953,7 @@ MonoBehaviour:
   m_enableAutoSizing: 1
   m_fontSizeMin: 40
   m_fontSizeMax: 70
-  m_fontStyle: 1
+  m_fontStyle: 17
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
