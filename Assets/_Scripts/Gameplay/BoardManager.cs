@@ -168,21 +168,16 @@ public class BoardManager : MonoBehaviour
             {
                 if (IsLineConnectingPositions(line, start.transform.position, end.transform.position))
                 {
-                    //line.material = millLineMaterial;
-                    if (GameManager.Instance.IsPlayer1Turn())
-                    {
-                        
-                        line.material.DOColor((Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId)).color, .2f);
-                    }
-                    else
-                    {
-                        line.material.DOColor((Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId)).color, .2f);
-                    }
-                    
+                    Color targetColor = GameManager.Instance.IsPlayer1Turn()
+                        ? Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId).color
+                        : Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId).color;
+
+                    line.material.DOColor(targetColor, 0.2f);
                 }
             }
         }
     }
+
 
     public void ResetMillLines()
     {
@@ -194,9 +189,11 @@ public class BoardManager : MonoBehaviour
 
     private bool IsLineConnectingPositions(LineRenderer line, Vector3 pos1, Vector3 pos2)
     {
-        return (line.GetPosition(0) == pos1 && line.GetPosition(1) == pos2) ||
-               (line.GetPosition(0) == pos2 && line.GetPosition(1) == pos1);
+        float tolerance = 0.01f; 
+        return (Vector3.Distance(line.GetPosition(0), pos1) < tolerance && Vector3.Distance(line.GetPosition(1), pos2) < tolerance) ||
+               (Vector3.Distance(line.GetPosition(0), pos2) < tolerance && Vector3.Distance(line.GetPosition(1), pos1) < tolerance);
     }
+
 
     public void HighlightAllUnoccupiedBoardPositions()
     {

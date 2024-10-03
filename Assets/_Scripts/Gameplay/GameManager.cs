@@ -98,7 +98,7 @@ public class GameManager : MonoBehaviour
         camera.DOOrthoSize(cameraOrtoSize, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
     }
 
-    public void PiecePlacedByPlayer(bool millFormed)
+    public void OnPieceReachedItsPositionOnBoard(bool millFormed)
     {
         if (currentPhase == GamePhase.Placing)
         {

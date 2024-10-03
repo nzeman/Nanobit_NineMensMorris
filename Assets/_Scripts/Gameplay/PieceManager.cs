@@ -145,7 +145,7 @@ public class PieceManager : MonoBehaviour
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
         }
         GameManager.Instance.currentPhase = GameManager.Instance.gamePhasePriorToMillRemoval;
-        GameManager.Instance.PiecePlacedByPlayer(millFormed);
+        GameManager.Instance.OnPieceReachedItsPositionOnBoard(millFormed);
         GameManager.Instance.canInteract = true;
         RefreshPiecesLeftUi();
     }
@@ -252,7 +252,7 @@ public class PieceManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.2f);
 
         List<BoardPosition> millPositions = GetMillPositions(position, GameManager.Instance.IsPlayer1Turn());
-        GameManager.Instance.PiecePlacedByPlayer(millPositions != null);
+        GameManager.Instance.OnPieceReachedItsPositionOnBoard(millPositions != null);
         BoardManager.Instance.HideHightlightsFromBoardPositions();
     }
 
@@ -537,7 +537,7 @@ public class PieceManager : MonoBehaviour
 
                 if (GameManager.Instance.CheckLossByNoValidMoves())
                 {
-                    GameManager.Instance.DeclareWinner(GameManager.Instance.IsPlayer1Turn());
+                    //GameManager.Instance.DeclareWinner();
                     return;
                 }
             }
