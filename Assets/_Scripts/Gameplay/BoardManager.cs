@@ -197,7 +197,7 @@ public class BoardManager : MonoBehaviour
 
     public void HighlightAllUnoccupiedBoardPositions()
     {
-        Debug.Log("HighlightAllUnoccupiedBoardPositions");
+        //Debug.Log("HighlightAllUnoccupiedBoardPositions");
         foreach (BoardPosition position in allBoardPositions)
         {
             if (!position.isOccupied)
@@ -214,7 +214,7 @@ public class BoardManager : MonoBehaviour
 
     public void HideHightlightsFromBoardPositions()
     {
-        Debug.Log("HideHightlightsFromBoardPositions");
+        //Debug.Log("HideHightlightsFromBoardPositions");
         foreach (BoardPosition position in allBoardPositions)
         {
             position.HighlightBoardPosition(false);

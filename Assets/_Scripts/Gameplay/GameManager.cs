@@ -179,11 +179,8 @@ public class GameManager : MonoBehaviour
         GameUIManager.Instance.gameView.ShowBottomText("You are now in the Moving Phase of the game!");
         BoardManager.Instance.HideHightlightsFromBoardPositions();
         PieceManager.Instance.RefreshPiecesLeftUi();
-        if (IsGameOverByNoValidMoves())
-        {
-            //DeclareWinner(!isPlayer1Turn);
-            return;
-        }
+        IsGameOverByNoValidMoves();
+    
     }
 
     public void SavePreviousPhase()
@@ -231,7 +228,7 @@ public class GameManager : MonoBehaviour
         return isPlayer1Turn;
     }
 
-    public void PieceRemoved()
+    public void PieceRemovedFromBoardByPlayer()
     {
         Debug.Log("Piece removed");
         DOTween.Kill("PiecesScaleUpDown", true);
@@ -240,7 +237,7 @@ public class GameManager : MonoBehaviour
 
         if (CheckLossByPieceCount() || (IsGameOverByNoValidMoves() /*&& currentPhase == GamePhase.Moving*/))
         {
-            DeclareWinner(IsPlayer1Turn());
+            //DeclareWinner(IsPlayer1Turn());
             return;
         }
 
@@ -278,8 +275,6 @@ public class GameManager : MonoBehaviour
                 
                 Debug.Log("Player 2 turn");
             }
-            //SetUi();
-
             if (currentPhase == GamePhase.Placing)
             {
                 BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
@@ -290,7 +285,6 @@ public class GameManager : MonoBehaviour
                 GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
             }
         });
-        //PieceManager.Instance.UnhighlightAllPieces();
     }
 
     public void UponNeedToSelectAPiece()

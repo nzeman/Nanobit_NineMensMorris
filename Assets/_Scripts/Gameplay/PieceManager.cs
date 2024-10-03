@@ -533,7 +533,7 @@ public class PieceManager : MonoBehaviour
 
                 position.ClearPosition();
                 BoardManager.Instance.ResetMillLines();
-                GameManager.Instance.PieceRemoved();
+                GameManager.Instance.PieceRemovedFromBoardByPlayer();
 
                 if (GameManager.Instance.IsGameOverByNoValidMoves())
                 {
