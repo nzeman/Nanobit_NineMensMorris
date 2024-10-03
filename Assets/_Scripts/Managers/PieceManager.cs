@@ -136,7 +136,10 @@ public class PieceManager : MonoBehaviour
 
         position.OccupyPosition(pieceToPlace);
         pieceToPlace.boardPosition = position;
-        Debug.Log($"Piece reached it's new position...");
+        Debug.Log($"Piece reached its new position...");
+
+        // First, check and handle any broken mills
+        CheckAndHandleBrokenMills();
 
         bool millFormed = CheckForMill(position, isPlayer1Turn);
 
@@ -147,11 +150,13 @@ public class PieceManager : MonoBehaviour
             BoardManager.Instance.HighlightMillLine(millPositions);
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
         }
+
         GameManager.Instance.currentPhase = GameManager.Instance.gamePhasePriorToMillRemoval;
         GameManager.Instance.OnPieceReachedItsPositionOnBoard(millFormed);
         GameManager.Instance.canInteract = true;
         RefreshPiecesLeftUi();
     }
+
 
     public void HighlightNextPieceToPlace()
     {
@@ -389,6 +394,12 @@ public class PieceManager : MonoBehaviour
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceReachedPositionWhenPlacing);
         yield return new WaitForSecondsRealtime(0.2f);
 
+        GameManager.Instance.canInteract = true;
+
+        // First, check and handle any broken mills
+        CheckAndHandleBrokenMills();
+
+        // Then, check if a new mill is formed
         bool millFormed = CheckForMill(position, GameManager.Instance.IsPlayer1Turn());
         if (millFormed)
         {
@@ -400,6 +411,7 @@ public class PieceManager : MonoBehaviour
         GameManager.Instance.OnPieceReachedItsPositionOnBoard(millFormed);
         BoardManager.Instance.HideHightlightsFromBoardPositions();
     }
+
 
 
     public void SpawnAllPiecesAtStart()
@@ -450,6 +462,9 @@ public class PieceManager : MonoBehaviour
         piece.transform.DOMove(to.transform.position, GameManager.Instance.timeToMovePieceToBoardPositionInMovingPhase);
 
         selectedPiecePosition = null;
+
+        // After moving the piece, check for broken mills
+        CheckAndHandleBrokenMills();
     }
 
 
@@ -654,10 +669,13 @@ public class PieceManager : MonoBehaviour
                     Destroy(pieceToDestroy);
                 });
 
+                // After removing the piece, check for broken mills
+                CheckAndHandleBrokenMills();
+
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceRemovedFromBoardByMill);
 
                 position.ClearPosition();
-                BoardManager.Instance.ResetMillLines();
+                //BoardManager.Instance.ResetMillLines();
                 GameManager.Instance.PieceRemovedFromBoardByPlayer();
 
                 if (GameManager.Instance.IsGameOverByNoValidMoves())
@@ -681,6 +699,48 @@ public class PieceManager : MonoBehaviour
         }
     }
 
+    void CheckAndHandleBrokenMills()
+    {
+        List<List<BoardPosition>> millsToRemove = new List<List<BoardPosition>>();
+
+        // Iterate over active mills and check if they are still valid
+        foreach (var mill in BoardManager.Instance.activeMills)
+        {
+            if (!IsMillStillValid(mill))
+            {
+                millsToRemove.Add(mill);
+            }
+        }
+
+        // Reset visuals for broken mills
+        foreach (var brokenMill in millsToRemove)
+        {
+            BoardManager.Instance.ResetMillLines(brokenMill);
+        }
+    }
+
+
+    bool IsMillStillValid(List<BoardPosition> mill)
+    {
+        if (mill == null || mill.Count != 3)
+            return false;
+
+        // Check if occupyingPiece is not null
+        if (mill[0].occupyingPiece == null)
+            return false;
+
+        string playerTag = mill[0].occupyingPiece.tag;
+
+        // Check if all positions are still occupied by the same player's pieces
+        foreach (var position in mill)
+        {
+            if (!position.isOccupied || position.occupyingPiece == null || position.occupyingPiece.tag != playerTag)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
 
 

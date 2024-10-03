@@ -125,6 +125,14 @@ public class GameManager : MonoBehaviour
             else
                 piecesPlacedPlayer2++;
 
+            // Handle mill formation before any phase transition
+            if (millFormed)
+            {
+                OnMillFormed();
+                // Do not switch turn yet; the turn will switch after mill removal
+                return; // Exit the method to wait for mill removal
+            }
+
             if (CheckIfAllPiecesHaveBeenPlaced())
             {
                 // Transition to Moving Phase without switching turn here
@@ -135,41 +143,40 @@ public class GameManager : MonoBehaviour
             {
                 // If still in placing phase, highlight all unoccupied positions
                 BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
-            }
-        }
 
-        if (millFormed)
-        {
-            OnMillFormed();
-            // Do not switch turn yet; the turn will switch after mill removal
-        }
-        else
-        {
-            SwitchingTurn();
-
-            if (currentPhase == GamePhase.Moving)
-            {
-                // Check if the current player has no valid moves after this move
-                if (IsGameOverByNoValidMoves())
-                {
-                    return;
-                }
-                else
-                {
-                    UponNeedToSelectAPiece();
-                }
-            }
-
-            GameUIManager.Instance.gameView.SetTurnText();
-
-            if (currentPhase == GamePhase.Placing)
-            {
+                // Proceed to switch turn
+                SwitchingTurn();
                 SetUi();
                 PieceManager.Instance.HighlightNextPieceToPlace();
+                GameUIManager.Instance.gameView.SetTurnText();
             }
         }
+        else if (currentPhase == GamePhase.Moving)
+        {
+            if (millFormed)
+            {
+                OnMillFormed();
+                // Do not switch turn yet; the turn will switch after mill removal
+                return; // Exit the method to wait for mill removal
+            }
+
+            // Proceed to switch turn
+            SwitchingTurn();
+
+            if (IsGameOverByNoValidMoves())
+            {
+                return; // Game over conditions met, stop further execution
+            }
+            else
+            {
+                UponNeedToSelectAPiece();
+            }
+            GameUIManager.Instance.gameView.SetTurnText();
+        }
+
         canInteract = true;
     }
+
 
 
 
@@ -223,14 +230,20 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("GameManager :: Mill formed! Player must remove an opponent's piece.");
         currentPhase = GamePhase.MillRemoval;
+
+        // Ensure player can interact during mill removal
+        canInteract = true;
+
         GameUIManager.Instance.gameView.SetTopText("Mill formed! Remove one of your opponent's pieces.");
         GameUIManager.Instance.gameView.SetTurnText();
         BoardManager.Instance.HideHightlightsFromBoardPositions();
+
         List<Piece> piecesToHighlight = new List<Piece>();
         bool isPlayer1Turn = IsPlayer1Turn();
         string opponentTag = isPlayer1Turn ? "Player2Piece" : "Player1Piece";
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
         PieceManager.Instance.ResetAllPieceVisuals();
+
         foreach (var piece in PieceManager.Instance.allPieces)
         {
             if (piece.CompareTag(opponentTag) && piece.boardPosition != null)
@@ -246,6 +259,7 @@ public class GameManager : MonoBehaviour
         }
         PieceManager.Instance.ScaleUpDownPiecesForMillOnly(piecesToHighlight);
     }
+
 
 
     // Returns true if it's Player 1's turn, false if it's Player 2's turn

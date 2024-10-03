@@ -1,5 +1,6 @@
 using DG.Tweening;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class BoardManager : MonoBehaviour
@@ -30,12 +31,15 @@ public class BoardManager : MonoBehaviour
     public Material millLineMaterial;  
     private List<LineRenderer> lines = new List<LineRenderer>();
 
+    public List<List<BoardPosition>> activeMills = new List<List<BoardPosition>>();
+
+
     public Sprite boardSprite;
 
     void Start()
     {
         numberOfRings = PlayerProfile.Instance.playerData.gameRulesData.numberOfRings;
-       
+        activeMills = new List<List<BoardPosition>>();
         InitializeBoard();
         SetAdjacentPositions(); // Set adjacent positions after initializing the board
         DrawLinesBetweenPoints();
@@ -179,6 +183,18 @@ public class BoardManager : MonoBehaviour
         if (millPositions == null || millPositions.Count != 3)
             return;
 
+        bool millExists = BoardManager.Instance.activeMills.Any(existingMill => AreMillsEqual(existingMill, millPositions));
+        if (!millExists)
+        {
+            BoardManager.Instance.activeMills.Add(millPositions);
+        }
+
+
+        // Highlight the mill line
+        Color targetColor = GameManager.Instance.IsPlayer1Turn()
+            ? Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId).color
+            : Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId).color;
+
         for (int i = 0; i < millPositions.Count; i++)
         {
             BoardPosition start = millPositions[i];
@@ -188,28 +204,55 @@ public class BoardManager : MonoBehaviour
             {
                 if (IsLineConnectingPositions(line, start.transform.position, end.transform.position))
                 {
-                    Color targetColor = GameManager.Instance.IsPlayer1Turn()
-                        ? Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId).color
-                        : Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId).color;
-
                     line.startWidth = 0.3f;
                     line.endWidth = 0.3f;
-                    line.material.DOColor(targetColor, 0.2f).SetLoops(-1, LoopType.Yoyo).SetId(line.GetInstanceID());
+                    line.material.color = targetColor; // Set the color statically
                 }
             }
         }
     }
 
-
-    public void ResetMillLines()
+    bool AreMillsEqual(List<BoardPosition> mill1, List<BoardPosition> mill2)
     {
+        return mill1.OrderBy(pos => pos.name).SequenceEqual(mill2.OrderBy(pos => pos.name));
+    }
+
+    public void ResetMillLines(List<BoardPosition> brokenMill)
+    {
+        // Remove the broken mill from the active mills list
+        BoardPosition[] brokenMillArray = brokenMill.ToArray();
+        activeMills.RemoveAll(mill => AreMillsEqual(mill, brokenMillArray.ToList()));
+
+        // Reset the visual of the broken mill
         foreach (var line in lines)
         {
-            line.DOKill();
-            line.material = normalLineMaterial;  // Reset back to the normal line material
-            line.startWidth = .1f;
-            line.endWidth = .1f;
+            if (IsLinePartOfMill(line, brokenMill))
+            {
+                line.material = normalLineMaterial;
+                line.startWidth = lineWidth;
+                line.endWidth = lineWidth;
+            }
         }
+    }
+
+
+
+
+    // Helper method to check if a line is part of the broken mill
+    private bool IsLinePartOfMill(LineRenderer line, List<BoardPosition> millPositions)
+    {
+        // Check if the line connects any two positions in the mill
+        for (int i = 0; i < millPositions.Count; i++)
+        {
+            BoardPosition start = millPositions[i];
+            BoardPosition end = millPositions[(i + 1) % millPositions.Count];
+
+            if (IsLineConnectingPositions(line, start.transform.position, end.transform.position))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private bool IsLineConnectingPositions(LineRenderer line, Vector3 pos1, Vector3 pos2)
