@@ -134,9 +134,9 @@ public class GameManager : MonoBehaviour
             if (currentPhase == GamePhase.Moving)
             {
                 // Check if the current player has no valid moves after this placement or move
-                if (CheckLossByNoValidMoves())
+                if (IsGameOverByNoValidMoves())
                 {
-                    DeclareWinner(!isPlayer1Turn);
+                    //DeclareWinner(!isPlayer1Turn);
                     return;
                 }
                 else
@@ -179,9 +179,9 @@ public class GameManager : MonoBehaviour
         GameUIManager.Instance.gameView.ShowBottomText("You are now in the Moving Phase of the game!");
         BoardManager.Instance.HideHightlightsFromBoardPositions();
         PieceManager.Instance.RefreshPiecesLeftUi();
-        if (CheckLossByNoValidMoves())
+        if (IsGameOverByNoValidMoves())
         {
-            DeclareWinner(!isPlayer1Turn);
+            //DeclareWinner(!isPlayer1Turn);
             return;
         }
     }
@@ -238,7 +238,7 @@ public class GameManager : MonoBehaviour
 
         canInteract = false;
 
-        if (CheckLossByPieceCount() || (CheckLossByNoValidMoves() /*&& currentPhase == GamePhase.Moving*/))
+        if (CheckLossByPieceCount() || (IsGameOverByNoValidMoves() /*&& currentPhase == GamePhase.Moving*/))
         {
             DeclareWinner(IsPlayer1Turn());
             return;
@@ -249,7 +249,7 @@ public class GameManager : MonoBehaviour
 
             canInteract = true;
             isPlayer1Turn = !isPlayer1Turn;
-            if (CheckLossByPieceCount() || (CheckLossByNoValidMoves() /*&& currentPhase == GamePhase.Moving*/))
+            if (CheckLossByPieceCount() || (IsGameOverByNoValidMoves() /*&& currentPhase == GamePhase.Moving*/))
             {
                 DeclareWinner(IsPlayer1Turn());
                 return;
@@ -331,19 +331,19 @@ public class GameManager : MonoBehaviour
 
         if (player1Pieces < 3)
         {
-            DeclareWinner(isPlayer1Turn: false);
+            DeclareWinner(false);
             return true;
         }
         if (player2Pieces < 3)
         {
-            DeclareWinner(isPlayer1Turn: true);
+            DeclareWinner(true);
             return true;
         }
 
         return false;
     }
 
-    public bool CheckLossByNoValidMoves()
+    public bool IsGameOverByNoValidMoves()
     {
         bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
         string playerTag = isPlayer1Turn ? "Player1Piece" : "Player2Piece";
@@ -362,8 +362,17 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (isPlayer1Turn)
+        {
+            DeclareWinner(false);
+        }
+        else
+        {
+            DeclareWinner(true);
+        }
+
         //Debug.Log($"No valid moves for {(isPlayer1Turn ? "Player 1" : "Player 2")}. Declaring other player as winner.");
-        DeclareWinner(!isPlayer1Turn);
+        //DeclareWinner(!isPlayer1Turn);
         return true;
     }
 
@@ -413,13 +422,14 @@ public class GameManager : MonoBehaviour
 
 
 
+    private bool isPlayer1Winner = false;
 
-
-    public void DeclareWinner(bool isPlayer1Turn)
+    public void DeclareWinner(bool player1isWinner)
     {
         if (currentPhase == GamePhase.GameEnd)
             return;
 
+        isPlayer1Winner = player1isWinner;
         StartCoroutine(OnGameEnd());
     }
 
@@ -431,11 +441,16 @@ public class GameManager : MonoBehaviour
         PieceManager.Instance.UnhighlightAllPieces();
         BoardManager.Instance.HideHightlightsFromBoardPositions();
 
-        string winner = isPlayer1Turn ? 
-            PlayerProfile.Instance.GetGamePlayerData(true).playerName 
-            :
-            PlayerProfile.Instance.GetGamePlayerData(false).playerName;
-
+        string winner = "";
+        if (isPlayer1Winner)
+        {
+            winner = PlayerProfile.Instance.GetGamePlayerData(true).playerName;
+        }
+        else
+        {
+            winner = PlayerProfile.Instance.GetGamePlayerData(false).playerName;
+        }
+       
         Debug.Log("GameManager :: GAME OVER! :: " + winner + " wins!");
         //GameUIManager.Instance.gameView.SetTopText(winner + " WINS!");
         GameUIManager.Instance.gameView.SetTopText("");
@@ -454,7 +469,7 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(1.4f);
         GameUIManager.Instance.EnableView(GameUIManager.Instance.endView);
-        GameUIManager.Instance.endView.StartWinAnimation(isPlayer1Turn);
+        GameUIManager.Instance.endView.StartWinAnimation(isPlayer1Winner);
 
 
     }

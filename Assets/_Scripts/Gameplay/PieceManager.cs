@@ -535,7 +535,7 @@ public class PieceManager : MonoBehaviour
                 BoardManager.Instance.ResetMillLines();
                 GameManager.Instance.PieceRemoved();
 
-                if (GameManager.Instance.CheckLossByNoValidMoves())
+                if (GameManager.Instance.IsGameOverByNoValidMoves())
                 {
                     //GameManager.Instance.DeclareWinner();
                     return;
