@@ -176,58 +176,144 @@ public class PieceManager : MonoBehaviour
         }
     }
 
-    public void HighlightPiecesByPlayerWhichHeCanSelectAndThatHaveValidMoves()
-    {
-        //return;
-        string playerTag = GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece";
-        foreach (var piece in allPieces)
-        {
-            if (piece.CompareTag(playerTag))
-            {
-                bool hasValidMove = piece.boardPosition.adjacentPositions.Any(x => !x.isOccupied);
-                piece.ScaleUp(hasValidMove);
-            }
-            else
-            {
-                piece.ResetVisual();
-            }
-        }
-    }
-
-
-
-
-
     public bool IsFlyingPhaseForCurrentTurnPlayer()
     {
         return GetPieceCountForPlayer(GameManager.Instance.IsPlayer1Turn()) == 3;
     }
     void HandleMovingPhase(BoardPosition position)
     {
+        // If no piece is selected, try to select one
         if (selectedPiecePosition == null)
         {
-            //TrySelectPiece(position);
-            TrySelectAnotherPiece(position);
+            TrySelectPiece(position); // Handles both selecting and validating the piece based on playerTag
         }
+        // If a piece is already selected, check if the target position is not occupied to move
         else if (!position.isOccupied)
         {
-            TryMovePiece(position);
+            TryMovePiece(position); // Attempt to move to the target position
         }
+        // If another occupied position is clicked, try to select a new piece
         else if (position.isOccupied)
         {
-            TrySelectAnotherPiece(position);
+            TrySelectPiece(position); // Handles the logic for selecting another piece
+        }
+    }
+
+
+    public void HighlightPiecesByPlayerWhichHeCanSelectAndThatHaveValidMoves()
+    {
+        string playerTag = GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece";
+
+        foreach (var piece in allPieces)
+        {
+            if (piece.CompareTag(playerTag))
+            {
+                bool hasValidMove = piece.boardPosition.adjacentPositions.Any(x => !x.isOccupied) || IsFlyingPhaseForCurrentTurnPlayer();
+
+                // Only scale up the pieces that have valid moves
+                if (hasValidMove)
+                {
+                    if (piece == selectedPiecePosition?.occupyingPiece)
+                    {
+                        // The selected piece gets both outline and scale-up
+                        piece.OutlinePiece(true);  // Show outline for the selected piece
+                    }
+                    else
+                    {
+                        // Other valid pieces should only scale up, no outline
+                        piece.OutlinePiece(false);  // Ensure no outline for non-selected pieces
+                    }
+
+                    // Don't restart scaling if it's already scaling
+                    piece.ScaleUp(true);  // Scale up for valid pieces without resetting animation
+                }
+                else
+                {
+                    // Reset visuals for pieces without valid moves
+                    piece.OutlinePiece(false);
+                    piece.ResetVisual();
+                }
+            }
+            else
+            {
+                // Reset opponent's pieces
+                piece.ResetVisual();
+            }
         }
     }
 
     private void TrySelectPiece(BoardPosition position)
     {
-        if (position.isOccupied && position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
+        string playerTag = GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece";
+
+        if (position.isOccupied && position.occupyingPiece.CompareTag(playerTag))
         {
-            Debug.Log("TrySelectPiece");
-            BoardManager.Instance.HideHightlightsFromBoardPositions();
-            SelectPiece(position);
+            // Deselect the previous piece and clear its adjacent highlights
+            if (selectedPiecePosition != null)
+            {
+                BoardManager.Instance.HideHightlightsFromBoardPositions();
+                selectedPiecePosition.occupyingPiece.OutlinePiece(false);
+            }
+
+            // Select the new piece
+            selectedPiecePosition = position;
+
+            bool isFlyingPhase = IsFlyingPhaseForCurrentTurnPlayer();
+
+            // Check if the selected piece has valid moves
+            bool hasValidMove = isFlyingPhase || position.adjacentPositions.Any(x => !x.isOccupied);
+
+            if (!hasValidMove)
+            {
+                // Show feedback for no valid moves but do not apply scaling or outlining
+                ShowNoValidMovesFeedback(position);
+                selectedPiecePosition = null;  // Clear selection since no valid moves
+                return;  // Exit the method without scaling or outlining
+            }
+
+            // Highlight valid moves or handle flying phase
+            if (isFlyingPhase)
+            {
+                // Highlight all available board positions if the player is in the flying phase
+                BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
+            }
+            else
+            {
+                // Highlight adjacent valid moves only for the selected piece
+                HighlightAdjacentPositions(selectedPiecePosition);
+                GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
+            }
+
+            // Play sound and highlight the selected piece
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
+
+            // Show outline and scale only for the selected piece that has valid moves
+            position.occupyingPiece.OutlinePiece(true);
+            position.occupyingPiece.ScaleUp(true);  // Ensure scaling but without restarting the animation
+        }
+        else
+        {
+            GameUIManager.Instance.gameView.ShowBottomText("This piece does not belong to you!");
         }
     }
+
+
+    private void HighlightAdjacentPositions(BoardPosition position)
+    {
+        // Highlight adjacent positions only for the selected piece
+        foreach (var adjacentPosition in position.adjacentPositions)
+        {
+            if (!adjacentPosition.isOccupied) // Only highlight unoccupied positions
+            {
+                adjacentPosition.HighlightBoardPosition(true);
+            }
+            else
+            {
+                adjacentPosition.HighlightBoardPosition(false);
+            }
+        }
+    }
+
 
     private void TryMovePiece(BoardPosition targetPosition)
     {
@@ -238,8 +324,14 @@ public class PieceManager : MonoBehaviour
         {
             GameUIManager.Instance.gameView.SetTopText("");
             GameManager.Instance.canInteract = false;
+
+            // Stop scaling and reset visuals for all pieces once a move is confirmed
+            ResetAllScalingAndVisuals();
+
             MovePiece(selectedPiecePosition, targetPosition);
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceMove);
+            BoardManager.Instance.HideHightlightsFromBoardPositions();
+
             DOVirtual.DelayedCall(GameManager.Instance.timeToMovePieceToBoardPositionInMovingPhase, () =>
             {
                 StartCoroutine(OnPieceReachPositionInMovingPhase(targetPosition));
@@ -251,32 +343,17 @@ public class PieceManager : MonoBehaviour
         }
     }
 
-    private void TrySelectAnotherPiece(BoardPosition position)
-    {
-        Debug.Log("TrySelectAnotherPiece");
-        if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece"))
-        {
-            bool isFlyingPhase = PieceManager.Instance.IsFlyingPhaseForCurrentTurnPlayer();
-            bool hasValidMove = isFlyingPhase || position.adjacentPositions.Any(x => !x.isOccupied);
 
-            if (!hasValidMove)
-            {
-                //selectedPiecePosition.occupyingPiece.ResetVisual();
-                ShowNoValidMovesFeedback(position);
-            }
-            else
-            {
-                BoardManager.Instance.HideHightlightsFromBoardPositions();
-                SelectPiece(position);
-                GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
-            }
-        }
-        else
+    private void ResetAllScalingAndVisuals()
+    {
+        // Stop all scaling and reset visuals for each piece
+        foreach (var piece in allPieces)
         {
-            //Debug.Log("CANNOT SELECT PIECE NOT FROM YOUU");
-            GameUIManager.Instance.gameView.ShowBottomText("This piece does not belong to you!");
+            piece.ResetVisual(); // Reset each piece to its original state, including stopping scaling
         }
     }
+
+
 
     private void ShowNoValidMovesFeedback(BoardPosition position)
     {

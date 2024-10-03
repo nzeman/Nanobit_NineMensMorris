@@ -1,9 +1,5 @@
 using DG.Tweening;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Piece : MonoBehaviour
 {
@@ -15,43 +11,48 @@ public class Piece : MonoBehaviour
     public SpriteRenderer mildOutline;
     public SpriteRenderer deleteSprite;
 
+    private bool isScalingUp = false;  
+
     public void OutlinePiece(bool on)
     {
         if (boardPosition == null) return;
         if (on)
         {
-            selectedSprite.enabled = on;
+            selectedSprite.enabled = true;
         }
         else
         {
-            ResetVisual();
+            selectedSprite.enabled = false; 
         }
-        
     }
-
 
     public void ScaleUp(bool scale)
     {
         if (boardPosition == null) return;
-        if (scale)
+
+        if (scale && !isScalingUp)  
         {
-            transform.DOScale(1.25f, 1f).SetLoops(-1, LoopType.Yoyo).SetId(transform.GetInstanceID()).SetEase(Ease.InOutExpo);
+            isScalingUp = true;
+            transform.DOScale(1.25f, 1f).SetLoops(-1, LoopType.Yoyo)
+                .SetId(transform.GetInstanceID())
+                .SetEase(Ease.InOutExpo)
+                .OnKill(() => isScalingUp = false);
         }
-        else
+        else if (!scale)
         {
-            ResetVisual();
+            ResetVisual();  
         }
-        
     }
 
     public void ResetVisual()
     {
         if (boardPosition == null) return;
-        transform.localScale = Vector3.one;
+        transform.localScale = Vector3.one;  
         deleteSprite.gameObject.SetActive(false);
         selectedSprite.enabled = false;
-        DOTween.Kill(transform.GetInstanceID(), true);
+        DOTween.Kill(transform.GetInstanceID(), true); 
     }
+
 
     internal void Color(ColorPair colorPair)
     {
