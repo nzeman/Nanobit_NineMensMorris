@@ -384,10 +384,18 @@ public class PieceManager : MonoBehaviour
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceReachedPositionWhenPlacing);
         yield return new WaitForSecondsRealtime(0.2f);
 
-        List<BoardPosition> millPositions = GetMillPositions(position, GameManager.Instance.IsPlayer1Turn());
-        GameManager.Instance.OnPieceReachedItsPositionOnBoard(millPositions != null);
+        bool millFormed = CheckForMill(position, GameManager.Instance.IsPlayer1Turn());
+        if (millFormed)
+        {
+            List<BoardPosition> millPositions = GetMillPositions(position, GameManager.Instance.IsPlayer1Turn());
+            BoardManager.Instance.HighlightMillLine(millPositions);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
+        }
+
+        GameManager.Instance.OnPieceReachedItsPositionOnBoard(millFormed);
         BoardManager.Instance.HideHightlightsFromBoardPositions();
     }
+
 
     public void SpawnAllPiecesAtStart()
     {
