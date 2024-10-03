@@ -18,4 +18,5 @@ public class AudioClipDataHolder : ScriptableObject
     public AudioClipData winnerJingle;
     public AudioClipData onReachGameEndView;
     public AudioClipData confettiBlast;
+    public AudioClipData onTurnChanged;
 }

@@ -77,6 +77,8 @@ public class GameManager : MonoBehaviour
             $"Player 1 turn! :: {PlayerProfile.Instance.GetGamePlayerData(true).playerName}" 
             : 
             $"Player 2 turn! :: {PlayerProfile.Instance.GetGamePlayerData(false).playerName}";
+
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onTurnChanged);
         Debug.Log(debugString);
     }
 

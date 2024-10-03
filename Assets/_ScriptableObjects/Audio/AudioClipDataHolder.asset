@@ -19,7 +19,9 @@ MonoBehaviour:
   onIllegalMove: {fileID: 11400000, guid: c88497e52443ecc4285f9807e2848bf1, type: 2}
   onPieceSelected: {fileID: 11400000, guid: c679abb0d4266eb4488aa9fd4ed1815a, type: 2}
   onPieceRemovedFromBoardByMill: {fileID: 11400000, guid: 456ebe02ef6beb842aea12dae2b82ea1, type: 2}
+  onPieceReachedPositionWhenPlacing: {fileID: 11400000, guid: c212905fc7c8231449f5f3f9f4dd3563, type: 2}
   onMillFormed: {fileID: 11400000, guid: 9236dfb644ae57e45b3bc977901b3774, type: 2}
   winnerJingle: {fileID: 11400000, guid: dc9b4fe773c963d48bd1db513d5f4cf6, type: 2}
   onReachGameEndView: {fileID: 11400000, guid: 0291f340e153ee5468c999dbd83f36ea, type: 2}
   confettiBlast: {fileID: 11400000, guid: 9d04aea0fc26f6f4d8cb95dd38eac35c, type: 2}
+  onTurnChanged: {fileID: 11400000, guid: f9507605c847173438ec87e1dc8974c8, type: 2}
