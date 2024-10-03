@@ -275,14 +275,14 @@ public class PieceManager : MonoBehaviour
             if (isFlyingPhase)
             {
                 // Highlight all available board positions if the player is in the flying phase
-                GameUIManager.Instance.gameView.SetTopText("Flying phase! Move your piece to any unoccupied spot.");
+                GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.textData.flyingPhaseText);
                 BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
             }
             else
             {
                 // Highlight adjacent valid moves only for the selected piece
                 HighlightAdjacentPositions(selectedPiecePosition);
-                GameUIManager.Instance.gameView.SetTopText("Move your piece to an adjacent unoccupied spot.");
+                GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.textData.moveToAdjacentSpotText);
             }
 
             // Play sound and highlight the selected piece
@@ -370,7 +370,7 @@ public class PieceManager : MonoBehaviour
         // Feedback for trying to select a piece without valid moves
         Debug.Log($"Selected piece at {position.name} has no valid moves.");
 
-        GameUIManager.Instance.gameView.SetTopText("Select a highlighted piece that can move");
+        GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.textData.selectPieceText);
         GameUIManager.Instance.gameView.ShowBottomText("This piece cannot be moved!");
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
 
@@ -507,7 +507,7 @@ public class PieceManager : MonoBehaviour
             }
             //DeselectAllPieces();
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
-            GameUIManager.Instance.gameView.SetTopText("Move your piece to an adjacent unoccupied spot!");
+            GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.textData.flyingPhaseText);
             position.occupyingPiece.OutlinePiece(true);
             position.occupyingPiece.ScaleUp(true);
         }
@@ -530,7 +530,7 @@ public class PieceManager : MonoBehaviour
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
                 position.occupyingPiece.OutlinePiece(true);
                 position.occupyingPiece.ScaleUp(true);
-                GameUIManager.Instance.gameView.SetTopText("Move your piece to an adjacent unoccupied spot");
+                GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.textData.moveToAdjacentSpotText);
             }
         }
         //Debug.Log("Selected piece at: " + position.name);

@@ -69,7 +69,7 @@ public class GameView : ViewBase
             turnText.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId)).color;
         }
         turnText.transform.localScale = Vector3.one;
-        turnText.transform.DOPunchScale(new Vector3(.3f, .3f, .3f), .4f, 0, 1f).SetId(GetInstanceID());
+        turnText.transform.DOPunchScale(new Vector3(.15f, .15f, .15f), .3f, 0, 1f).SetId(GetInstanceID());
     }
 
     public void HideTurnText()

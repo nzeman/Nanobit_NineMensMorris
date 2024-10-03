@@ -48,6 +48,9 @@ public class GameManager : MonoBehaviour
     public float timeToMovePieceToBoardPositionInMovingPhase = 0.5f;
     public float timeToMovePieceToBoardInPlacingPhase = 0.5f;
 
+    [Header("Text")]
+    public GameUITextData textData;
+
     public void Start()
     {
         maxPiecesPerPlayer = PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer;
@@ -197,7 +200,7 @@ public class GameManager : MonoBehaviour
     public void TransitionToMovingPhase()
     {
         currentPhase = GamePhase.Moving;
-        GameUIManager.Instance.gameView.SetTopText("Transitioning to the Moving Phase! Prepare to move your pieces.");
+        GameUIManager.Instance.gameView.SetTopText(textData.transitioningToMovePhaseText);
         Debug.Log("GameManager :: Transitioning to Moving Phase");
         GameUIManager.Instance.gameView.ShowBottomText("You are now in the Moving Phase of the game!");
         BoardManager.Instance.HideHightlightsFromBoardPositions();
@@ -234,7 +237,7 @@ public class GameManager : MonoBehaviour
         // Ensure player can interact during mill removal
         canInteract = true;
 
-        GameUIManager.Instance.gameView.SetTopText("Mill formed! Remove one of your opponent's pieces.");
+        GameUIManager.Instance.gameView.SetTopText(textData.millFormedText);
         GameUIManager.Instance.gameView.SetTurnText();
         BoardManager.Instance.HideHightlightsFromBoardPositions();
 
@@ -312,7 +315,7 @@ public class GameManager : MonoBehaviour
         if (currentPhase == GamePhase.Placing)
         {
             BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
-            GameUIManager.Instance.gameView.SetTopText("Place your piece on the board!");
+            GameUIManager.Instance.gameView.SetTopText(textData.placePieceOnBoardText);
         }
     }
 
@@ -320,7 +323,7 @@ public class GameManager : MonoBehaviour
     public void UponNeedToSelectAPiece()
     {
         PieceManager.Instance.HighlightPiecesByPlayerWhichHeCanSelectAndThatHaveValidMoves();
-        GameUIManager.Instance.gameView.SetTopText("Select your piece by clicking on it");
+        GameUIManager.Instance.gameView.SetTopText(textData.selectPieceText);
     }
 
 
@@ -328,11 +331,11 @@ public class GameManager : MonoBehaviour
     {
         if (currentPhase == GamePhase.Placing)
         {
-            GameUIManager.Instance.gameView.SetTopText("Place your piece on the board!");
+            GameUIManager.Instance.gameView.SetTopText(textData.placePieceOnBoardText);
         }
         else if (currentPhase == GamePhase.Moving)
         {
-            GameUIManager.Instance.gameView.SetTopText("Move your pieces and form a mill!");
+            GameUIManager.Instance.gameView.SetTopText(textData.moveToAdjacentSpotText);
         }
     }
 
