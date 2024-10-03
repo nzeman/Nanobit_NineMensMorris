@@ -177,7 +177,7 @@ public class GameManager : MonoBehaviour
     public void TransitionToMovingPhase()
     {
         currentPhase = GamePhase.Moving;
-        GameUIManager.Instance.gameView.SetTopText("Transitioning to Moving Phase");
+        GameUIManager.Instance.gameView.SetTopText("Transitioning to the Moving Phase! Prepare to move your pieces.");
         Debug.Log("GameManager :: Transitioning to Moving Phase");
         GameUIManager.Instance.gameView.ShowBottomText("You are now in the Moving Phase of the game!");
         BoardManager.Instance.HideHightlightsFromBoardPositions();
@@ -195,7 +195,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("GameManager :: Mill formed! Player must remove an opponent's piece.");
         currentPhase = GamePhase.MillRemoval;
-        GameUIManager.Instance.gameView.SetTopText("Mill formed! Player must remove an opponent's piece.");
+        GameUIManager.Instance.gameView.SetTopText("Mill formed! Remove one of your opponent's pieces.");
         BoardManager.Instance.HideHightlightsFromBoardPositions();
         List<Piece> piecesToHighlight = new List<Piece>();
         bool isPlayer1Turn = IsPlayer1Turn();
@@ -267,7 +267,7 @@ public class GameManager : MonoBehaviour
             if (currentPhase == GamePhase.Placing)
             {
                 BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
-                GameUIManager.Instance.gameView.SetTopText("PLACE YOUR PIECE ON THE BOARD!");
+                GameUIManager.Instance.gameView.SetTopText("Place your piece on the board!");
             }
             else
             {
@@ -279,7 +279,7 @@ public class GameManager : MonoBehaviour
     public void UponNeedToSelectAPiece()
     {
         PieceManager.Instance.HighlightPiecesByPlayerWhichHeCanSelectAndThatHaveValidMoves();
-        GameUIManager.Instance.gameView.SetTopText("SELECT YOUR PIECE BY CLICKING ON IT!");
+        GameUIManager.Instance.gameView.SetTopText("Select your piece by clicking on it");
     }
 
 
@@ -287,11 +287,11 @@ public class GameManager : MonoBehaviour
     {
         if (currentPhase == GamePhase.Placing)
         {
-            GameUIManager.Instance.gameView.SetTopText("PLACE YOUR PIECE ON THE BOARD!");
+            GameUIManager.Instance.gameView.SetTopText("Place your piece on the board!");
         }
         else if (currentPhase == GamePhase.Moving)
         {
-            GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECES AND TRY TO FORM A MILL!");
+            GameUIManager.Instance.gameView.SetTopText("Move your pieces and form a mill!");
         }
     }
 

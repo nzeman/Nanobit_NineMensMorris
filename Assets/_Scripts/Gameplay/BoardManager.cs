@@ -192,7 +192,9 @@ public class BoardManager : MonoBehaviour
                         ? Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId).color
                         : Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId).color;
 
-                    line.material.DOColor(targetColor, 0.2f);
+                    line.startWidth = 0.3f;
+                    line.endWidth = 0.3f;
+                    line.material.DOColor(targetColor, 0.2f).SetLoops(-1, LoopType.Yoyo).SetId(line.GetInstanceID());
                 }
             }
         }
@@ -203,7 +205,10 @@ public class BoardManager : MonoBehaviour
     {
         foreach (var line in lines)
         {
+            line.DOKill();
             line.material = normalLineMaterial;  // Reset back to the normal line material
+            line.startWidth = .1f;
+            line.endWidth = .1f;
         }
     }
 

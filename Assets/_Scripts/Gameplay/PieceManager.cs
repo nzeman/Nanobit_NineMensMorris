@@ -192,7 +192,6 @@ public class PieceManager : MonoBehaviour
         {
             TryMovePiece(position); // Attempt to move to the target position
         }
-        // If another occupied position is clicked, try to select a new piece
         else if (position.isOccupied)
         {
             TrySelectPiece(position); // Handles the logic for selecting another piece
@@ -209,27 +208,21 @@ public class PieceManager : MonoBehaviour
             if (piece.CompareTag(playerTag))
             {
                 bool hasValidMove = piece.boardPosition.adjacentPositions.Any(x => !x.isOccupied) || IsFlyingPhaseForCurrentTurnPlayer();
-
-                // Only scale up the pieces that have valid moves
                 if (hasValidMove)
                 {
                     if (piece == selectedPiecePosition?.occupyingPiece)
                     {
-                        // The selected piece gets both outline and scale-up
-                        piece.OutlinePiece(true);  // Show outline for the selected piece
+                        piece.OutlinePiece(true);
                     }
                     else
                     {
-                        // Other valid pieces should only scale up, no outline
-                        piece.OutlinePiece(false);  // Ensure no outline for non-selected pieces
+                        piece.OutlinePiece(false); 
                     }
 
-                    // Don't restart scaling if it's already scaling
-                    piece.ScaleUp(true);  // Scale up for valid pieces without resetting animation
+                    piece.ScaleUp(true); 
                 }
                 else
                 {
-                    // Reset visuals for pieces without valid moves
                     piece.OutlinePiece(false);
                     piece.ResetVisual();
                 }
@@ -275,13 +268,14 @@ public class PieceManager : MonoBehaviour
             if (isFlyingPhase)
             {
                 // Highlight all available board positions if the player is in the flying phase
+                GameUIManager.Instance.gameView.SetTopText("Flying phase! Move your piece to any unoccupied spot.");
                 BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
             }
             else
             {
                 // Highlight adjacent valid moves only for the selected piece
                 HighlightAdjacentPositions(selectedPiecePosition);
-                GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
+                GameUIManager.Instance.gameView.SetTopText("Move your piece to an adjacent unoccupied spot.");
             }
 
             // Play sound and highlight the selected piece
@@ -293,7 +287,15 @@ public class PieceManager : MonoBehaviour
         }
         else
         {
-            GameUIManager.Instance.gameView.ShowBottomText("This piece does not belong to you!");
+            if (position.isOccupied)
+            {
+                GameUIManager.Instance.gameView.ShowBottomText("This piece does not belong to you!");
+            }
+            else
+            {
+                GameUIManager.Instance.gameView.ShowBottomText("You need to select your piece!");
+            }
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
         }
     }
 
@@ -360,14 +362,14 @@ public class PieceManager : MonoBehaviour
         // Feedback for trying to select a piece without valid moves
         Debug.Log($"Selected piece at {position.name} has no valid moves.");
 
-        GameUIManager.Instance.gameView.SetTopText("SELECT A PULSATING PIECE, WHICH CAN MOVED");
+        GameUIManager.Instance.gameView.SetTopText("Select a highlighted piece that can move");
         GameUIManager.Instance.gameView.ShowBottomText("This piece cannot be moved!");
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
 
         BoardManager.Instance.HideHightlightsFromBoardPositions();
         //position.occupyingPiece.ResetVisual();
-
-        GameManager.Instance.UponNeedToSelectAPiece();
+        PieceManager.Instance.HighlightPiecesByPlayerWhichHeCanSelectAndThatHaveValidMoves();
+        //GameManager.Instance.UponNeedToSelectAPiece();
     }
 
 
@@ -433,31 +435,8 @@ public class PieceManager : MonoBehaviour
         }
     }
 
-
-
-
-
-    /*
-    void PlacePiece(BoardPosition position, bool isPlayer1Turn)
-    {
-        GameObject piecePrefab = isPlayer1Turn ? piecePrefabPlayer1 : piecePrefabPlayer2;
-
-        Vector3 spawnPos = new Vector3(0f, 10f, 0f);
-        GameObject piece = Instantiate(piecePrefab, spawnPos, Quaternion.identity);
-        Piece p = piece.GetComponent<Piece>();
-
-        p.boardPosition = position;
-
-        piece.transform.DOJump(position.transform.position, 5f, 1, .3f);
-        position.OccupyPosition(p);
-        allPieces.Add(p);
-    }*/
-
-
     void MovePiece(BoardPosition from, BoardPosition to)
     {
-
-
         Piece piece = from.occupyingPiece;
         piece.OutlinePiece(false);
 
@@ -510,7 +489,7 @@ public class PieceManager : MonoBehaviour
             }
             //DeselectAllPieces();
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
-            GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
+            GameUIManager.Instance.gameView.SetTopText("Move your piece to an adjacent unoccupied spot!");
             position.occupyingPiece.OutlinePiece(true);
             position.occupyingPiece.ScaleUp(true);
         }
@@ -533,7 +512,7 @@ public class PieceManager : MonoBehaviour
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
                 position.occupyingPiece.OutlinePiece(true);
                 position.occupyingPiece.ScaleUp(true);
-                GameUIManager.Instance.gameView.SetTopText("MOVE YOUR PIECE BY CLICKING ON AN UNOCCUPIED SPOT!");
+                GameUIManager.Instance.gameView.SetTopText("Move your piece to an adjacent unoccupied spot");
             }
         }
         //Debug.Log("Selected piece at: " + position.name);
@@ -693,8 +672,8 @@ public class PieceManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("Piece does not belong to the opponent.");
-            GameUIManager.Instance.gameView.ShowBottomText("Piece does not belong to the opponent!");
+            Debug.Log("You cant remove your own piece!");
+            GameUIManager.Instance.gameView.ShowBottomText("You can't remove your own piece!");
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
         }
     }
