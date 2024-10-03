@@ -168,7 +168,7 @@ public class BoardManager : MonoBehaviour
         LineRenderer lineRenderer = lineObj.AddComponent<LineRenderer>();
 
         lineRenderer.material = normalLineMaterial;
-        lineRenderer.startWidth = lineWidth;
+        lineRenderer.startWidth = lineWidth; // Default line width
         lineRenderer.endWidth = lineWidth;
         lineRenderer.positionCount = 2;
         lineRenderer.sortingLayerID = SortingLayer.NameToID("BoardLines");
@@ -178,22 +178,26 @@ public class BoardManager : MonoBehaviour
         lines.Add(lineRenderer);
     }
 
+
     public void HighlightMillLine(List<BoardPosition> millPositions)
     {
         if (millPositions == null || millPositions.Count != 3)
             return;
 
-        bool millExists = BoardManager.Instance.activeMills.Any(existingMill => AreMillsEqual(existingMill, millPositions));
+        // Add the mill to the list of active mills if it's not already there
+        bool millExists = activeMills.Any(existingMill => AreMillsEqual(existingMill, millPositions));
         if (!millExists)
         {
-            BoardManager.Instance.activeMills.Add(millPositions);
+            activeMills.Add(millPositions);
         }
 
-
-        // Highlight the mill line
+        // Determine the target color based on the current player
         Color targetColor = GameManager.Instance.IsPlayer1Turn()
             ? Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId).color
             : Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId).color;
+
+        float initialLineWidth = 0.3f; 
+        float reducedLineWidth = 0.15f; 
 
         for (int i = 0; i < millPositions.Count; i++)
         {
@@ -204,24 +208,35 @@ public class BoardManager : MonoBehaviour
             {
                 if (IsLineConnectingPositions(line, start.transform.position, end.transform.position))
                 {
-                    line.startWidth = 0.3f;
-                    line.endWidth = 0.3f;
-                    line.material.color = targetColor; // Set the color statically
+                    // Set the line color to the target color
+                    line.material.color = targetColor;
+
+                    // Set the line width to the initial thicker value
+                    line.startWidth = initialLineWidth;
+                    line.endWidth = initialLineWidth;
+
+                    // Alternatively, if DOFloat doesn't work, we can use DOVirtual to animate the line width
+                    DOVirtual.Float(initialLineWidth, reducedLineWidth, 0.5f, value =>
+                    {
+                        line.startWidth = value;
+                        line.endWidth = value;
+                    }).SetDelay(0.5f);
                 }
             }
         }
     }
+
 
     bool AreMillsEqual(List<BoardPosition> mill1, List<BoardPosition> mill2)
     {
         return mill1.OrderBy(pos => pos.name).SequenceEqual(mill2.OrderBy(pos => pos.name));
     }
 
+
     public void ResetMillLines(List<BoardPosition> brokenMill)
     {
         // Remove the broken mill from the active mills list
-        BoardPosition[] brokenMillArray = brokenMill.ToArray();
-        activeMills.RemoveAll(mill => AreMillsEqual(mill, brokenMillArray.ToList()));
+        activeMills.RemoveAll(mill => AreMillsEqual(mill, brokenMill));
 
         // Reset the visual of the broken mill
         foreach (var line in lines)
@@ -235,10 +250,6 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-
-
-
-    // Helper method to check if a line is part of the broken mill
     private bool IsLinePartOfMill(LineRenderer line, List<BoardPosition> millPositions)
     {
         // Check if the line connects any two positions in the mill
@@ -254,6 +265,7 @@ public class BoardManager : MonoBehaviour
         }
         return false;
     }
+
 
     private bool IsLineConnectingPositions(LineRenderer line, Vector3 pos1, Vector3 pos2)
     {
