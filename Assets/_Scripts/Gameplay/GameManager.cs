@@ -429,6 +429,8 @@ public class GameManager : MonoBehaviour
         currentPhase = GamePhase.GameEnd;
         canInteract = false;
         PieceManager.Instance.UnhighlightAllPieces();
+        BoardManager.Instance.HideHightlightsFromBoardPositions();
+
         string winner = isPlayer1Turn ? 
             PlayerProfile.Instance.GetGamePlayerData(true).playerName 
             :
@@ -446,7 +448,6 @@ public class GameManager : MonoBehaviour
                 piece.gameObject.SetActive(false);
             }
         }
-
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.winnerJingle);
         yield return new WaitForSecondsRealtime(0.5f);
         camera.DOOrthoSize(cameraOrtoSize * 2.25f, 1.5f);

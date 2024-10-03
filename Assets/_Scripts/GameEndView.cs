@@ -36,6 +36,7 @@ public class GameEndView : ViewBase
 
     public IEnumerator WinAnimation()
     {
-        yield return new WaitForSecondsRealtime(1f);
+        yield return new WaitForSecondsRealtime(.3f);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onReachGameEndView);
     }
 }

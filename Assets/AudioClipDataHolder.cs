@@ -15,4 +15,5 @@ public class AudioClipDataHolder : ScriptableObject
     public AudioClipData onPieceRemovedFromBoardByMill;
     public AudioClipData onMillFormed;
     public AudioClipData winnerJingle;
+    public AudioClipData onReachGameEndView;
 }

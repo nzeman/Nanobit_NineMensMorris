@@ -47,6 +47,7 @@ public class AudioManager : MonoBehaviour
 
     public void PlaySFX(AudioClipData sfxClipData)
     {
+        if (sfxClipData == null) return;
         sfxClipData.ApplyToSource(sfxSource);
         sfxSource.PlayOneShot(sfxClipData.clip);
     }
