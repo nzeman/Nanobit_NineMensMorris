@@ -113,8 +113,6 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void OpenPauseMenu()
     {
-        
-
         isGamePaused = true;
         GameUIManager.Instance.EnableView(GameUIManager.Instance.pauseView);
         Time.timeScale = 0.0000001f;

@@ -221,10 +221,10 @@ public class PieceManager : MonoBehaviour
                     }
                     else
                     {
-                        piece.OutlinePiece(false); 
+                        piece.OutlinePiece(false);
                     }
 
-                    piece.ScaleUp(true); 
+                    piece.ScaleUp(true);
                 }
                 else
                 {
@@ -322,34 +322,34 @@ public class PieceManager : MonoBehaviour
     }
 
 
-private void TryMovePiece(BoardPosition targetPosition)
-{
-    Debug.Log("TryMovePiece");
-    bool isFlyingPhase = GetPieceCountForPlayer(GameManager.Instance.IsPlayer1Turn()) <= 3;
-
-    if (isFlyingPhase || selectedPiecePosition.IsAdjacent(targetPosition))
+    private void TryMovePiece(BoardPosition targetPosition)
     {
-        GameUIManager.Instance.gameView.SetTopText("");
-        GameUIManager.Instance.gameView.HideTurnText();
-        GameManager.Instance.SetCanPlayerInteract(false);
+        Debug.Log("TryMovePiece");
+        bool isFlyingPhase = GetPieceCountForPlayer(GameManager.Instance.IsPlayer1Turn()) <= 3;
 
-        // Stop scaling and reset visuals for all pieces once a move is confirmed
-        ResetAllScalingAndVisuals();
-
-        MovePiece(selectedPiecePosition, targetPosition);
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onPieceMove);
-        BoardManager.Instance.HideHightlightsFromBoardPositions();
-
-        DOVirtual.DelayedCall(GameManager.Instance.GetTimeToMovePieceToBoardPositionInMovingPhase(), () =>
+        if (isFlyingPhase || selectedPiecePosition.IsAdjacent(targetPosition))
         {
-            StartCoroutine(OnPieceReachPositionInMovingPhase(targetPosition));
-        }).SetUpdate(true);
+            GameUIManager.Instance.gameView.SetTopText("");
+            GameUIManager.Instance.gameView.HideTurnText();
+            GameManager.Instance.SetCanPlayerInteract(false);
+
+            // Stop scaling and reset visuals for all pieces once a move is confirmed
+            ResetAllScalingAndVisuals();
+
+            MovePiece(selectedPiecePosition, targetPosition);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onPieceMove);
+            BoardManager.Instance.HideHightlightsFromBoardPositions();
+
+            DOVirtual.DelayedCall(GameManager.Instance.GetTimeToMovePieceToBoardPositionInMovingPhase(), () =>
+            {
+                StartCoroutine(OnPieceReachPositionInMovingPhase(targetPosition));
+            }).SetUpdate(true);
+        }
+        else
+        {
+            HandleInvalidMove();
+        }
     }
-    else
-    {
-        HandleInvalidMove();
-    }
-}
 
 
 
@@ -416,11 +416,6 @@ private void TryMovePiece(BoardPosition targetPosition)
         BoardManager.Instance.HideHightlightsFromBoardPositions();
     }
 
-
-
-
-
-
     public void SpawnAllPiecesAtStart()
     {
         Vector3 player1StartPosition = Camera.main.ScreenToWorldPoint(player1SpawnUI.position);
@@ -469,126 +464,6 @@ private void TryMovePiece(BoardPosition targetPosition)
         piece.transform.DOMove(to.transform.position, GameManager.Instance.GetTimeToMovePieceToBoardPositionInMovingPhase());
 
         selectedPiecePosition = null;
-    }
-
-
-
-    void SelectPiece(BoardPosition position)
-    {
-        if(selectedPiecePosition == position)
-        {
-            // do not reselect the same one over again
-            return;
-        }
-
-        foreach (var piece in allPieces)
-        {
-            piece.OutlinePiece(false);
-        }
-        string playerTag = GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece";
-        foreach (var piece in allPieces)
-        {
-            if (piece.CompareTag(playerTag))
-            {
-                bool hasValidMove = piece.boardPosition.adjacentPositions.Any(x => !x.isOccupied);
-                piece.ScaleUp(hasValidMove);
-            }
-        }
-
-        selectedPiecePosition = position;
-        //Debug.Log("Can this piece fly? " + IsFlyingPhaseForCurrentTurnPlayer());
-        if (IsFlyingPhaseForCurrentTurnPlayer())
-        {
-            foreach (var positionOnBoard in BoardManager.Instance.GetAllBoardPositions())
-            {
-                if (!positionOnBoard.isOccupied)
-                {
-                    positionOnBoard.HighlightBoardPosition(true);
-                }
-                else
-                {
-                    positionOnBoard.HighlightBoardPosition(false);
-                }
-            }
-            //DeselectAllPieces();
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onPieceSelected);
-            GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.GetTextData().flyingPhaseText);
-            position.occupyingPiece.OutlinePiece(true);
-            position.occupyingPiece.ScaleUp(true);
-        }
-        else
-        {
-
-            // no flying
-            if (CountPiecesOfAvailableAdjacentSpots(selectedPiecePosition) == 0)
-            {
-                Debug.Log("Selected piece has no adjacent position that is not occupied, and there is no flying. You cannot move this piece!");
-                //GameUIManager.Instance.gameView.SetTopText("NO POSSIBLE MOVES WITH THIS PIECE, SELECT ANOTHER ONE!");
-                //GameUIManager.Instance.gameView.ShowBottomText("No possible moves with this piece!");
-                ShowNoValidMovesFeedback(selectedPiecePosition);
-                // TODO add different outline or something here, so it's more clear that you cannot move it
-                selectedPiecePosition.occupyingPiece.ResetVisual();
-            }
-            else
-            {
-                //DeselectAllPieces();
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onPieceSelected);
-                position.occupyingPiece.OutlinePiece(true);
-                position.occupyingPiece.ScaleUp(true);
-                GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.GetTextData().moveToAdjacentSpotText);
-            }
-        }
-        //Debug.Log("Selected piece at: " + position.name);
-    }
-
-    public int CountPiecesOfAvailableAdjacentSpots(BoardPosition position)
-    {
-        int countAdjacent = 0;
-        foreach (var adjacentPosition in position.adjacentPositions)
-        {
-            if (!adjacentPosition.isOccupied)
-            {
-                adjacentPosition.HighlightBoardPosition(true);
-                countAdjacent++;
-            }
-            else
-            {
-                adjacentPosition.HighlightBoardPosition(false);
-            }
-        }
-
-        return countAdjacent;
-    }
-
-    void DeselectAllPieces()
-    {
-        foreach (var piece in allPieces)
-        {
-            piece.ResetVisual();
-        }
-    }
-
-    List<BoardPosition> GetMillPositions(BoardPosition position, bool isPlayer1Turn)
-    {
-        string playerTag = isPlayer1Turn ? "Player1Piece" : "Player2Piece";
-
-        List<BoardPosition> horizontalMill = GetMillInLinePositions(position, playerTag, true);
-        if (horizontalMill != null)
-            return horizontalMill;
-
-        List<BoardPosition> verticalMill = GetMillInLinePositions(position, playerTag, false);
-        if (verticalMill != null)
-            return verticalMill;
-
-        return null; // No mill formed
-    }
-
-
-
-    bool CheckForMill(BoardPosition position, bool isPlayer1Turn)
-    {
-        string playerTag = isPlayer1Turn ? "Player1Piece" : "Player2Piece";
-        return CheckMillInLine(position, playerTag, true) || CheckMillInLine(position, playerTag, false);
     }
 
     // Helper method to find all mills in a line
@@ -685,33 +560,6 @@ private void TryMovePiece(BoardPosition targetPosition)
         }
     }
 
-
-    List<BoardPosition> GetMillInLinePositions(BoardPosition position, string playerTag, bool checkHorizontal)
-    {
-        List<BoardPosition> linePositions = new List<BoardPosition> { position };
-
-        foreach (var adjacent in position.adjacentPositions)
-        {
-            if (IsAlignedInLine(position, adjacent, checkHorizontal) && adjacent.isOccupied && adjacent.occupyingPiece.CompareTag(playerTag))
-            {
-                linePositions.Add(adjacent);
-
-                foreach (var secondAdjacent in adjacent.adjacentPositions)
-                {
-                    if (secondAdjacent != position && IsAlignedInLine(adjacent, secondAdjacent, checkHorizontal)
-                        && secondAdjacent.isOccupied && secondAdjacent.occupyingPiece.CompareTag(playerTag))
-                    {
-                        linePositions.Add(secondAdjacent);
-                    }
-                }
-            }
-        }
-
-        return linePositions.Count == 3 ? linePositions : null; // Return the list of positions if mill is formed, otherwise null
-    }
-
-
-
     bool IsAlignedInLine(BoardPosition pos1, BoardPosition pos2, bool checkHorizontal)
     {
         if (checkHorizontal)
@@ -719,8 +567,6 @@ private void TryMovePiece(BoardPosition targetPosition)
         else
             return Mathf.Approximately(pos1.transform.position.x, pos2.transform.position.x);
     }
-
-
 
     void HandleMillRemoval(BoardPosition position)
     {
@@ -772,8 +618,6 @@ private void TryMovePiece(BoardPosition targetPosition)
         }
     }
 
-
-
     void CheckAndHandleBrokenMills()
     {
         List<List<BoardPosition>> millsToRemove = new List<List<BoardPosition>>();
@@ -796,8 +640,6 @@ private void TryMovePiece(BoardPosition targetPosition)
         // Remove broken mills from active mills
         BoardManager.Instance.RemoveMills(millsToRemove);
     }
-
-
 
     bool IsMillStillValid(List<BoardPosition> mill)
     {
