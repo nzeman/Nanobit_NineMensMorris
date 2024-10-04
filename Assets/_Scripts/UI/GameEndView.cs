@@ -51,12 +51,12 @@ public class GameEndView : ViewBase
         yield return new WaitForSecondsRealtime(.5f);
         confettiShower.Play();
         
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onReachGameEndView);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onReachGameEndView);
         int i = 0;
         foreach (var confetti in confettis)
         {
             confetti.Play();
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.confettiBlast);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().confettiBlast);
             yield return new WaitForSecondsRealtime(.15f * i);
             i++;
         }

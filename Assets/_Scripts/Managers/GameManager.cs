@@ -70,7 +70,7 @@ public class GameManager : MonoBehaviour
         PieceManager.Instance.SpawnAllPiecesAtStart();
         PieceManager.Instance.HighlightNextPieceToPlace();
 
-        AudioManager.Instance.PlayGameMusic(AudioManager.Instance.audioClipDataHolder.gameMusic);
+        AudioManager.Instance.PlayGameMusic(AudioManager.Instance.GetAudioData().gameMusic);
         AudioManager.Instance.StopMainMenuMusic();
         PieceManager.Instance.RefreshPiecesLeftUi();
 
@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour
             $"Player 1 turn! :: {PlayerProfile.Instance.GetGamePlayerData(true).playerName}" :
             $"Player 2 turn! :: {PlayerProfile.Instance.GetGamePlayerData(false).playerName}";
 
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onTurnChanged);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onTurnChanged);
         Debug.Log(debugString);
     }
 
@@ -288,7 +288,7 @@ public class GameManager : MonoBehaviour
 
         List<Piece> piecesToHighlight = new List<Piece>();
         string opponentTag = isPlayer1Turn ? "Player2Piece" : "Player1Piece";
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onMillFormed);
         PieceManager.Instance.ResetAllPieceVisuals();
 
         foreach (var piece in PieceManager.Instance.allPieces)
@@ -349,7 +349,7 @@ public class GameManager : MonoBehaviour
                 piece.gameObject.SetActive(false);
         }
 
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.winnerJingle);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().winnerJingle);
         yield return new WaitForSecondsRealtime(0.5f);
 
         mainCamera.DOOrthoSize(cameraOrtoSize * 2.25f, 1.5f);

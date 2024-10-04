@@ -110,7 +110,7 @@ public class PieceManager : MonoBehaviour
             GameManager.Instance.SavePreviousPhase();
             GameManager.Instance.SetCanPlayerInteract(false);
             BoardManager.Instance.HideHightlightsFromBoardPositions();
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPiecePlacedClick);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onPiecePlacedClick);
             Piece pieceToPlace = isPlayer1Turn ? player1PiecesQueue.Dequeue() : player2PiecesQueue.Dequeue();
 
             Debug.Log($"Placing piece on {position.name}...");
@@ -125,7 +125,7 @@ public class PieceManager : MonoBehaviour
 
     public IEnumerator OnPieceReachedPositionInPlacingPhase(Piece pieceToPlace, BoardPosition position, bool isPlayer1Turn)
     {
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceReachedPositionWhenPlacing);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onPieceReachedPositionWhenPlacing);
         yield return new WaitForSecondsRealtime(.2f);
 
         position.OccupyPosition(pieceToPlace);
@@ -145,7 +145,7 @@ public class PieceManager : MonoBehaviour
         if (millFormed)
         {
             BoardManager.Instance.HighlightMills(millsFormed);
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onMillFormed);
         }
 
         GameManager.Instance.SetCurrentPhase(GameManager.Instance.GetGetPhaseBeforeMill());
@@ -284,7 +284,7 @@ public class PieceManager : MonoBehaviour
             }
 
             // Play sound and highlight the selected piece
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onPieceSelected);
 
             // Show outline and scale only for the selected piece that has valid moves
             position.occupyingPiece.OutlinePiece(true);
@@ -300,7 +300,7 @@ public class PieceManager : MonoBehaviour
             {
                 GameUIManager.Instance.gameView.ShowBottomText("You need to select your piece!");
             }
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onIllegalMove);
         }
     }
 
@@ -337,7 +337,7 @@ private void TryMovePiece(BoardPosition targetPosition)
         ResetAllScalingAndVisuals();
 
         MovePiece(selectedPiecePosition, targetPosition);
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceMove);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onPieceMove);
         BoardManager.Instance.HideHightlightsFromBoardPositions();
 
         DOVirtual.DelayedCall(GameManager.Instance.GetTimeToMovePieceToBoardPositionInMovingPhase(), () =>
@@ -371,7 +371,7 @@ private void TryMovePiece(BoardPosition targetPosition)
 
         GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.GetTextData().selectPieceText);
         GameUIManager.Instance.gameView.ShowBottomText("This piece cannot be moved!");
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onIllegalMove);
 
         BoardManager.Instance.HideHightlightsFromBoardPositions();
         //position.occupyingPiece.ResetVisual();
@@ -384,12 +384,12 @@ private void TryMovePiece(BoardPosition targetPosition)
     {
         Debug.Log("Invalid move: Not adjacent and not in flying phase.");
         GameUIManager.Instance.gameView.ShowBottomText("Selected piece cannot go to this position!");
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onIllegalMove);
     }
 
     public IEnumerator OnPieceReachPositionInMovingPhase(BoardPosition position)
     {
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceReachedPositionWhenPlacing);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onPieceReachedPositionWhenPlacing);
         yield return new WaitForSecondsRealtime(0.2f);
 
         GameManager.Instance.SetCanPlayerInteract(false);
@@ -407,7 +407,7 @@ private void TryMovePiece(BoardPosition targetPosition)
         if (millFormed)
         {
             BoardManager.Instance.HighlightMills(millsFormed);
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onMillFormed);
         }
 
         // Proceed with the game flow
@@ -511,7 +511,7 @@ private void TryMovePiece(BoardPosition targetPosition)
                 }
             }
             //DeselectAllPieces();
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onPieceSelected);
             GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.GetTextData().flyingPhaseText);
             position.occupyingPiece.OutlinePiece(true);
             position.occupyingPiece.ScaleUp(true);
@@ -532,7 +532,7 @@ private void TryMovePiece(BoardPosition targetPosition)
             else
             {
                 //DeselectAllPieces();
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onPieceSelected);
                 position.occupyingPiece.OutlinePiece(true);
                 position.occupyingPiece.ScaleUp(true);
                 GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.GetTextData().moveToAdjacentSpotText);
@@ -748,7 +748,7 @@ private void TryMovePiece(BoardPosition targetPosition)
                     pieceGameObject.SetActive(false);
 
                     CheckAndHandleBrokenMills();
-                    AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceRemovedFromBoardByMill);
+                    AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onPieceRemovedFromBoardByMill);
                     GameManager.Instance.PieceRemovedFromBoardByPlayer();
 
                     if (GameManager.Instance.IsGameOverByNoValidMoves())
@@ -761,14 +761,14 @@ private void TryMovePiece(BoardPosition targetPosition)
             {
                 Debug.Log("Cannot remove a piece that is in a mill unless all opponent pieces are in mills.");
                 GameUIManager.Instance.gameView.ShowBottomText("Cannot remove a piece that is in a mill unless all opponent pieces are in mills!");
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onIllegalMove);
             }
         }
         else
         {
             Debug.Log("You can't remove your own piece!");
             GameUIManager.Instance.gameView.ShowBottomText("You can't remove your own piece!");
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onIllegalMove);
         }
     }
 

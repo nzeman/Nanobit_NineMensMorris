@@ -7,7 +7,7 @@ public class OnReturnedToMainMenu : MonoBehaviour
     void Start()
     {
         AudioManager.Instance.StopGameMusic();
-        AudioManager.Instance.PlayMainMenuMusic(AudioManager.Instance.audioClipDataHolder.mainMenuMusic);
+        AudioManager.Instance.PlayMainMenuMusic(AudioManager.Instance.GetAudioData().mainMenuMusic);
     }
 
 }
