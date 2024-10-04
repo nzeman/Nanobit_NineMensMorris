@@ -74,11 +74,8 @@ public class BoardManager : MonoBehaviour
     {
         GameObject background = new GameObject("BoardBackground");
         SpriteRenderer spriteRenderer = background.AddComponent<SpriteRenderer>();
-
         spriteRenderer.sprite = boardSprite;
-
         float scale = 0.8f + 0.6f * (numberOfRings - 1);
-
         background.transform.localScale = new Vector3(scale, scale, 1);
         background.transform.position = new Vector3(0, 0, -1);
     }
@@ -211,17 +208,14 @@ public class BoardManager : MonoBehaviour
     {
         if (millPositions == null || millPositions.Count != 3)
             return;
-
         // Add the mill to the list of active mills if it's not already there
         bool millExists = activeMills.Any(existingMill => AreMillsEqual(existingMill, millPositions));
         if (!millExists)
         {
             activeMills.Add(millPositions);
         }
-
         // Determine if the mill is horizontal or vertical
         bool isHorizontal = Mathf.Abs(millPositions[0].transform.position.y - millPositions[1].transform.position.y) < 0.01f;
-
         // Sort mill positions to ensure correct order
         if (isHorizontal)
         {
@@ -339,8 +333,6 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-
-
     /// <summary>
     /// Checks if two mills are equal based on their positions.
     /// </summary>
@@ -377,22 +369,7 @@ public class BoardManager : MonoBehaviour
     #endregion
 
     #region Utility Methods
-    private bool IsLinePartOfMill(LineRenderer line, List<BoardPosition> millPositions)
-    {
-        // Check if the line connects any two positions in the mill
-        for (int i = 0; i < millPositions.Count; i++)
-        {
-            BoardPosition start = millPositions[i];
-            BoardPosition end = millPositions[(i + 1) % millPositions.Count];
-
-            if (IsLineConnectingPositions(line, start.transform.position, end.transform.position))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
+   
     private bool IsLineConnectingPositions(LineRenderer line, Vector3 pos1, Vector3 pos2)
     {
         float tolerance = 0.01f;

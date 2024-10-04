@@ -53,11 +53,10 @@ public class GameManager : MonoBehaviour
 
     public void Start()
     {
+        Debug.Log("GameManager :: Initalization...");
         bool player1GoesFirst = Random.value > 0.5f ? isPlayer1Turn = true : isPlayer1Turn = false;
         isPlayer1Turn = player1GoesFirst;
-
         BoardManager.Instance.Initialize();
-
         maxPiecesPerPlayer = PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer;
 
         float ortoSizeCamera = defaultCameraSize + (BoardManager.Instance.GetNumberOfRings() * 1.8F);
@@ -68,13 +67,13 @@ public class GameManager : MonoBehaviour
         GameUIManager.Instance.gameView.SetTurnText();
         PieceManager.Instance.SpawnAllPiecesAtStart();
         PieceManager.Instance.HighlightNextPieceToPlace();
-        canInteract = true;
 
         AudioManager.Instance.PlayGameMusic(AudioManager.Instance.audioClipDataHolder.gameMusic);
         AudioManager.Instance.StopMainMenuMusic();
 
         PieceManager.Instance.RefreshPiecesLeftUi();
-
+        canInteract = true;
+        Debug.Log("GameManager :: Game started!");
     }
 
     public void SwitchingTurn()

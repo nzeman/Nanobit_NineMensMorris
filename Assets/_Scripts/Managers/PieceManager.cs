@@ -37,17 +37,11 @@ public class PieceManager : MonoBehaviour
     public RectTransform player1SpawnUI;
     public RectTransform player2SpawnUI;
 
-    void Start()
-    {
-
-    }
-
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
             if (GameManager.Instance.canInteract == false) return;
-
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             HandleBoardPointClick(mousePosition);
         }
