@@ -1,3 +1,4 @@
+using DG.Tweening;
 using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,10 +27,16 @@ public class GameEndView : ViewBase
     [SerializeField] private string winStringWinNoValidMoves;
     [SerializeField] private string winStringWinNoPiecesLeft;
 
+    [Header("CanvasGroup")]
+    [SerializeField] private CanvasGroup buttonsCanvasGroup;
+
     public override void Start()
     {
         restartButton.onClick.AddListener(GameUIManager.Instance.OnRestartButtonClicked);
         returnToMainMenuButton.onClick.AddListener(GameUIManager.Instance.OnReturnToMainMenuClicked);
+        buttonsCanvasGroup.alpha = 0f;
+        buttonsCanvasGroup.blocksRaycasts = false;
+            
     }
 
     public void StartWinAnimation(bool isPlayer1Winner)
@@ -44,13 +51,14 @@ public class GameEndView : ViewBase
             winnerPlayerText.text = PlayerProfile.Instance.GetGamePlayerData(false).playerName;
             winnerPlayerText.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId)).color;
         }
-        if(GameManager.Instance.GetWinReason() == GameManager.WinReason.LessThan3PiecesLeft)
+        winReasonText.text = "";
+        if (GameManager.Instance.GetWinReason() == GameManager.WinReason.LessThan3PiecesLeft)
         {
-            winReasonText.text = winStringWinNoPiecesLeft;
+            winReasonText.DOText(winStringWinNoPiecesLeft, 2f, false, ScrambleMode.None);
         }
         else
         {
-            winReasonText.text = winStringWinNoValidMoves;
+            winReasonText.DOText(winStringWinNoValidMoves, 2f, false, ScrambleMode.None);
         }
         StartCoroutine(WinAnimation());
     }
@@ -59,7 +67,10 @@ public class GameEndView : ViewBase
     {
         yield return new WaitForSecondsRealtime(.5f);
         confettiShower.Play();
-        
+
+        buttonsCanvasGroup.DOFade(1f, 1.5f);
+        buttonsCanvasGroup.blocksRaycasts = true;
+
         AudioManager.Instance.PlaySFX(AudioManager.Instance.GetAudioData().onReachGameEndView);
         int i = 0;
         foreach (var confetti in confettis)
@@ -69,6 +80,8 @@ public class GameEndView : ViewBase
             yield return new WaitForSecondsRealtime(.15f * i);
             i++;
         }
+
+
 
     }
 }
