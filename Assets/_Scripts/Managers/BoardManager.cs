@@ -193,6 +193,16 @@ public class BoardManager : MonoBehaviour
     #endregion
 
     #region Mill Handling Methods
+
+    public void HighlightMills(List<List<BoardPosition>> mills)
+    {
+        foreach (var millPositions in mills)
+        {
+            HighlightMillLine(millPositions);
+        }
+    }
+
+
     /// <summary>
     /// Highlights the lines forming a mill.
     /// </summary>
@@ -209,6 +219,19 @@ public class BoardManager : MonoBehaviour
             activeMills.Add(millPositions);
         }
 
+        // Determine if the mill is horizontal or vertical
+        bool isHorizontal = Mathf.Abs(millPositions[0].transform.position.y - millPositions[1].transform.position.y) < 0.01f;
+
+        // Sort mill positions to ensure correct order
+        if (isHorizontal)
+        {
+            millPositions = millPositions.OrderBy(pos => pos.transform.position.x).ToList();
+        }
+        else
+        {
+            millPositions = millPositions.OrderBy(pos => pos.transform.position.y).ToList();
+        }
+
         // Determine the target color based on the current player
         Color targetColor = GameManager.Instance.IsPlayer1Turn()
             ? Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(true).colorId).color
@@ -217,53 +240,106 @@ public class BoardManager : MonoBehaviour
         float initialLineWidth = 0.3f;
         float reducedLineWidth = 0.15f;
 
-        for (int i = 0; i < millPositions.Count; i++)
+        for (int i = 0; i < millPositions.Count - 1; i++)
         {
             BoardPosition start = millPositions[i];
-            BoardPosition end = millPositions[(i + 1) % millPositions.Count];
+            BoardPosition end = millPositions[i + 1];
 
-            foreach (var line in lines)
+            // Highlight the line between start and end
+            HighlightLineBetweenPositions(start, end, targetColor, initialLineWidth, reducedLineWidth);
+        }
+    }
+
+
+    private void HighlightLineBetweenPositions(BoardPosition start, BoardPosition end, Color color, float initialWidth, float reducedWidth)
+    {
+        foreach (var line in lines)
+        {
+            if (IsLineConnectingPositions(line, start.transform.position, end.transform.position))
             {
-                if (IsLineConnectingPositions(line, start.transform.position, end.transform.position))
+                // Set the line color
+                line.material.color = color;
+
+                // Set the line width to the initial thicker value
+                line.startWidth = initialWidth;
+                line.endWidth = initialWidth;
+
+                // Animate the line width to reduce it over time
+                DOVirtual.Float(initialWidth, reducedWidth, 0.5f, value =>
                 {
-                    // Set the line color to the target color
-                    line.material.color = targetColor;
+                    line.startWidth = value;
+                    line.endWidth = value;
+                }).SetDelay(0.5f);
 
-                    // Set the line width to the initial thicker value
-                    line.startWidth = initialLineWidth;
-                    line.endWidth = initialLineWidth;
-
-                    // Animate the line width to reduce it over time
-                    DOVirtual.Float(initialLineWidth, reducedLineWidth, 0.5f, value =>
-                    {
-                        line.startWidth = value;
-                        line.endWidth = value;
-                    }).SetDelay(0.5f);
-                }
+                // Break after finding the correct line
+                break;
             }
         }
     }
 
-    /// <summary>
-    /// Resets the visual representation of a broken mill.
-    /// </summary>
-    /// <param name="brokenMill">List of board positions forming the broken mill.</param>
-    public void ResetMillLines(List<BoardPosition> brokenMill)
-    {
-        // Remove the broken mill from the active mills list
-        activeMills.RemoveAll(mill => AreMillsEqual(mill, brokenMill));
 
-        // Reset the visual of the broken mill
+
+
+    public void ResetMillLines(List<BoardPosition> millPositions)
+    {
+        if (millPositions == null || millPositions.Count != 3)
+            return;
+
+        // Remove the mill from active mills
+        activeMills.RemoveAll(existingMill => AreMillsEqual(existingMill, millPositions));
+
+        // Determine if the mill is horizontal or vertical
+        bool isHorizontal = Mathf.Abs(millPositions[0].transform.position.y - millPositions[1].transform.position.y) < 0.01f;
+
+        // Sort mill positions to ensure correct order
+        if (isHorizontal)
+        {
+            millPositions = millPositions.OrderBy(pos => pos.transform.position.x).ToList();
+        }
+        else
+        {
+            millPositions = millPositions.OrderBy(pos => pos.transform.position.y).ToList();
+        }
+
+        // Reset the lines between positions in the mill
+        for (int i = 0; i < millPositions.Count - 1; i++)
+        {
+            BoardPosition start = millPositions[i];
+            BoardPosition end = millPositions[i + 1];
+
+            // Reset the line between start and end
+            ResetLineBetweenPositions(start, end);
+        }
+    }
+
+    public void RemoveMills(List<List<BoardPosition>> millsToRemove)
+    {
+        foreach (var mill in millsToRemove)
+        {
+            // Remove the mill from the active mills list
+            activeMills.RemoveAll(existingMill => AreMillsEqual(existingMill, mill));
+        }
+    }
+
+
+    private void ResetLineBetweenPositions(BoardPosition start, BoardPosition end)
+    {
         foreach (var line in lines)
         {
-            if (IsLinePartOfMill(line, brokenMill))
+            if (IsLineConnectingPositions(line, start.transform.position, end.transform.position))
             {
+                // Reset the line to default color and width
                 line.material = normalLineMaterial;
                 line.startWidth = lineWidth;
                 line.endWidth = lineWidth;
+
+                // Break after resetting the correct line
+                break;
             }
         }
     }
+
+
 
     /// <summary>
     /// Checks if two mills are equal based on their positions.
@@ -271,10 +347,15 @@ public class BoardManager : MonoBehaviour
     /// <param name="mill1">First mill to compare.</param>
     /// <param name="mill2">Second mill to compare.</param>
     /// <returns>True if mills are equal, false otherwise.</returns>
-    bool AreMillsEqual(List<BoardPosition> mill1, List<BoardPosition> mill2)
+    public bool AreMillsEqual(List<BoardPosition> mill1, List<BoardPosition> mill2)
     {
+        if (mill1.Count != mill2.Count)
+            return false;
+
+        // Compare the positions in the mills
         return mill1.OrderBy(pos => pos.name).SequenceEqual(mill2.OrderBy(pos => pos.name));
     }
+
     #endregion
 
     #region Board Position Highlight Methods

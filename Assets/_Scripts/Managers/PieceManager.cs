@@ -141,13 +141,16 @@ public class PieceManager : MonoBehaviour
         // First, check and handle any broken mills
         CheckAndHandleBrokenMills();
 
-        bool millFormed = CheckForMill(position, isPlayer1Turn);
+        // Get all mills involving the position
+        List<List<BoardPosition>> millsFormed = GetAllMillsInvolvingPosition(position, isPlayer1Turn ? "Player1Piece" : "Player2Piece");
 
-        // Highlight the mill if it's formed
+        // Determine if any mills were formed
+        bool millFormed = millsFormed.Count > 0;
+
+        // Highlight the mills if any were formed
         if (millFormed)
         {
-            List<BoardPosition> millPositions = GetMillPositions(position, isPlayer1Turn);
-            BoardManager.Instance.HighlightMillLine(millPositions);
+            BoardManager.Instance.HighlightMills(millsFormed);
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
         }
 
@@ -156,6 +159,7 @@ public class PieceManager : MonoBehaviour
         GameManager.Instance.canInteract = true;
         RefreshPiecesLeftUi();
     }
+
 
 
     public void HighlightNextPieceToPlace()
@@ -389,7 +393,6 @@ private void TryMovePiece(BoardPosition targetPosition)
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
     }
 
-
     public IEnumerator OnPieceReachPositionInMovingPhase(BoardPosition position)
     {
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceReachedPositionWhenPlacing);
@@ -397,19 +400,29 @@ private void TryMovePiece(BoardPosition targetPosition)
 
         GameManager.Instance.canInteract = true;
 
+        // First, check and handle any broken mills
         CheckAndHandleBrokenMills();
 
-        bool millFormed = CheckForMill(position, GameManager.Instance.IsPlayer1Turn());
+        // Get all mills involving the position
+        List<List<BoardPosition>> millsFormed = GetAllMillsInvolvingPosition(position, GameManager.Instance.IsPlayer1Turn() ? "Player1Piece" : "Player2Piece");
+
+        // Determine if any mills were formed
+        bool millFormed = millsFormed.Count > 0;
+
+        // Highlight the mills if any were formed
         if (millFormed)
         {
-            List<BoardPosition> millPositions = GetMillPositions(position, GameManager.Instance.IsPlayer1Turn());
-            BoardManager.Instance.HighlightMillLine(millPositions);
+            BoardManager.Instance.HighlightMills(millsFormed);
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
         }
 
+        // Proceed with the game flow
         GameManager.Instance.OnPieceReachedItsPositionOnBoard(millFormed);
+
         BoardManager.Instance.HideHightlightsFromBoardPositions();
     }
+
+
 
 
 
@@ -584,30 +597,98 @@ private void TryMovePiece(BoardPosition targetPosition)
         return CheckMillInLine(position, playerTag, true) || CheckMillInLine(position, playerTag, false);
     }
 
+    // Helper method to find all mills in a line
+    List<List<BoardPosition>> FindMillsInLine(BoardPosition position, string playerTag, bool checkHorizontal)
+    {
+        List<BoardPosition> alignedPositions = CollectAlignedPositions(position, checkHorizontal);
+
+        // Sort positions based on their coordinates to ensure correct sequence
+        alignedPositions = alignedPositions.OrderBy(pos =>
+            checkHorizontal ? pos.transform.position.x : pos.transform.position.y).ToList();
+
+        List<List<BoardPosition>> mills = new List<List<BoardPosition>>();
+
+        // Check for sequences of three consecutive positions occupied by the player's pieces
+        for (int i = 0; i <= alignedPositions.Count - 3; i++)
+        {
+            if (alignedPositions[i].occupyingPiece != null && alignedPositions[i].occupyingPiece.CompareTag(playerTag) &&
+                alignedPositions[i + 1].occupyingPiece != null && alignedPositions[i + 1].occupyingPiece.CompareTag(playerTag) &&
+                alignedPositions[i + 2].occupyingPiece != null && alignedPositions[i + 2].occupyingPiece.CompareTag(playerTag))
+            {
+                List<BoardPosition> mill = new List<BoardPosition>
+            {
+                alignedPositions[i],
+                alignedPositions[i + 1],
+                alignedPositions[i + 2]
+            };
+                mills.Add(mill);
+            }
+        }
+        return mills;
+    }
+
 
     bool CheckMillInLine(BoardPosition position, string playerTag, bool checkHorizontal)
     {
-        List<BoardPosition> linePositions = new List<BoardPosition> { position };
+        List<List<BoardPosition>> mills = FindMillsInLine(position, playerTag, checkHorizontal);
+        return mills.Count > 0;
+    }
+    List<List<BoardPosition>> GetAllMillsInvolvingPosition(BoardPosition position, string playerTag)
+    {
+        List<List<BoardPosition>> mills = new List<List<BoardPosition>>();
 
-        foreach (var adjacent in position.adjacentPositions)
+        // Check horizontal and vertical mills
+        mills.AddRange(FindMillsInLine(position, playerTag, true));
+        mills.AddRange(FindMillsInLine(position, playerTag, false));
+
+        // Filter mills to only those that include the current position
+        mills = mills.Where(mill => mill.Contains(position)).ToList();
+
+        return mills;
+    }
+
+    List<BoardPosition> CollectAlignedPositions(BoardPosition startPosition, bool checkHorizontal)
+    {
+        List<BoardPosition> alignedPositions = new List<BoardPosition> { startPosition };
+
+        // Traverse in the negative direction
+        TraverseInDirection(startPosition, checkHorizontal, -1, ref alignedPositions);
+
+        // Traverse in the positive direction
+        TraverseInDirection(startPosition, checkHorizontal, 1, ref alignedPositions);
+
+        // Sort positions based on their coordinates to ensure correct sequence
+        alignedPositions = alignedPositions.OrderBy(pos =>
+            checkHorizontal ? pos.transform.position.x : pos.transform.position.y).ToList();
+
+        return alignedPositions;
+    }
+
+    void TraverseInDirection(BoardPosition currentPosition, bool checkHorizontal, int direction, ref List<BoardPosition> alignedPositions)
+    {
+        float tolerance = 0.01f;
+        Vector3 currentPos = currentPosition.transform.position;
+        foreach (var adjacent in currentPosition.adjacentPositions)
         {
-            if (IsAlignedInLine(position, adjacent, checkHorizontal) && adjacent.isOccupied && adjacent.occupyingPiece.CompareTag(playerTag))
-            {
-                linePositions.Add(adjacent);
+            Vector3 adjacentPos = adjacent.transform.position;
+            bool isAligned = checkHorizontal
+                ? Mathf.Abs(currentPos.y - adjacentPos.y) < tolerance
+                : Mathf.Abs(currentPos.x - adjacentPos.x) < tolerance;
 
-                // Look for a second adjacent piece in the same line
-                foreach (var secondAdjacent in adjacent.adjacentPositions)
+            bool isCorrectDirection = checkHorizontal
+                ? Mathf.Sign(adjacentPos.x - currentPos.x) == direction
+                : Mathf.Sign(adjacentPos.y - currentPos.y) == direction;
+
+            if (isAligned && isCorrectDirection)
+            {
+                if (!alignedPositions.Contains(adjacent))
                 {
-                    if (secondAdjacent != position && IsAlignedInLine(adjacent, secondAdjacent, checkHorizontal)
-                        && secondAdjacent.isOccupied && secondAdjacent.occupyingPiece.CompareTag(playerTag))
-                    {
-                        linePositions.Add(secondAdjacent);
-                    }
+                    alignedPositions.Add(adjacent);
+                    TraverseInDirection(adjacent, checkHorizontal, direction, ref alignedPositions);
                 }
+                break;
             }
         }
-
-        return linePositions.Count == 3; // Return true if exactly 3 pieces form a mill
     }
 
 
@@ -717,7 +798,11 @@ private void TryMovePiece(BoardPosition targetPosition)
         {
             BoardManager.Instance.ResetMillLines(brokenMill);
         }
+
+        // Remove broken mills from active mills
+        BoardManager.Instance.RemoveMills(millsToRemove);
     }
+
 
 
     bool IsMillStillValid(List<BoardPosition> mill)
