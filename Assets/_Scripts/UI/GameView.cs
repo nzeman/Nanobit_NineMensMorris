@@ -55,7 +55,7 @@ public class GameView : ViewBase
     public void SetTurnText()
     {
         DOTween.Kill(GetInstanceID());
-        if (GameManager.Instance.currentPhase == GameManager.GamePhase.GameEnd) return;
+        if (GameManager.Instance.GetCurrentPhase() == GameManager.GamePhase.GameEnd) return;
 
         turnText.gameObject.SetActive(true);
         if (GameManager.Instance.IsPlayer1Turn())

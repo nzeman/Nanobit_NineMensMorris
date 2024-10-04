@@ -41,7 +41,7 @@ public class PieceManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (GameManager.Instance.canInteract == false) return;
+            if (GameManager.Instance.CanPlayerInteract() == false) return;
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             HandleBoardPointClick(mousePosition);
         }
@@ -58,7 +58,7 @@ public class PieceManager : MonoBehaviour
         RaycastHit2D hitBoard = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, boardLayer);
 
         // mill removal 
-        if (GameManager.Instance.currentPhase == GameManager.GamePhase.MillRemoval && hitPiece.collider != null)
+        if (GameManager.Instance.GetCurrentPhase() == GameManager.GamePhase.MillRemoval && hitPiece.collider != null)
         {
             if (hitBoard.collider == null)
             {
@@ -73,11 +73,11 @@ public class PieceManager : MonoBehaviour
         else if (hitBoard.collider != null)
         {
             BoardPosition boardPosition = hitBoard.collider.GetComponent<BoardPosition>();
-            if (GameManager.Instance.currentPhase == GameManager.GamePhase.Placing)
+            if (GameManager.Instance.GetCurrentPhase() == GameManager.GamePhase.Placing)
             {
                 HandlePlacingPhase(boardPosition);
             }
-            else if (GameManager.Instance.currentPhase == GameManager.GamePhase.Moving)
+            else if (GameManager.Instance.GetCurrentPhase() == GameManager.GamePhase.Moving)
             {
                 HandleMovingPhase(boardPosition);
             }
@@ -86,8 +86,8 @@ public class PieceManager : MonoBehaviour
 
     public void RefreshPiecesLeftUi()
     {
-        int countPlayer1 = GameManager.Instance.maxPiecesPerPlayer - GameManager.Instance.piecesPlacedPlayer1;
-        int countPlayer2 = GameManager.Instance.maxPiecesPerPlayer - GameManager.Instance.piecesPlacedPlayer2;
+        int countPlayer1 = GameManager.Instance.GetMaxPiecesByPlayer() - GameManager.Instance.GetPiecesCountPlacedByPlayer(true);
+        int countPlayer2 = GameManager.Instance.GetMaxPiecesByPlayer() - GameManager.Instance.GetPiecesCountPlacedByPlayer(false);
         GameUIManager.Instance.gameView.player1UiPanel.piecesLeftToPlaceText.text = (countPlayer1).ToString();
         GameUIManager.Instance.gameView.player2UiPanel.piecesLeftToPlaceText.text = (countPlayer2).ToString();
         if (countPlayer1 <= 0)
@@ -108,13 +108,13 @@ public class PieceManager : MonoBehaviour
             GameUIManager.Instance.gameView.SetTopText("");
             bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
             GameManager.Instance.SavePreviousPhase();
-            GameManager.Instance.canInteract = false;
+            GameManager.Instance.SetCanPlayerInteract(false);
             BoardManager.Instance.HideHightlightsFromBoardPositions();
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPiecePlacedClick);
             Piece pieceToPlace = isPlayer1Turn ? player1PiecesQueue.Dequeue() : player2PiecesQueue.Dequeue();
 
             Debug.Log($"Placing piece on {position.name}...");
-            pieceToPlace.transform.DOMove(position.transform.position, GameManager.Instance.timeToMovePieceToBoardInPlacingPhase).OnComplete(() =>
+            pieceToPlace.transform.DOMove(position.transform.position, GameManager.Instance.GetTimeToMovePieceToBoardPositionInPlacingPhase()).OnComplete(() =>
             {
                 StartCoroutine(OnPieceReachedPositionInPlacingPhase(pieceToPlace, position, isPlayer1Turn));
             });
@@ -148,9 +148,9 @@ public class PieceManager : MonoBehaviour
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
         }
 
-        GameManager.Instance.currentPhase = GameManager.Instance.gamePhasePriorToMillRemoval;
+        GameManager.Instance.SetCurrentPhase(GameManager.Instance.GetGetPhaseBeforeMill());
         GameManager.Instance.OnPieceReachedItsPositionOnBoard(millFormed);
-        GameManager.Instance.canInteract = true;
+        GameManager.Instance.SetCanPlayerInteract(true);
         RefreshPiecesLeftUi();
     }
 
@@ -273,14 +273,14 @@ public class PieceManager : MonoBehaviour
             if (isFlyingPhase)
             {
                 // Highlight all available board positions if the player is in the flying phase
-                GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.textData.flyingPhaseText);
+                GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.GetTextData().flyingPhaseText);
                 BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
             }
             else
             {
                 // Highlight adjacent valid moves only for the selected piece
                 HighlightAdjacentPositions(selectedPiecePosition);
-                GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.textData.moveToAdjacentSpotText);
+                GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.GetTextData().moveToAdjacentSpotText);
             }
 
             // Play sound and highlight the selected piece
@@ -331,7 +331,7 @@ private void TryMovePiece(BoardPosition targetPosition)
     {
         GameUIManager.Instance.gameView.SetTopText("");
         GameUIManager.Instance.gameView.HideTurnText();
-        GameManager.Instance.canInteract = false;
+        GameManager.Instance.SetCanPlayerInteract(false);
 
         // Stop scaling and reset visuals for all pieces once a move is confirmed
         ResetAllScalingAndVisuals();
@@ -340,7 +340,7 @@ private void TryMovePiece(BoardPosition targetPosition)
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceMove);
         BoardManager.Instance.HideHightlightsFromBoardPositions();
 
-        DOVirtual.DelayedCall(GameManager.Instance.timeToMovePieceToBoardPositionInMovingPhase, () =>
+        DOVirtual.DelayedCall(GameManager.Instance.GetTimeToMovePieceToBoardPositionInMovingPhase(), () =>
         {
             StartCoroutine(OnPieceReachPositionInMovingPhase(targetPosition));
         }).SetUpdate(true);
@@ -369,7 +369,7 @@ private void TryMovePiece(BoardPosition targetPosition)
         // Feedback for trying to select a piece without valid moves
         Debug.Log($"Selected piece at {position.name} has no valid moves.");
 
-        GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.textData.selectPieceText);
+        GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.GetTextData().selectPieceText);
         GameUIManager.Instance.gameView.ShowBottomText("This piece cannot be moved!");
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
 
@@ -392,7 +392,7 @@ private void TryMovePiece(BoardPosition targetPosition)
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceReachedPositionWhenPlacing);
         yield return new WaitForSecondsRealtime(0.2f);
 
-        GameManager.Instance.canInteract = true;
+        GameManager.Instance.SetCanPlayerInteract(false);
 
         // First, check and handle any broken mills
         CheckAndHandleBrokenMills();
@@ -433,7 +433,7 @@ private void TryMovePiece(BoardPosition targetPosition)
         float scaleOfPieces = 0.35f;
 
         // Spawn pieces for Player 1
-        for (int i = GameManager.Instance.maxPiecesPerPlayer - 1; i >= 0; i--)
+        for (int i = GameManager.Instance.GetMaxPiecesByPlayer() - 1; i >= 0; i--)
         {
             Vector3 player1Position = player1StartPosition + new Vector3(i * spacing, 0f, 0f);
             GameObject piecePlayer1 = Instantiate(piecePrefabPlayer1, player1Position, Quaternion.identity, transform);
@@ -445,7 +445,7 @@ private void TryMovePiece(BoardPosition targetPosition)
         }
 
         // Spawn pieces for Player 2
-        for (int i = GameManager.Instance.maxPiecesPerPlayer - 1; i >= 0; i--)
+        for (int i = GameManager.Instance.GetMaxPiecesByPlayer() - 1; i >= 0; i--)
         {
             Vector3 player2Position = player2StartPosition - new Vector3(i * spacing, 0f, 0f);
             GameObject piecePlayer2 = Instantiate(piecePrefabPlayer2, player2Position, Quaternion.identity, transform);
@@ -466,7 +466,7 @@ private void TryMovePiece(BoardPosition targetPosition)
         piece.boardPosition = to;
 
         to.OccupyPosition(piece);
-        piece.transform.DOMove(to.transform.position, GameManager.Instance.timeToMovePieceToBoardPositionInMovingPhase);
+        piece.transform.DOMove(to.transform.position, GameManager.Instance.GetTimeToMovePieceToBoardPositionInMovingPhase());
 
         selectedPiecePosition = null;
     }
@@ -512,7 +512,7 @@ private void TryMovePiece(BoardPosition targetPosition)
             }
             //DeselectAllPieces();
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
-            GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.textData.flyingPhaseText);
+            GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.GetTextData().flyingPhaseText);
             position.occupyingPiece.OutlinePiece(true);
             position.occupyingPiece.ScaleUp(true);
         }
@@ -535,7 +535,7 @@ private void TryMovePiece(BoardPosition targetPosition)
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceSelected);
                 position.occupyingPiece.OutlinePiece(true);
                 position.occupyingPiece.ScaleUp(true);
-                GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.textData.moveToAdjacentSpotText);
+                GameUIManager.Instance.gameView.SetTopText(GameManager.Instance.GetTextData().moveToAdjacentSpotText);
             }
         }
         //Debug.Log("Selected piece at: " + position.name);
@@ -736,7 +736,7 @@ private void TryMovePiece(BoardPosition targetPosition)
             // Check if the piece can be removed
             if (!IsInMill(position) || AllOpponentPiecesInMill())
             {
-                GameManager.Instance.canInteract = false;
+                GameManager.Instance.SetCanPlayerInteract(false);
                 // Store references before clearing the position
                 Piece pieceToDestroy = position.occupyingPiece;
                 GameObject pieceGameObject = pieceToDestroy.gameObject;

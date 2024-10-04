@@ -35,7 +35,7 @@ public class GameEndView : ViewBase
             winnerPlayerText.text = PlayerProfile.Instance.GetGamePlayerData(false).playerName;
             winnerPlayerText.color = (Colors.Instance.GetColorById(PlayerProfile.Instance.GetGamePlayerData(false).colorId)).color;
         }
-        if(GameManager.Instance.winReason == GameManager.WinReason.LessThan3PiecesLeft)
+        if(GameManager.Instance.GetWinReason() == GameManager.WinReason.LessThan3PiecesLeft)
         {
             winReasonText.text = winStringWinNoPiecesLeft;
         }

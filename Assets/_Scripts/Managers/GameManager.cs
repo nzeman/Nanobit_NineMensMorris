@@ -1,15 +1,11 @@
 using DG.Tweening;
-using DG.Tweening.Core.Easing;
 using NaughtyAttributes;
-using NUnit.Framework;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
 {
-
     #region Singleton
     private static GameManager _Instance;
     public static GameManager Instance
@@ -23,45 +19,51 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
+    #region Enums
     public enum GamePhase { Placing, Moving, MillRemoval, GameEnd }
     public enum WinReason { LessThan3PiecesLeft, NoValidMovesLeft }
+    #endregion
 
-    public GamePhase currentPhase = GamePhase.Placing;
-    public GamePhase gamePhasePriorToMillRemoval = GamePhase.Placing;
+    #region Game State
+    [SerializeField] private GamePhase currentPhase = GamePhase.Placing;
+    [SerializeField] private GamePhase gamePhasePriorToMillRemoval;
+    [SerializeField] private WinReason winReason;
 
-    public WinReason winReason;
+    [SerializeField] private bool canInteract = true;
+    [SerializeField] private bool isPlayer1Turn = true;
+    [SerializeField] private int maxPiecesPerPlayer = 9;
+    [SerializeField] private int piecesPlacedPlayer1 = 0;
+    [SerializeField] private int piecesPlacedPlayer2 = 0;
+    [SerializeField] private bool isGamePaused = false;
+    [SerializeField] private bool isPlayer1Winner = false;
+    #endregion
 
-    public bool canInteract = true;
-    private bool isPlayer1Turn = true;
-    public int maxPiecesPerPlayer = 9;
-    public int piecesPlacedPlayer1 = 0;
-    public int piecesPlacedPlayer2 = 0;
-    public bool isGamePaused = false;
-    private bool isPlayer1Winner = false;
-
+    #region Camera & UI Settings
     [Header("Camera settings")]
-    public Camera mainCamera;
-    public float defaultCameraSize = 5f;
-    public float cameraOrtoSize = 5f;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private float defaultCameraSize = 5f;
+    [SerializeField] private float cameraOrtoSize = 5f;
 
     [Header("Time settings")]
-    public float timeToMovePieceToBoardPositionInMovingPhase = 0.5f;
-    public float timeToMovePieceToBoardInPlacingPhase = 0.5f;
+    [SerializeField] private float timeToMovePieceToBoardPositionInMovingPhase = 0.5f;
+    [SerializeField] private float timeToMovePieceToBoardInPlacingPhase = 0.5f;
 
     [Header("Text")]
-    public GameUITextData textData;
+    [SerializeField] private GameUITextData textData;
+    #endregion
 
-    public void Start()
+    #region Initialization
+    private void Start()
     {
-        Debug.Log("GameManager :: Initalization...");
-        bool player1GoesFirst = Random.value > 0.5f ? isPlayer1Turn = true : isPlayer1Turn = false;
-        isPlayer1Turn = player1GoesFirst;
+        Debug.Log("GameManager :: Initialization...");
+        isPlayer1Turn = Random.value > 0.5f;
+
         BoardManager.Instance.Initialize();
         maxPiecesPerPlayer = PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer;
 
-        float ortoSizeCamera = defaultCameraSize + (BoardManager.Instance.GetNumberOfRings() * 1.8F);
-        cameraOrtoSize = ortoSizeCamera;
-        mainCamera.orthographicSize = ortoSizeCamera;
+        // Adjust the camera size based on board size
+        cameraOrtoSize = defaultCameraSize + (BoardManager.Instance.GetNumberOfRings() * 1.8F);
+        mainCamera.orthographicSize = cameraOrtoSize;
 
         SetUi();
         GameUIManager.Instance.gameView.SetTurnText();
@@ -70,30 +72,36 @@ public class GameManager : MonoBehaviour
 
         AudioManager.Instance.PlayGameMusic(AudioManager.Instance.audioClipDataHolder.gameMusic);
         AudioManager.Instance.StopMainMenuMusic();
-
         PieceManager.Instance.RefreshPiecesLeftUi();
+
         canInteract = true;
         Debug.Log("GameManager :: Game started!");
     }
+    #endregion
 
-    public void SwitchingTurn()
+    #region Game Logic
+
+    /// <summary>
+    /// Switches the player's turn and updates the UI accordingly.
+    /// </summary>
+    private void SwitchingTurn()
     {
         Debug.Log("SWITCHING TURN!");
         isPlayer1Turn = !isPlayer1Turn;
         string debugString = isPlayer1Turn ?
-            $"Player 1 turn! :: {PlayerProfile.Instance.GetGamePlayerData(true).playerName}" 
-            : 
+            $"Player 1 turn! :: {PlayerProfile.Instance.GetGamePlayerData(true).playerName}" :
             $"Player 2 turn! :: {PlayerProfile.Instance.GetGamePlayerData(false).playerName}";
 
         AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onTurnChanged);
         Debug.Log(debugString);
     }
 
-    void Update()
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (currentPhase == GamePhase.GameEnd) return;
+
             if (isGamePaused)
             {
                 ResumeGameFromPause();
@@ -105,24 +113,33 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void OpenPauseMenu()
+    /// <summary>
+    /// Opens the pause menu and pauses the game by freezing the time scale.
+    /// </summary>
+    private void OpenPauseMenu()
     {
         isGamePaused = true;
         GameUIManager.Instance.EnableView(GameUIManager.Instance.pauseView);
         Time.timeScale = 0.0000001f;
-        //mainCamera.transform.DOMoveY(25f, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
         mainCamera.DOOrthoSize(0.0001f, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
     }
 
+    /// <summary>
+    /// Resumes the game from the pause menu by resetting the time scale.
+    /// </summary>
     public void ResumeGameFromPause()
     {
         Time.timeScale = 1f;
         GameUIManager.Instance.EnableView(GameUIManager.Instance.gameView);
         isGamePaused = false;
-        //mainCamera.transform.DOMoveY(0f, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
         mainCamera.DOOrthoSize(cameraOrtoSize, .3f).SetUpdate(true).SetEase(Ease.InOutSine);
     }
 
+    /// <summary>
+    /// Handles piece placement or movement after it has reached its board position.
+    /// This includes checking for mill formation and transitioning between phases.
+    /// </summary>
+    /// <param name="millFormed">Indicates if a mill was formed after the move.</param>
     public void OnPieceReachedItsPositionOnBoard(bool millFormed)
     {
         if (currentPhase == GamePhase.Placing)
@@ -132,76 +149,49 @@ public class GameManager : MonoBehaviour
             else
                 piecesPlacedPlayer2++;
 
-            // Handle mill formation before any phase transition
             if (millFormed)
             {
                 OnMillFormed();
-                // Do not switch turn yet; the turn will switch after mill removal
-                return; // Exit the method to wait for mill removal
+                return;
             }
 
             if (CheckIfAllPiecesHaveBeenPlaced())
             {
-                // Transition to Moving Phase without switching turn here
                 TransitionToMovingPhase();
-                return; // Exit the method as TransitionToMovingPhase handles the rest
+                return;
             }
-            else
-            {
-                // If still in placing phase, highlight all unoccupied positions
-                BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
 
-                // Proceed to switch turn
-                SwitchingTurn();
-                SetUi();
-                PieceManager.Instance.HighlightNextPieceToPlace();
-                GameUIManager.Instance.gameView.SetTurnText();
-            }
+            BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
+            SwitchingTurn();
+            SetUi();
+            PieceManager.Instance.HighlightNextPieceToPlace();
+            GameUIManager.Instance.gameView.SetTurnText();
         }
         else if (currentPhase == GamePhase.Moving)
         {
             if (millFormed)
             {
                 OnMillFormed();
-                // Do not switch turn yet; the turn will switch after mill removal
-                return; // Exit the method to wait for mill removal
+                return;
             }
 
-            // Proceed to switch turn
             SwitchingTurn();
 
             if (IsGameOverByNoValidMoves())
-            {
-                return; // Game over conditions met, stop further execution
-            }
-            else
-            {
-                UponNeedToSelectAPiece();
-            }
+                return;
+
+            UponNeedToSelectAPiece();
             GameUIManager.Instance.gameView.SetTurnText();
         }
 
         canInteract = true;
     }
 
-
-
-
-
-    public bool CheckIfAllPiecesHaveBeenPlaced()
-    {
-        // Check if all pieces have been placed
-        if (piecesPlacedPlayer1 >= maxPiecesPerPlayer && piecesPlacedPlayer2 >= maxPiecesPerPlayer)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    public void TransitionToMovingPhase()
+    /// <summary>
+    /// Transitions the game to the Moving phase after all pieces have been placed.
+    /// Updates the UI and checks for valid moves for the next player.
+    /// </summary>
+    private void TransitionToMovingPhase()
     {
         currentPhase = GamePhase.Moving;
         GameUIManager.Instance.gameView.SetTopText(textData.transitioningToMovePhaseText);
@@ -210,71 +200,19 @@ public class GameManager : MonoBehaviour
         BoardManager.Instance.HideHightlightsFromBoardPositions();
         PieceManager.Instance.RefreshPiecesLeftUi();
 
-        // Switch turn to the next player
         SwitchingTurn();
 
-        // Check if the next player has valid moves
         if (IsGameOverByNoValidMoves())
-        {
-            return; // Game over conditions met, stop further execution
-        }
-        else
-        {
-            UponNeedToSelectAPiece();
-        }
+            return;
 
-        // Update the UI for the new turn
+        UponNeedToSelectAPiece();
         GameUIManager.Instance.gameView.SetTurnText();
     }
 
-
-    public void SavePreviousPhase()
-    {
-        gamePhasePriorToMillRemoval = currentPhase;
-    }
-
-    public void OnMillFormed()
-    {
-        Debug.Log("GameManager :: Mill formed! Player must remove an opponent's piece.");
-        currentPhase = GamePhase.MillRemoval;
-
-        // Ensure player can interact during mill removal
-        canInteract = true;
-
-        GameUIManager.Instance.gameView.SetTopText(textData.millFormedText);
-        GameUIManager.Instance.gameView.SetTurnText();
-        BoardManager.Instance.HideHightlightsFromBoardPositions();
-
-        List<Piece> piecesToHighlight = new List<Piece>();
-        bool isPlayer1Turn = IsPlayer1Turn();
-        string opponentTag = isPlayer1Turn ? "Player2Piece" : "Player1Piece";
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
-        PieceManager.Instance.ResetAllPieceVisuals();
-
-        foreach (var piece in PieceManager.Instance.allPieces)
-        {
-            if (piece.CompareTag(opponentTag) && piece.boardPosition != null)
-            {
-                // Only highlight and scale up/down pieces that are NOT in a mill, or if all opponent pieces are in mills
-                if (!PieceManager.Instance.IsInMill(piece.boardPosition) || PieceManager.Instance.AllOpponentPiecesInMill())
-                {
-                    piece.OutlinePiece(true);
-                    piece.deleteSprite.gameObject.SetActive(true);
-                    piecesToHighlight.Add(piece);
-                }
-            }
-        }
-        PieceManager.Instance.ScaleUpDownPiecesForMillOnly(piecesToHighlight);
-    }
-
-
-
-    // Returns true if it's Player 1's turn, false if it's Player 2's turn
-    public bool IsPlayer1Turn()
-    {
-        return isPlayer1Turn;
-    }
-
+    /// <summary>
+    /// Handles the logic when a piece is removed from the board by a player after forming a mill.
+    /// It checks for game-over conditions and transitions to the appropriate game phase.
+    /// </summary>
     public void PieceRemovedFromBoardByPlayer()
     {
         Debug.Log("GameManager :: PieceRemovedFromBoardByPlayer");
@@ -289,33 +227,39 @@ public class GameManager : MonoBehaviour
         StartCoroutine(HandlePieceRemovalDelay());
     }
 
+    /// <summary>
+    /// Waits for a short delay after a piece is removed, then switches turns and transitions to the next game phase.
+    /// </summary>
     private IEnumerator HandlePieceRemovalDelay()
     {
+        // Wait for the animation or visual effect of the piece removal to complete
         yield return new WaitForSeconds(PieceManager.Instance.scaleDownDeletedPieceTime);  // Wait for 0.3 seconds
 
-        canInteract = true;
-        SwitchingTurn();
+        canInteract = true;  // Allow player interactions again
+        SwitchingTurn();  // Switch the current player's turn
 
+        // Check for game-ending conditions after the turn switch
         if (CheckLossByPieceCount() || IsGameOverByNoValidMoves())
         {
-            yield break;  // Stop if game is over after the turn switch
+            yield break;  // Stop execution if the game is over
         }
 
-        // Move to next phase depending on whether all pieces have been placed
+        // Transition to the appropriate game phase based on piece placement
         currentPhase = CheckIfAllPiecesHaveBeenPlaced() ? GamePhase.Moving : GamePhase.Placing;
+
         if (currentPhase == GamePhase.Moving)
         {
-            UponNeedToSelectAPiece();
+            UponNeedToSelectAPiece();  // Highlight movable pieces in the Moving phase
         }
         else
         {
-            PieceManager.Instance.HighlightNextPieceToPlace();
+            PieceManager.Instance.HighlightNextPieceToPlace();  // Highlight the next piece to be placed in the Placing phase
         }
 
-        // Update the UI text for the current turn
+        // Update the UI to reflect the current turn
         GameUIManager.Instance.gameView.SetTurnText();
 
-        // Highlight unoccupied positions during placing phase
+        // Highlight unoccupied positions during the Placing phase
         if (currentPhase == GamePhase.Placing)
         {
             BoardManager.Instance.HighlightAllUnoccupiedBoardPositions();
@@ -324,14 +268,112 @@ public class GameManager : MonoBehaviour
     }
 
 
-    public void UponNeedToSelectAPiece()
+    #endregion
+
+    #region Mill Logic
+
+    /// <summary>
+    /// Handles the actions to take when a mill is formed.
+    /// Highlights opponent pieces that can be removed and transitions to Mill Removal phase.
+    /// </summary>
+    private void OnMillFormed()
+    {
+        Debug.Log("GameManager :: Mill formed! Player must remove an opponent's piece.");
+        currentPhase = GamePhase.MillRemoval;
+        canInteract = true;
+
+        GameUIManager.Instance.gameView.SetTopText(textData.millFormedText);
+        GameUIManager.Instance.gameView.SetTurnText();
+        BoardManager.Instance.HideHightlightsFromBoardPositions();
+
+        List<Piece> piecesToHighlight = new List<Piece>();
+        string opponentTag = isPlayer1Turn ? "Player2Piece" : "Player1Piece";
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onMillFormed);
+        PieceManager.Instance.ResetAllPieceVisuals();
+
+        foreach (var piece in PieceManager.Instance.allPieces)
+        {
+            if (piece.CompareTag(opponentTag) && piece.boardPosition != null)
+            {
+                if (!PieceManager.Instance.IsInMill(piece.boardPosition) || PieceManager.Instance.AllOpponentPiecesInMill())
+                {
+                    piece.OutlinePiece(true);
+                    piece.deleteSprite.gameObject.SetActive(true);
+                    piecesToHighlight.Add(piece);
+                }
+            }
+        }
+        PieceManager.Instance.ScaleUpDownPiecesForMillOnly(piecesToHighlight);
+    }
+    #endregion
+
+    #region Game End
+
+    /// <summary>
+    /// Declares the winner of the game and starts the end game sequence.
+    /// </summary>
+    /// <param name="player1isWinner">True if Player 1 is the winner, false otherwise.</param>
+    /// <param name="_winReason">The reason for the win.</param>
+    public void DeclareWinner(bool player1isWinner, WinReason _winReason)
+    {
+        if (currentPhase == GamePhase.GameEnd)
+            return;
+
+        winReason = _winReason;
+        isPlayer1Winner = player1isWinner;
+        StartCoroutine(OnGameEnd());
+    }
+
+    /// <summary>
+    /// Handles the end game sequence, including zooming the camera out and showing the end game view.
+    /// </summary>
+    private IEnumerator OnGameEnd()
+    {
+        currentPhase = GamePhase.GameEnd;
+        canInteract = false;
+        PieceManager.Instance.UnhighlightAllPieces();
+        BoardManager.Instance.HideHightlightsFromBoardPositions();
+        string winner = isPlayer1Winner
+            ? PlayerProfile.Instance.GetGamePlayerData(true).playerName
+            : PlayerProfile.Instance.GetGamePlayerData(false).playerName;
+
+        Debug.Log("GameManager :: GAME OVER! :: " + winner + " wins!");
+
+        GameUIManager.Instance.gameView.SetTopText("");
+        GameUIManager.Instance.gameView.HideTurnText();
+        GameUIManager.Instance.EnableView(null);
+
+        foreach (var piece in PieceManager.Instance.allPieces)
+        {
+            if (piece.boardPosition == null)
+                piece.gameObject.SetActive(false);
+        }
+
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.winnerJingle);
+        yield return new WaitForSecondsRealtime(0.5f);
+
+        mainCamera.DOOrthoSize(cameraOrtoSize * 2.25f, 1.5f);
+
+        yield return new WaitForSecondsRealtime(1.4f);
+        GameUIManager.Instance.EnableView(GameUIManager.Instance.endView);
+        GameUIManager.Instance.endView.StartWinAnimation(isPlayer1Winner);
+    }
+    #endregion
+
+    #region Helper Methods
+
+    private bool CheckIfAllPiecesHaveBeenPlaced()
+    {
+        return piecesPlacedPlayer1 >= maxPiecesPerPlayer && piecesPlacedPlayer2 >= maxPiecesPerPlayer;
+    }
+
+    private void UponNeedToSelectAPiece()
     {
         PieceManager.Instance.HighlightPiecesByPlayerWhichHeCanSelectAndThatHaveValidMoves();
         GameUIManager.Instance.gameView.SetTopText(textData.selectPieceText);
     }
 
-
-    public void SetUi()
+    private void SetUi()
     {
         if (currentPhase == GamePhase.Placing)
         {
@@ -343,7 +385,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public bool CheckLossByPieceCount()
+    private bool CheckLossByPieceCount()
     {
         if (currentPhase == GamePhase.GameEnd) return false;
 
@@ -353,24 +395,21 @@ public class GameManager : MonoBehaviour
         foreach (var piece in PieceManager.Instance.allPieces)
         {
             if (piece.CompareTag("Player1Piece"))
-            {
                 player1Pieces++;
-            }
             else if (piece.CompareTag("Player2Piece"))
-            {
                 player2Pieces++;
-            }
         }
 
         if (player1Pieces < 3)
         {
-            Debug.Log("GameManager :: CheckLossByPieceCount :: Player 1 has les than 3 pieces left");
+            Debug.Log("GameManager :: Player 1 has less than 3 pieces left");
             DeclareWinner(false, WinReason.LessThan3PiecesLeft);
             return true;
         }
+
         if (player2Pieces < 3)
         {
-            Debug.Log("GameManager :: CheckLossByPieceCount :: Player 2 has les than 3 pieces left");
+            Debug.Log("GameManager :: Player 2 has less than 3 pieces left");
             DeclareWinner(true, WinReason.LessThan3PiecesLeft);
             return true;
         }
@@ -382,128 +421,138 @@ public class GameManager : MonoBehaviour
     {
         if (currentPhase == GamePhase.GameEnd) return false;
 
-        bool isPlayer1Turn = GameManager.Instance.IsPlayer1Turn();
-        Debug.Log("GameManager :: Checking if it is game over by no valid moves...");
+        bool isPlayer1Turn = IsPlayer1Turn();
+        Debug.Log("GameManager :: Checking if game is over due to no valid moves...");
         string playerTag = isPlayer1Turn ? "Player1Piece" : "Player2Piece";
 
-        //Debug.Log($"Checking for valid moves for: {(isPlayer1Turn ? "Player 1" : "Player 2")}");
         foreach (var piece in PieceManager.Instance.allPieces)
         {
-            if (piece.CompareTag(playerTag) && piece.boardPosition != null)
+            if (piece.CompareTag(playerTag) && piece.boardPosition != null && HasAnyValidMove(piece))
             {
-                //Debug.Log($"Checking piece at: {piece.boardPosition.name}");
-                if (HasAnyValidMove(piece))
-                {
-                    //Debug.Log("Player has valid moves.");
-                    return false;
-                }
+                return false;
             }
         }
 
-        // player 1 pieces have no possible moves
         if (isPlayer1Turn)
         {
-            Debug.Log("GameManager ::Player 1 has no valid moves, thus Player 2 wins!");
+            Debug.Log("GameManager :: Player 1 has no valid moves, Player 2 wins!");
             DeclareWinner(false, WinReason.NoValidMovesLeft);
         }
         else
         {
-            Debug.Log("GameManager ::Player 2 has no valid moves, thus Player 1 wins!");
+            Debug.Log("GameManager :: Player 2 has no valid moves, Player 1 wins!");
             DeclareWinner(true, WinReason.NoValidMovesLeft);
         }
+
         return true;
     }
 
     private bool HasAnyValidMove(Piece piece)
     {
-        // Check if the player is in the flying phase (only 3 pieces left)
         if (PieceManager.Instance.IsFlyingPhaseForCurrentTurnPlayer())
         {
-            for (int i = 0; i < BoardManager.Instance.GetAllBoardPositions().Count; i++)
+            foreach (var position in BoardManager.Instance.GetAllBoardPositions())
             {
-                BoardPosition position = BoardManager.Instance.GetAllBoardPositions()[i];
                 if (!position.isOccupied)
-                {
-                    //Debug.Log("Found a valid position to fly to.");
-                    return true; // Found at least one valid move
-                }
+                    return true;
             }
         }
         else
         {
-
-            // If not in flying phase, check if the piece has any adjacent valid moves
-            for (int i = 0; i < piece.boardPosition.adjacentPositions.Count; i++)
+            foreach (var adjacent in piece.boardPosition.adjacentPositions)
             {
-                BoardPosition adjacent = piece.boardPosition.adjacentPositions[i];
-                //Debug.Log($"Adjacent position: {adjacent.name}, Occupied: {adjacent.isOccupied}");
                 if (!adjacent.isOccupied)
-                {
-                    //Debug.Log($"Found a valid adjacent move to position: {adjacent.name}");
                     return true;
-                }
             }
         }
-        //Debug.Log("No valid moves for this piece.");
+
         return false;
     }
 
-    
-
-    public void DeclareWinner(bool player1isWinner, WinReason _winReason)
+    public bool IsPlayer1Turn()
     {
-        if (currentPhase == GamePhase.GameEnd)
-            return;
-
-        winReason = _winReason;
-        isPlayer1Winner = player1isWinner;
-        StartCoroutine(OnGameEnd());
+        return isPlayer1Turn;
     }
 
-    public IEnumerator OnGameEnd()
+    /// <summary>
+    /// Saves the current phase before transitioning to Mill Removal.
+    /// </summary>
+    public void SavePreviousPhase()
     {
+        gamePhasePriorToMillRemoval = currentPhase;
+    }
 
-        currentPhase = GamePhase.GameEnd;
-        canInteract = false;
-        PieceManager.Instance.UnhighlightAllPieces();
-        BoardManager.Instance.HideHightlightsFromBoardPositions();
 
-        string winner = "";
-        if (isPlayer1Winner)
+    #endregion
+
+    #region Getters
+
+    public bool IsGamePaused()
+    {
+        return isGamePaused;
+    }
+
+    public GamePhase GetCurrentPhase()
+    {
+        return currentPhase;
+    }
+
+    public void SetCurrentPhase(GamePhase _gamePhase)
+    {
+        currentPhase = _gamePhase;
+    }
+
+    public GamePhase GetGetPhaseBeforeMill()
+    {
+        return gamePhasePriorToMillRemoval;
+    }
+
+    public bool CanPlayerInteract()
+    {
+        return canInteract;
+    }
+
+    public void SetCanPlayerInteract(bool _canInteract)
+    {
+        canInteract = _canInteract;
+    }
+
+    public int GetMaxPiecesByPlayer()
+    {
+        return maxPiecesPerPlayer;
+    }
+
+    public int GetPiecesCountPlacedByPlayer(bool isPlayer1)
+    {
+        if (isPlayer1)
         {
-            winner = PlayerProfile.Instance.GetGamePlayerData(true).playerName;
+            return piecesPlacedPlayer1;
         }
         else
         {
-            winner = PlayerProfile.Instance.GetGamePlayerData(false).playerName;
+            return piecesPlacedPlayer2;
         }
-
-        Debug.Log("GameManager :: GAME OVER! :: " + winner + " wins!");
-        //GameUIManager.Instance.gameView.SetTopText(winner + " WINS!");
-        GameUIManager.Instance.gameView.SetTopText("");
-        GameUIManager.Instance.gameView.HideTurnText();
-        GameUIManager.Instance.EnableView(null);
-        foreach (var piece in PieceManager.Instance.allPieces)
-        {
-            if (piece.boardPosition == null)
-            {
-                piece.gameObject.SetActive(false);
-            }
-        }
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.winnerJingle);
-        yield return new WaitForSecondsRealtime(0.5f);
-        mainCamera.DOOrthoSize(cameraOrtoSize * 2.25f, 1.5f);
-
-        yield return new WaitForSecondsRealtime(1.4f);
-        GameUIManager.Instance.EnableView(GameUIManager.Instance.endView);
-        GameUIManager.Instance.endView.StartWinAnimation(isPlayer1Winner);
-
-
     }
 
-    [Button]
-    public void TestingOnly_OnGameEnd()
+    public WinReason GetWinReason()
     {
-        DeclareWinner(true, WinReason.LessThan3PiecesLeft);
+        return winReason;
     }
+
+    public float GetTimeToMovePieceToBoardPositionInMovingPhase()
+    {
+        return timeToMovePieceToBoardPositionInMovingPhase;
+    }
+
+    public float GetTimeToMovePieceToBoardPositionInPlacingPhase()
+    {
+        return timeToMovePieceToBoardInPlacingPhase;
+    }
+
+    public GameUITextData GetTextData()
+    {
+        return textData;
+    }
+
+    #endregion
 }

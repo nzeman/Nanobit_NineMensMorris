@@ -51,25 +51,25 @@ public class BoardPosition : MonoBehaviour
 
     public void OnMouseOver()
     {
-        if (GameManager.Instance.isGamePaused) return;
+        if (GameManager.Instance.IsGamePaused()) return;
         ChangeVisualsOnMouseOver();
     }
 
     public void OnMouseEnter()
     {
-        if (GameManager.Instance.isGamePaused) return;
+        if (GameManager.Instance.IsGamePaused()) return;
         ChangeVisualsOnMouseOver();
     }
 
     public void ChangeVisualsOnMouseOver()
     {
-        if (GameManager.Instance.canInteract == false)
+        if (GameManager.Instance.CanPlayerInteract() == false)
         {
             ResetVisual();
             return;
         }
 
-        if (GameManager.Instance.currentPhase == GameManager.GamePhase.Placing)
+        if (GameManager.Instance.GetCurrentPhase() == GameManager.GamePhase.Placing)
         {
             if (!isOccupied)
             {
@@ -88,7 +88,7 @@ public class BoardPosition : MonoBehaviour
                 }
             }
         }
-        else if (GameManager.Instance.currentPhase == GameManager.GamePhase.Moving)
+        else if (GameManager.Instance.GetCurrentPhase() == GameManager.GamePhase.Moving)
         {
             if (!isOccupied)
             {
