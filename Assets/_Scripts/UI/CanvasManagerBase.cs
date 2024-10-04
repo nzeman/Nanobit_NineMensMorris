@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
+/// <summary>
+/// Base class for CanvasManagers
+/// </summary>
 public class CanvasManagerBase : MonoBehaviour
 {
-    public List<ViewBase> allViews = new List<ViewBase>();
+    [Header("All views")]
+    [SerializeField] private List<ViewBase> allViews = new List<ViewBase>();
 
     public void EnableView(ViewBase vb, float duration = 0.3f)
     {

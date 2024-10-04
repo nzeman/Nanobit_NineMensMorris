@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// This view opens when the player pauses the game.
+/// </summary>
 public class GamePauseView : ViewBase
 {
 
+    [Header("Buttons")]
     [SerializeField] private Button continueButton;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button returnToMainMenuButton;

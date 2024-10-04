@@ -17,16 +17,19 @@ public class Colors : MonoBehaviour
     }
     #endregion
 
-    public List<ColorPair> allColors = new List<ColorPair>();
+    [Header("Colors used by players")]
+    [SerializeField] private List<ColorPair> allColors = new List<ColorPair>();
 
-   public ColorPair GetColorById(string _colorId)
+    public ColorPair GetColorById(string _colorId)
     {
         ColorPair cp = allColors.Find(x => x.colorId == _colorId);
         return cp;
     }
 
 }
-
+/// <summary>
+/// Color pairs, only the colorId is saved in PlayerPrefs
+/// </summary>
 [System.Serializable]
 public class ColorPair
 {

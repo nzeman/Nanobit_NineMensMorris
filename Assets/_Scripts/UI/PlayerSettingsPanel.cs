@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+/// <summary>
+/// Manages player settings such as name input and color selection.
+/// </summary>
 public class PlayerSettingsPanel : MonoBehaviour
 {
     public List<PlayerColorPicker> colorPickerButtons = new List<PlayerColorPicker>();
@@ -22,12 +24,8 @@ public class PlayerSettingsPanel : MonoBehaviour
 
     [SerializeField] private Image editNameImage;
 
-    [Button]
-    // Start is called before the first frame update
     void Start()
     {
-        //nameInputField.gameObject.SetActive(false);
-
         nameInputField.text = PlayerProfile.Instance.GetGamePlayerData(isPlayer1).playerName;
         OnColorSelected(PlayerProfile.Instance.GetGamePlayerData(isPlayer1).colorId);
         nameInputField.onEndEdit.AddListener(delegate { OnEndEditName(); });
@@ -36,60 +34,41 @@ public class PlayerSettingsPanel : MonoBehaviour
         editNameImage.gameObject.SetActive(true);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void OnBeginEditName()
     {
         nameBeforeEdit = nameInputField.text;
         editNameImage.gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Handles name editing and prevents duplicate player names.
+    /// </summary>
     public void OnEndEditName()
     {
         editNameImage.gameObject.SetActive(true);
-        if (isPlayer1)
+        if (nameInputField.text == PlayerProfile.Instance.GetGamePlayerData(!isPlayer1).playerName)
         {
-            if(nameInputField.text == PlayerProfile.Instance.GetGamePlayerData(false).playerName)
-            {
-                Debug.Log("Players cannot have the same name!");
-                nameInputField.text = nameBeforeEdit;
-                duplicateNamesWarningText.gameObject.SetActive(true);
-                StartCoroutine(HideWarningAfterDelay());
-            }
-            else
-            {
-                PlayerProfile.Instance.GetGamePlayerData(isPlayer1).playerName = nameInputField.text;
-                PlayerProfile.Instance.SavePlayerProfile();
-            }
+            Debug.Log("Players cannot have the same name!");
+            nameInputField.text = nameBeforeEdit;
+            duplicateNamesWarningText.gameObject.SetActive(true);
+            StartCoroutine(HideWarningAfterDelay());
         }
         else
         {
-            // is player 2
-            if (nameInputField.text == PlayerProfile.Instance.GetGamePlayerData(true).playerName)
-            {
-                nameInputField.text = nameBeforeEdit;
-                Debug.Log("Players cannot have the same name!");
-                duplicateNamesWarningText.gameObject.SetActive(true);
-                StartCoroutine(HideWarningAfterDelay());
-            }
-            else
-            {
-                PlayerProfile.Instance.GetGamePlayerData(isPlayer1).playerName = nameInputField.text;
-                PlayerProfile.Instance.SavePlayerProfile();
-            }
+            PlayerProfile.Instance.GetGamePlayerData(isPlayer1).playerName = nameInputField.text;
+            PlayerProfile.Instance.SavePlayerProfile();
         }
     }
 
-    public IEnumerator HideWarningAfterDelay()
+    private IEnumerator HideWarningAfterDelay()
     {
         yield return new WaitForSecondsRealtime(2f);
         duplicateNamesWarningText.gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Handles color selection for the player and updates the UI accordingly.
+    /// </summary>
     public void OnColorSelected(string _colorId)
     {
         foreach (var item in otherPlayerSettingsPanel.colorPickerButtons)

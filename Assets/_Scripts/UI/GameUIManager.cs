@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// GameUIManager that controls the flow of UI in the gameplay scene. Enables and disables the views.
+/// </summary>
 public class GameUIManager : CanvasManagerBase
 {
 

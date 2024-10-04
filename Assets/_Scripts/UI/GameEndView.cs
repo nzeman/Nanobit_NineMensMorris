@@ -5,15 +5,24 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// This view opens when the game ends.
+/// </summary>
 public class GameEndView : ViewBase
 {
-
+    [Header("Buttons")]
     [SerializeField] private Button restartButton;
     [SerializeField] private Button returnToMainMenuButton;
+
+    [Header("Texts")]
     [SerializeField] private TMP_Text winnerPlayerText;
+    [SerializeField] private TMP_Text winReasonText;
+
+    [Header("Particles")]
     [SerializeField] private List<ParticleSystem> confettis = new List<ParticleSystem>();
     [SerializeField] private ParticleSystem confettiShower;
-    [SerializeField] private TMP_Text winReasonText;
+
+    [Header("Strings")]
     [SerializeField] private string winStringWinNoValidMoves;
     [SerializeField] private string winStringWinNoPiecesLeft;
 

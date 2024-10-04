@@ -74,6 +74,8 @@ public class GameManager : MonoBehaviour
         AudioManager.Instance.StopMainMenuMusic();
         PieceManager.Instance.RefreshPiecesLeftUi();
 
+        
+
         canInteract = true;
         Debug.Log("GameManager :: Game started!");
     }

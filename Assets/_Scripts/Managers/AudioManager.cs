@@ -4,7 +4,6 @@ using System.Collections;
 /// <summary>
 /// Manages the audio for the game, including background music for different scenes (main menu and game),
 /// sound effects (SFX), and provides functionality for playing, stopping, and fading in/out of audio.
-/// Implements a singleton pattern to ensure only one instance of the AudioManager exists.
 /// </summary>
 public class AudioManager : MonoBehaviour
 {
