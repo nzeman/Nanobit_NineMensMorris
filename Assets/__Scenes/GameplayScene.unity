@@ -1010,7 +1010,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.44713423, g: 0.5001825, b: 0.6037736, a: 0}
+  m_BackGroundColor: {r: 1, g: 0.9173287, b: 0.7877358, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1791,6 +1791,7 @@ MonoBehaviour:
   restartButton: {fileID: 1522808822}
   returnToMainMenuButton: {fileID: 1896866759}
   winnerPlayerText: {fileID: 1307092757}
+  winReasonText: {fileID: 1429290216}
   confettis:
   - {fileID: 1612899861}
   - {fileID: 2779189}
@@ -1801,7 +1802,6 @@ MonoBehaviour:
   - {fileID: 1561466644}
   - {fileID: 574778490}
   confettiShower: {fileID: 1430641344}
-  winReasonText: {fileID: 1429290216}
   winStringWinNoValidMoves: The loser lost because he had no more valid moves
   winStringWinNoPiecesLeft: The loser lost because he had less than three pieces
     left
@@ -2889,9 +2889,9 @@ MonoBehaviour:
   canvasGroup: {fileID: 1460623485}
   topText: {fileID: 1162925297}
   turnText: {fileID: 670748696}
+  bottomText: {fileID: 1364741524}
   player1UiPanel: {fileID: 4716603959856684017}
   player2UiPanel: {fileID: 243257196}
-  bottomText: {fileID: 1364741524}
 --- !u!1001 &1463321883
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3756,10 +3756,12 @@ MonoBehaviour:
   gamePhasePriorToMillRemoval: 0
   winReason: 0
   canInteract: 1
+  isPlayer1Turn: 1
   maxPiecesPerPlayer: 9
   piecesPlacedPlayer1: 0
   piecesPlacedPlayer2: 0
   isGamePaused: 0
+  isPlayer1Winner: 0
   mainCamera: {fileID: 519420031}
   defaultCameraSize: 6
   cameraOrtoSize: 6

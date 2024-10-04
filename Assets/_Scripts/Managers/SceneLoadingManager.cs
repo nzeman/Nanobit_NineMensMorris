@@ -31,12 +31,20 @@ public class SceneLoadingManager : MonoBehaviour
     [Scene]
     public string gameplaySceneName;
 
+    [Header("Bool")]
+    [SerializeField] private bool isLoadingAScene = false;
+
 
     private void Start()
     {
         loadingCanvasGroup.alpha = 0f;
         loadingCanvasGroup.interactable = false;
         loadingCanvasGroup.blocksRaycasts = false;
+    }
+
+    public bool IsLoadingScene()
+    {
+        return isLoadingAScene;
     }
 
     public void LoadMainMenu()
@@ -51,7 +59,18 @@ public class SceneLoadingManager : MonoBehaviour
 
     private IEnumerator LoadSceneWithFade(string sceneName)
     {
-        DOTween.Clear();
+        if (isLoadingAScene)
+        {
+            yield break;
+        }
+        if(GameManager.Instance != null)
+        {
+            GameManager.Instance.SetCanPlayerInteract(false);
+        }
+        loadingCanvasGroup.interactable = true;
+        loadingCanvasGroup.blocksRaycasts = true;
+        isLoadingAScene = true;
+        DOTween.KillAll();
         loadingImage.transform.DOLocalRotate(new Vector3(0f, 0f, 90f), .5f, RotateMode.WorldAxisAdd).SetLoops(-1, LoopType.Incremental).SetEase(Ease.Linear);
         FadeCanvas(true);
         yield return new WaitForSecondsRealtime(.5f);
@@ -65,8 +84,16 @@ public class SceneLoadingManager : MonoBehaviour
             }
             yield return null;
         }
-        yield return new WaitForSecondsRealtime(.5f);
+        yield return new WaitForSecondsRealtime(.3f);
+        isLoadingAScene = false;
+        loadingCanvasGroup.interactable = false;
+        loadingCanvasGroup.blocksRaycasts = false;
         FadeCanvas(false);
+        yield return new WaitForSecondsRealtime(.3f);
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SetCanPlayerInteract(true);
+        }
     }
 
     private void FadeCanvas(bool fadeIn)

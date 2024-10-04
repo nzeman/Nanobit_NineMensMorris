@@ -96,7 +96,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (currentPhase == GamePhase.GameEnd) return;
-
+            if (SceneLoadingManager.Instance.IsLoadingScene()) return;
             if (isGamePaused)
             {
                 ResumeGameFromPause();
@@ -113,6 +113,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void OpenPauseMenu()
     {
+        
+
         isGamePaused = true;
         GameUIManager.Instance.EnableView(GameUIManager.Instance.pauseView);
         Time.timeScale = 0.0000001f;
