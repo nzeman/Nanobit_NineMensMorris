@@ -20,15 +20,17 @@ public class SceneLoadingManager : MonoBehaviour
     }
     #endregion
 
-    public CanvasGroup loadingCanvasGroup; 
-    public float fadeDuration = 1f;
+    [Header("UI")]
+    [SerializeField] private CanvasGroup loadingCanvasGroup; 
+    [SerializeField] private Image loadingImage;
+    [SerializeField] private float fadeDuration = 1f;
 
+    [Header("Scenes")]
     [Scene]
     public string mainMenuSceneName;
     [Scene]
     public string gameplaySceneName;
 
-    public Image loadingImage;
 
     private void Start()
     {

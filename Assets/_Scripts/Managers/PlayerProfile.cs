@@ -31,7 +31,6 @@ public class PlayerProfile : MonoBehaviour
     [Header("Player")]
     public PlayerData playerData; // reference to player data
 
-
     private void Awake()
     {
         if (_Instance == null)
@@ -99,22 +98,11 @@ public class PlayerData
 {
     [Header("Basic Data")]
     public string playerId;
-
-    [Header("Settings Data")]
-    public SettingsData settingsData;
-
     public GameRulesData gameRulesData;
-
     public GamePlayerData player1GameData;
     public GamePlayerData player2GameData;
 }
 
-[System.Serializable]
-public class SettingsData
-{
-    public bool isSoundOn = true;
-    public bool isVibrationsOn = true;
-}
 
 [System.Serializable]
 public class GamePlayerData

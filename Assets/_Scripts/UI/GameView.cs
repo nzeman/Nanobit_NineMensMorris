@@ -6,14 +6,16 @@ using UnityEngine;
 
 public class GameView : ViewBase
 {
+    [Header("Text")]
     [SerializeField] private TMP_Text topText;
     [SerializeField] private TMP_Text turnText;
+    [SerializeField] private TMP_Text bottomText;
 
-
+    [Header("Player UI Panels")]
     public PlayerUiPanel player1UiPanel;
     public PlayerUiPanel player2UiPanel;
 
-    [SerializeField] private TMP_Text bottomText;
+    [Header("Bools")]
     private bool isShowingBottomText = false;
 
     public override void Start()
