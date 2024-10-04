@@ -53,6 +53,9 @@ public class GameManager : MonoBehaviour
 
     public void Start()
     {
+        bool player1GoesFirst = Random.value > 0.5f ? isPlayer1Turn = true : isPlayer1Turn = false;
+        isPlayer1Turn = player1GoesFirst;
+
         BoardManager.Instance.Initialize();
 
         maxPiecesPerPlayer = PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer;
