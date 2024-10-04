@@ -324,34 +324,35 @@ public class PieceManager : MonoBehaviour
     }
 
 
-    private void TryMovePiece(BoardPosition targetPosition)
+private void TryMovePiece(BoardPosition targetPosition)
+{
+    Debug.Log("TryMovePiece");
+    bool isFlyingPhase = GetPieceCountForPlayer(GameManager.Instance.IsPlayer1Turn()) <= 3;
+
+    if (isFlyingPhase || selectedPiecePosition.IsAdjacent(targetPosition))
     {
-        Debug.Log("TryMovePiece");
-        bool isFlyingPhase = GetPieceCountForPlayer(GameManager.Instance.IsPlayer1Turn()) == 3;
+        GameUIManager.Instance.gameView.SetTopText("");
+        GameUIManager.Instance.gameView.HideTurnText();
+        GameManager.Instance.canInteract = false;
 
-        if (isFlyingPhase || selectedPiecePosition.IsAdjacent(targetPosition))
+        // Stop scaling and reset visuals for all pieces once a move is confirmed
+        ResetAllScalingAndVisuals();
+
+        MovePiece(selectedPiecePosition, targetPosition);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceMove);
+        BoardManager.Instance.HideHightlightsFromBoardPositions();
+
+        DOVirtual.DelayedCall(GameManager.Instance.timeToMovePieceToBoardPositionInMovingPhase, () =>
         {
-            GameUIManager.Instance.gameView.SetTopText("");
-            GameUIManager.Instance.gameView.HideTurnText();
-            GameManager.Instance.canInteract = false;
-
-            // Stop scaling and reset visuals for all pieces once a move is confirmed
-            ResetAllScalingAndVisuals();
-
-            MovePiece(selectedPiecePosition, targetPosition);
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceMove);
-            BoardManager.Instance.HideHightlightsFromBoardPositions();
-
-            DOVirtual.DelayedCall(GameManager.Instance.timeToMovePieceToBoardPositionInMovingPhase, () =>
-            {
-                StartCoroutine(OnPieceReachPositionInMovingPhase(targetPosition));
-            }).SetUpdate(true);
-        }
-        else
-        {
-            HandleInvalidMove();
-        }
+            StartCoroutine(OnPieceReachPositionInMovingPhase(targetPosition));
+        }).SetUpdate(true);
     }
+    else
+    {
+        HandleInvalidMove();
+    }
+}
+
 
 
     private void ResetAllScalingAndVisuals()
@@ -396,10 +397,8 @@ public class PieceManager : MonoBehaviour
 
         GameManager.Instance.canInteract = true;
 
-        // First, check and handle any broken mills
         CheckAndHandleBrokenMills();
 
-        // Then, check if a new mill is formed
         bool millFormed = CheckForMill(position, GameManager.Instance.IsPlayer1Turn());
         if (millFormed)
         {
@@ -411,6 +410,7 @@ public class PieceManager : MonoBehaviour
         GameManager.Instance.OnPieceReachedItsPositionOnBoard(millFormed);
         BoardManager.Instance.HideHightlightsFromBoardPositions();
     }
+
 
 
 
@@ -462,10 +462,8 @@ public class PieceManager : MonoBehaviour
         piece.transform.DOMove(to.transform.position, GameManager.Instance.timeToMovePieceToBoardPositionInMovingPhase);
 
         selectedPiecePosition = null;
-
-        // After moving the piece, check for broken mills
-        CheckAndHandleBrokenMills();
     }
+
 
 
     void SelectPiece(BoardPosition position)
@@ -657,32 +655,32 @@ public class PieceManager : MonoBehaviour
             return;
         }
 
+        // Check if the piece belongs to the opponent
         if (position.occupyingPiece.CompareTag(GameManager.Instance.IsPlayer1Turn() ? "Player2Piece" : "Player1Piece"))
         {
-            if (!IsInMill(position) || AllOpponentPiecesInMill() || IsEndgameScenario())
+            // Check if the piece can be removed
+            if (!IsInMill(position) || AllOpponentPiecesInMill())
             {
                 GameManager.Instance.canInteract = false;
-                allPieces.Remove(position.occupyingPiece);
-                GameObject pieceToDestroy = position.occupyingPiece.gameObject;
-                pieceToDestroy.transform.DOScale(0f, scaleDownDeletedPieceTime).OnComplete(() =>
-                {
-                    Destroy(pieceToDestroy);
-                });
-
-                // After removing the piece, check for broken mills
-                CheckAndHandleBrokenMills();
-
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceRemovedFromBoardByMill);
-
+                // Store references before clearing the position
+                Piece pieceToDestroy = position.occupyingPiece;
+                GameObject pieceGameObject = pieceToDestroy.gameObject;
+                allPieces.Remove(pieceToDestroy);
                 position.ClearPosition();
-                //BoardManager.Instance.ResetMillLines();
-                GameManager.Instance.PieceRemovedFromBoardByPlayer();
-
-                if (GameManager.Instance.IsGameOverByNoValidMoves())
+                pieceGameObject.transform.DOScale(0f, scaleDownDeletedPieceTime).OnComplete(() =>
                 {
-                    //GameManager.Instance.DeclareWinner();
-                    return;
-                }
+                    //Destroy();
+                    pieceGameObject.SetActive(false);
+
+                    CheckAndHandleBrokenMills();
+                    AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onPieceRemovedFromBoardByMill);
+                    GameManager.Instance.PieceRemovedFromBoardByPlayer();
+
+                    if (GameManager.Instance.IsGameOverByNoValidMoves())
+                    {
+                        return;
+                    }
+                });
             }
             else
             {
@@ -693,11 +691,13 @@ public class PieceManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("You cant remove your own piece!");
+            Debug.Log("You can't remove your own piece!");
             GameUIManager.Instance.gameView.ShowBottomText("You can't remove your own piece!");
             AudioManager.Instance.PlaySFX(AudioManager.Instance.audioClipDataHolder.onIllegalMove);
         }
     }
+
+
 
     void CheckAndHandleBrokenMills()
     {
@@ -741,16 +741,6 @@ public class PieceManager : MonoBehaviour
         }
         return true;
     }
-
-
-
-    bool IsEndgameScenario()
-    {
-        int player1PieceCount = GetPieceCountForPlayer(true);
-        int player2PieceCount = GetPieceCountForPlayer(false);
-        return player1PieceCount <= 3 || player2PieceCount <= 3;
-    }
-
 
     public bool IsInMill(BoardPosition position)
     {
