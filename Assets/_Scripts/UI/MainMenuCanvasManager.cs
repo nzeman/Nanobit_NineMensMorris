@@ -39,7 +39,6 @@ public class MainMenuCanvasManager : CanvasManagerBase
     {
         Debug.Log("OnPlayButtonClicked");
         SceneLoadingManager.Instance.LoadGameplayScene();
-        //SceneManager.LoadScene(1);
     }
 
     public void OnSettingsButtonClicked()

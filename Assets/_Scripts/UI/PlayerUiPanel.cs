@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// Holds Ui references for each player
+/// </summary>
 public class PlayerUiPanel : MonoBehaviour
 {
     public TMP_Text playerNameText;

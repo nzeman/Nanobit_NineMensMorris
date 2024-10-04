@@ -57,25 +57,18 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("GameManager :: Initialization...");
         isPlayer1Turn = Random.value > 0.5f;
-
         BoardManager.Instance.Initialize();
         maxPiecesPerPlayer = PlayerProfile.Instance.playerData.gameRulesData.numberOfPiecesPerPlayer;
-
         // Adjust the camera size based on board size
         cameraOrtoSize = defaultCameraSize + (BoardManager.Instance.GetNumberOfRings() * 1.8F);
         mainCamera.orthographicSize = cameraOrtoSize;
-
         SetUi();
         GameUIManager.Instance.gameView.SetTurnText();
         PieceManager.Instance.SpawnAllPiecesAtStart();
         PieceManager.Instance.HighlightNextPieceToPlace();
-
         AudioManager.Instance.PlayGameMusic(AudioManager.Instance.GetAudioData().gameMusic);
         AudioManager.Instance.StopMainMenuMusic();
         PieceManager.Instance.RefreshPiecesLeftUi();
-
-        
-
         canInteract = true;
         Debug.Log("GameManager :: Game started!");
     }
