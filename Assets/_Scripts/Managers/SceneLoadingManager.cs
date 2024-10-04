@@ -23,7 +23,6 @@ public class SceneLoadingManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private CanvasGroup loadingCanvasGroup; 
     [SerializeField] private Image loadingImage;
-    [SerializeField] private float fadeDuration = 1f;
 
     [Header("Scenes")]
     [Scene]
