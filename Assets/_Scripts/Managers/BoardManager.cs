@@ -34,7 +34,6 @@ public class BoardManager : MonoBehaviour
     private List<List<BoardPosition>> ringPoints = new List<List<BoardPosition>>();
 
     [SerializeField] private Material normalLineMaterial;
-    [SerializeField] private Material millLineMaterial;
     private List<LineRenderer> lines = new List<LineRenderer>();
 
     private List<List<BoardPosition>> activeMills = new List<List<BoardPosition>>();

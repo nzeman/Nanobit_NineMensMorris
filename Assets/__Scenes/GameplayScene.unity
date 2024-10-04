@@ -1114,7 +1114,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 535684351}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -1771,7 +1771,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 980420742}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -4077,7 +4077,6 @@ MonoBehaviour:
   spacing: 1.5
   lineWidth: 0.1
   normalLineMaterial: {fileID: 2100000, guid: 793acbb87d3a19c4aa641753c90e6d7f, type: 2}
-  millLineMaterial: {fileID: 2100000, guid: 9fa1f0dbc8d168e4db79e27656fe438e, type: 2}
   boardSprite: {fileID: 21300000, guid: 49d5c7af6ba79444b89350b87d537613, type: 3}
 --- !u!4 &2132193408
 Transform:
